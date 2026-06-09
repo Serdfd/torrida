@@ -1,0 +1,338 @@
+/* ============================================================
+   index.css — Estilos globales Torrida
+   Tailwind base + variables CSS + clases utilitarias
+   ============================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Variables CSS ───────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Fondo */
+    --bg-DEFAULT:     #0A0A14;
+    --bg-surface:     #0F0F1E;
+    --bg-elevated:    #13132A;
+
+    /* Texto */
+    --text-primary:   #E8E8F0;
+    --text-muted:     #6B6B8A;
+    --text-subtle:    #3D3D5C;
+
+    /* Acento */
+    --accent:         #7C6AF7;
+    --accent-light:   rgba(124, 106, 247, 0.08);
+    --accent-hover:   #9B8DFF;
+
+    /* Borde */
+    --border:         rgba(255, 255, 255, 0.07);
+
+    /* Estados */
+    --success:        #34D399;
+    --warning:        #FBBF24;
+    --danger:         #F87171;
+    --info:           #60A5FA;
+
+    /* Scrollbar */
+    --scrollbar-w:    6px;
+    --scrollbar-bg:   transparent;
+    --scrollbar-thumb: rgba(124, 106, 247, 0.25);
+  }
+}
+
+/* ── Reset / Base ────────────────────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin:     0;
+    padding:    0;
+  }
+
+  html {
+    font-size:               14px;
+    -webkit-font-smoothing:  antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering:          optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--bg-DEFAULT);
+    color:            var(--text-primary);
+    font-family:      'Inter', 'Segoe UI', system-ui, sans-serif;
+    overflow:         hidden;
+    user-select:      none;
+  }
+
+  /* Scrollbar global */
+  ::-webkit-scrollbar {
+    width:  var(--scrollbar-w);
+    height: var(--scrollbar-w);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background:    var(--scrollbar-thumb);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 106, 247, 0.45);
+  }
+
+  /* Selección de texto */
+  ::selection {
+    background: rgba(124, 106, 247, 0.35);
+    color:      #fff;
+  }
+
+  /* Focus outline global */
+  :focus-visible {
+    outline:        2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius:  6px;
+  }
+}
+
+/* ── Componentes base ────────────────────────────────────────────────────── */
+
+@layer components {
+
+  /* ── Card ──────────────────────────────────────────────────────────────── */
+  .card {
+    @apply rounded-2xl border border-border
+           bg-[#0F0F1E] p-5;
+  }
+
+  /* ── Inputs ────────────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full rounded-xl border border-border
+           bg-[#0B0B16] px-3 py-2
+           text-[13.5px] text-primary-DEFAULT
+           placeholder:text-primary-muted
+           focus:outline-none focus:border-accent-DEFAULT/60
+           focus:ring-1 focus:ring-accent-DEFAULT/30
+           transition-colors duration-150;
+  }
+
+  .input-label {
+    @apply block text-[12px] font-semibold
+           text-primary-muted uppercase tracking-wide
+           mb-1.5;
+  }
+
+  /* ── Botones ───────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5
+           px-4 py-2 rounded-xl
+           bg-accent-DEFAULT text-white
+           text-[13px] font-semibold
+           hover:bg-accent-hover
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5
+           px-4 py-2 rounded-xl
+           bg-transparent text-primary-muted
+           border border-border
+           text-[13px] font-semibold
+           hover:bg-white/5 hover:text-primary-DEFAULT
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5
+           px-4 py-2 rounded-xl
+           bg-danger/10 text-danger
+           border border-danger/30
+           text-[13px] font-semibold
+           hover:bg-danger/20
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-1.5
+           px-4 py-2 rounded-xl
+           bg-success/10 text-success
+           border border-success/30
+           text-[13px] font-semibold
+           hover:bg-success/20
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  /* ── Badges ────────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1
+           px-2 py-0.5 rounded-lg
+           text-[11.5px] font-semibold;
+  }
+
+  .badge-success {
+    @apply bg-success/10 text-success border border-success/20;
+  }
+
+  .badge-warning {
+    @apply bg-warning/10 text-warning border border-warning/20;
+  }
+
+  .badge-danger {
+    @apply bg-danger/10 text-danger border border-danger/20;
+  }
+
+  .badge-muted {
+    @apply bg-white/5 text-primary-muted border border-border;
+  }
+
+  .badge-accent {
+    @apply bg-accent-light text-accent-DEFAULT border border-accent-DEFAULT/20;
+  }
+
+  /* ── Tabla ─────────────────────────────────────────────────────────────── */
+  .table-wrapper {
+    @apply w-full overflow-x-auto rounded-xl border border-border;
+  }
+
+  .table {
+    @apply w-full border-collapse text-[13px];
+  }
+
+  .table thead tr {
+    @apply border-b border-border bg-[#0B0B16];
+  }
+
+  .table th {
+    @apply px-4 py-3
+           text-[11px] font-bold uppercase tracking-wider
+           text-primary-muted text-left
+           whitespace-nowrap;
+  }
+
+  .table tbody tr {
+    @apply border-b border-border/50
+           hover:bg-white/[0.02]
+           transition-colors duration-100;
+  }
+
+  .table tbody tr:last-child {
+    @apply border-b-0;
+  }
+
+  .table td {
+    @apply px-4 py-3
+           text-[13px] text-primary-DEFAULT
+           whitespace-nowrap;
+  }
+
+  /* ── KPI card ──────────────────────────────────────────────────────────── */
+  .kpi-card {
+    @apply card flex flex-col gap-2
+           relative overflow-hidden;
+  }
+
+  .kpi-value {
+    @apply text-[26px] font-bold text-primary-DEFAULT
+           leading-none tracking-tight;
+  }
+
+  .kpi-label {
+    @apply text-[12px] font-semibold uppercase
+           tracking-widest text-primary-muted;
+  }
+
+  /* ── Sección ───────────────────────────────────────────────────────────── */
+  .section-title {
+    @apply text-[11px] font-bold uppercase
+           tracking-widest text-primary-muted
+           mb-3;
+  }
+
+  /* ── Divider ───────────────────────────────────────────────────────────── */
+  .divider {
+    @apply border-t border-border my-4;
+  }
+
+  /* ── Skeleton ──────────────────────────────────────────────────────────── */
+  .skeleton {
+    @apply rounded-xl bg-white/5 animate-pulse;
+  }
+
+  /* ── Empty state ───────────────────────────────────────────────────────── */
+  .empty-state {
+    @apply flex flex-col items-center justify-center
+           gap-3 py-14 text-center;
+  }
+
+  /* ── Drag-region (titlebar) ────────────────────────────────────────────── */
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
+
+/* ── Animaciones ─────────────────────────────────────────────────────────── */
+
+@layer utilities {
+
+  .animate-fade-in {
+    animation: fadeIn 0.18s ease-out both;
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.22s ease-out both;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.22s ease-out both;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.22s ease-out both;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.18s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0);     }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0);    }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1);    }
+  }
+}
+
+/* ── Tipografía numérica ─────────────────────────────────────────────────── */
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

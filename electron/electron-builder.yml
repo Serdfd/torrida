@@ -1,0 +1,94 @@
+# ============================================================
+#  electron-builder.yml
+#  Configuración de empaquetado para Torrida
+# ============================================================
+
+appId:       com.torrida.app
+productName: Torrida
+copyright:   "© 2025 Torrida"
+
+# ── Directorios ──────────────────────────────────────────────
+directories:
+  output:   release
+  buildResources: build
+
+# ── Archivos a incluir ───────────────────────────────────────
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - "!node_modules/**/*"
+
+# ── Recursos extras (schema, iconos) ────────────────────────
+extraResources:
+  - from: src/lib/schema.sql
+    to:   schema.sql
+  - from: public/icon.png
+    to:   icon.png
+
+# ── macOS ────────────────────────────────────────────────────
+mac:
+  target:
+    - target: dmg
+      arch:   [x64, arm64]
+  icon:             build/icon.icns
+  darkModeSupport:  true
+  category:         public.app-category.business
+
+dmg:
+  title:      "Torrida ${version}"
+  background: build/dmg-background.png
+  window:
+    width:  540
+    height: 380
+  contents:
+    - x: 130
+      y: 200
+    - x: 410
+      y: 200
+      type: link
+      path: /Applications
+
+# ── Windows ──────────────────────────────────────────────────
+win:
+  target:
+    - target: nsis
+      arch:   [x64]
+  icon:           build/icon.ico
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick:              false
+  allowToChangeInstallationDirectory: true
+  installerIcon:         build/icon.ico
+  uninstallerIcon:       build/icon.ico
+  installerHeaderIcon:   build/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName:          Torrida
+  license:               LICENSE.txt
+
+# ── Linux ────────────────────────────────────────────────────
+linux:
+  target:
+    - target: AppImage
+      arch:   [x64]
+    - target: deb
+      arch:   [x64]
+  icon:        build/icon.png
+  category:    Office
+  description: "Gestión financiera para marcas de ropa"
+
+# ── Módulos nativos (better-sqlite3) ────────────────────────
+npmRebuild: true
+buildDependenciesFromSource: false
+
+asarUnpack:
+  - "**/*.node"
+  - "**/better-sqlite3/**"
+
+# ── Publish (opcional — GitHub Releases) ────────────────────
+publish:
+  provider:   github
+  owner:      SFLOREZ_XMCOP
+  repo:       torrida
+  releaseType: draft
