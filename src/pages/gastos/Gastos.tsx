@@ -35,7 +35,7 @@ export default function Gastos() {
     setLoading(true)
     try {
       const [data, total] = await Promise.all([
-        getGastos(filtroAnio, filtroMes) as Promise<Gasto[]>,
+        getGastos(filtroAnio, filtroMes) as unknown as Promise<Gasto[]>,
         getTotalGastos(filtroAnio, filtroMes)
       ])
       setGastos(data)
