@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+﻿import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -61,13 +61,13 @@ export default function Modal({
         {title && (
           <div className="flex items-center justify-between px-6 py-4
                           border-b border-border">
-            <h2 className="text-[16px] font-bold text-primary-DEFAULT">
+            <h2 className="text-[16px] font-bold text-primary">
               {title}
             </h2>
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-primary-muted
-                         hover:text-primary-DEFAULT hover:bg-white/5
+                         hover:text-primary hover:bg-white/5
                          transition-colors"
             >
               <X size={17} />
@@ -80,7 +80,7 @@ export default function Modal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-lg
-                       text-primary-muted hover:text-primary-DEFAULT
+                       text-primary-muted hover:text-primary
                        hover:bg-white/5 transition-colors z-10"
           >
             <X size={17} />

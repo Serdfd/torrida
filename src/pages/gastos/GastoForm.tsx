@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Receipt } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -142,8 +142,8 @@ export default function GastoForm({
 
       {/* Título */}
       <div className="flex items-center gap-2 mb-1">
-        <Receipt size={18} className="text-accent-DEFAULT" />
-        <h2 className="text-[16px] font-bold text-primary-DEFAULT">
+        <Receipt size={18} className="text-accent" />
+        <h2 className="text-[16px] font-bold text-primary">
           {isEditing ? 'Editar gasto' : 'Nuevo gasto'}
         </h2>
       </div>
@@ -213,8 +213,8 @@ export default function GastoForm({
                   key={cat.id}
                   className="relative flex items-center gap-2 px-3 py-2.5
                              rounded-xl border border-border bg-[#0B0B16]
-                             cursor-pointer hover:border-accent-DEFAULT/40
-                             transition-all has-[:checked]:border-accent-DEFAULT
+                             cursor-pointer hover:border-accent/40
+                             transition-all has-[:checked]:border-accent
                              has-[:checked]:bg-accent-light"
                 >
                   <input
@@ -230,7 +230,7 @@ export default function GastoForm({
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: cat.color ?? '#8A8AA8' }}
                   />
-                  <span className="text-[12.5px] font-semibold text-primary-DEFAULT
+                  <span className="text-[12.5px] font-semibold text-primary
                                    leading-tight truncate">
                     {cat.nombre}
                   </span>

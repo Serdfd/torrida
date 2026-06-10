@@ -1,0 +1,65 @@
+appId:       com.torrida.app
+productName: Torrida
+copyright:   "© 2025 Torrida"
+
+directories:
+  output:         release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - "!node_modules/**/*"
+
+extraResources:
+  - from: src/lib/schema.sql
+    to:   schema.sql
+  - from: public/icon.png
+    to:   icon.png
+
+mac:
+  target:
+    - target: dmg
+      arch:   [x64, arm64]
+  icon:            build/icon.icns
+  darkModeSupport: true
+  category:        public.app-category.business
+
+dmg:
+  title:      "Torrida ${version}"
+  window:
+    width:  540
+    height: 380
+  contents:
+    - x: 130
+      y: 200
+    - x: 410
+      y: 200
+      type: link
+      path: /Applications
+
+win:
+  target:
+    - target: nsis
+      arch:   [x64]
+  icon: build/icon.ico
+
+nsis:
+  oneClick:    false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut:  true
+  createStartMenuShortcut: true
+  shortcutName: Torrida
+
+linux:
+  target:
+    - target: AppImage
+      arch:   [x64]
+  icon:        build/icon.png
+  category:    Office
+
+npmRebuild: true
+
+asarUnpack:
+  - "**/*.node"
+  - "**/better-sqlite3/**"

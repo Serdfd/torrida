@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    index.css — Estilos globales Torrida
    Tailwind base + variables CSS + clases utilitarias
    ============================================================ */
@@ -12,33 +12,43 @@
 @layer base {
   :root {
     /* Fondo */
-    --bg-DEFAULT:     #0A0A14;
-    --bg-surface:     #0F0F1E;
-    --bg-elevated:    #13132A;
+    --bg-DEFAULT:     #0F0F1A;
+    --bg-surface:     #16162A;
+    --bg-elevated:    #1E1E35;
+
+    /* Sidebar */
+    --sidebar-bg:     #0B0B16;
+    --sidebar-border: #1E1E35;
+    --sidebar-text:   #C8C8E0;
+    --sidebar-active: #E07A5F;
 
     /* Texto */
-    --text-primary:   #E8E8F0;
-    --text-muted:     #6B6B8A;
+    --text-primary:   #EEEEF0;
+    --text-muted:     #8A8AA8;
     --text-subtle:    #3D3D5C;
 
     /* Acento */
-    --accent:         #7C6AF7;
-    --accent-light:   rgba(124, 106, 247, 0.08);
-    --accent-hover:   #9B8DFF;
+    --accent:         #E07A5F;
+    --accent-light:   rgba(224, 122, 95, 0.12);
+    --accent-hover:   #E8917A;
+    --accent-2:       #F2CC8F;
+
+    /* Card */
+    --card:           #16162A;
 
     /* Borde */
-    --border:         rgba(255, 255, 255, 0.07);
+    --border:         #1E1E35;
 
     /* Estados */
-    --success:        #34D399;
-    --warning:        #FBBF24;
-    --danger:         #F87171;
+    --success:        #4CAF82;
+    --warning:        #F2CC8F;
+    --danger:         #C1666B;
     --info:           #60A5FA;
 
     /* Scrollbar */
     --scrollbar-w:    6px;
     --scrollbar-bg:   transparent;
-    --scrollbar-thumb: rgba(124, 106, 247, 0.25);
+    --scrollbar-thumb: rgba(224, 122, 95, 0.25);
   }
 }
 
@@ -60,6 +70,7 @@
 
   body {
     background-color: var(--bg-DEFAULT);
+    color:            var(--text-primary);
     color:            var(--text-primary);
     font-family:      'Inter', 'Segoe UI', system-ui, sans-serif;
     overflow:         hidden;
@@ -103,17 +114,31 @@
   /* ── Card ──────────────────────────────────────────────────────────────── */
   .card {
     @apply rounded-2xl border border-border
-           bg-[#0F0F1E] p-5;
+           bg-card p-5;
+  }
+
+  /* ── Nav items (sidebar) ────────────────────────────────────────────────── */
+  .nav-item {
+    @apply flex items-center gap-2.5
+           px-2.5 py-2 rounded-lg
+           text-[13px] font-medium text-sidebar-text
+           opacity-55 transition-all duration-150
+           hover:opacity-100 hover:bg-accent/10
+           mb-0.5 cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply opacity-100 bg-accent/10 text-sidebar-active;
   }
 
   /* ── Inputs ────────────────────────────────────────────────────────────── */
   .input {
     @apply w-full rounded-xl border border-border
-           bg-[#0B0B16] px-3 py-2
-           text-[13.5px] text-primary-DEFAULT
+           bg-sidebar px-3 py-2
+           text-[13.5px] text-primary
            placeholder:text-primary-muted
-           focus:outline-none focus:border-accent-DEFAULT/60
-           focus:ring-1 focus:ring-accent-DEFAULT/30
+           focus:outline-none focus:border-accent/60
+           focus:ring-1 focus:ring-accent/30
            transition-colors duration-150;
   }
 
@@ -127,7 +152,7 @@
   .btn-primary {
     @apply inline-flex items-center justify-center gap-1.5
            px-4 py-2 rounded-xl
-           bg-accent-DEFAULT text-white
+           bg-accent text-white
            text-[13px] font-semibold
            hover:bg-accent-hover
            disabled:opacity-40 disabled:cursor-not-allowed
@@ -140,7 +165,7 @@
            bg-transparent text-primary-muted
            border border-border
            text-[13px] font-semibold
-           hover:bg-white/5 hover:text-primary-DEFAULT
+           hover:bg-white/5 hover:text-primary
            disabled:opacity-40 disabled:cursor-not-allowed
            transition-colors duration-150;
   }
@@ -191,7 +216,7 @@
   }
 
   .badge-accent {
-    @apply bg-accent-light text-accent-DEFAULT border border-accent-DEFAULT/20;
+    @apply bg-accent-light text-accent border border-accent/20;
   }
 
   /* ── Tabla ─────────────────────────────────────────────────────────────── */
@@ -204,7 +229,7 @@
   }
 
   .table thead tr {
-    @apply border-b border-border bg-[#0B0B16];
+    @apply border-b border-border bg-sidebar;
   }
 
   .table th {
@@ -226,7 +251,7 @@
 
   .table td {
     @apply px-4 py-3
-           text-[13px] text-primary-DEFAULT
+           text-[13px] text-primary
            whitespace-nowrap;
   }
 
@@ -237,7 +262,7 @@
   }
 
   .kpi-value {
-    @apply text-[26px] font-bold text-primary-DEFAULT
+    @apply text-[26px] font-bold text-primary
            leading-none tracking-tight;
   }
 

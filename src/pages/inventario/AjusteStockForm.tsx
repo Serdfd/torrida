@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ArrowUpCircle, ArrowDownCircle, SlidersHorizontal } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -50,7 +50,7 @@ const TIPOS: { value: TipoAjuste; label: string; icon: React.ElementType; color:
     value: 'ajuste_manual',
     label: 'Ajuste manual',
     icon:  SlidersHorizontal,
-    color: 'text-accent-DEFAULT'
+    color: 'text-accent'
   }
 ]
 
@@ -144,8 +144,8 @@ export default function AjusteStockForm({
 
       {/* Título */}
       <div className="flex items-center gap-2">
-        <SlidersHorizontal size={18} className="text-accent-DEFAULT" />
-        <h2 className="text-[16px] font-bold text-primary-DEFAULT">
+        <SlidersHorizontal size={18} className="text-accent" />
+        <h2 className="text-[16px] font-bold text-primary">
           Ajuste de stock
         </h2>
       </div>
@@ -153,7 +153,7 @@ export default function AjusteStockForm({
       {/* Producto info */}
       <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
         <p className="text-[12px] text-primary-muted mb-0.5">Producto</p>
-        <p className="text-[15px] font-bold text-primary-DEFAULT">
+        <p className="text-[15px] font-bold text-primary">
           {producto.producto_nombre}
         </p>
       </div>
@@ -174,8 +174,8 @@ export default function AjusteStockForm({
                     'flex flex-col items-center gap-1.5 p-3 rounded-xl border',
                     'cursor-pointer transition-all duration-150 text-center',
                     isSelected
-                      ? 'border-accent-DEFAULT bg-accent-light'
-                      : 'border-border bg-[#0B0B16] hover:border-accent-DEFAULT/40'
+                      ? 'border-accent bg-accent-light'
+                      : 'border-border bg-[#0B0B16] hover:border-accent/40'
                   )}
                 >
                   <input
@@ -190,7 +190,7 @@ export default function AjusteStockForm({
                   />
                   <span className={cn(
                     'text-[11.5px] font-semibold leading-tight',
-                    isSelected ? 'text-accent-DEFAULT' : 'text-primary-muted'
+                    isSelected ? 'text-accent' : 'text-primary-muted'
                   )}>
                     {tipo.label}
                   </span>
@@ -213,8 +213,8 @@ export default function AjusteStockForm({
                     'flex flex-col items-center gap-0.5 px-3 py-2',
                     'rounded-xl border cursor-pointer transition-all',
                     isSelected
-                      ? 'border-accent-DEFAULT bg-accent-light'
-                      : 'border-border bg-[#0B0B16] hover:border-accent-DEFAULT/40',
+                      ? 'border-accent bg-accent-light'
+                      : 'border-border bg-[#0B0B16] hover:border-accent/40',
                     talla.stock === 0 && !isSelected && 'opacity-50'
                   )}
                 >
@@ -226,7 +226,7 @@ export default function AjusteStockForm({
                   />
                   <span className={cn(
                     'text-[13px] font-bold',
-                    isSelected ? 'text-accent-DEFAULT' : 'text-primary-DEFAULT'
+                    isSelected ? 'text-accent' : 'text-primary'
                   )}>
                     {talla.talla_nombre}
                   </span>

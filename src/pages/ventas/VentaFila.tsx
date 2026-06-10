@@ -1,191 +1,240 @@
-import { useState } from 'react'
-import { MoreHorizontal, Eye, CheckCircle, XCircle, Truck } from 'lucide-react'
-import { Venta } from '@/types'
-import { formatCOP, formatDate } from '@/lib/utils'
-import { useToast } from '@/store/useAppStore'
-import { cn } from '@/lib/utils'
+﻿import { useEffect, useState }  from 'react'
+import {
+  ShoppingBag, Calendar, User, CreditCard,
+  Store, Truck, FileText, RotateCcw
+} from 'lucide-react'
+import { formatCOP, formatDate, cn } from '@/lib/utils'
+import { useToast, useModal }        from '@/store/useAppStore'
+import { getVentaById }              from '@/lib/queries'
+import Spinner                       from '@/components/ui/Spinner'
+import ConfirmDialog                 from '@/components/ui/ConfirmDialog'
 
-interface VentaFilaProps {
-  venta: Venta
-  onClick: () => void
+interface VentaDetalleProps {
+  venta:    any
+  onClose:  () => void
   onUpdate: () => void
 }
 
 const ESTADO_BADGE: Record<string, string> = {
   pendiente:  'badge-warning',
-  enviado:    'badge-accent',
-  entregado:  'badge-success',
-  cancelado:  'badge-danger',
+  completada: 'badge-success',
+  cancelado:  'badge-danger'
 }
 
-const ESTADO_LABEL: Record<string, string> = {
-  pendiente:  'Pendiente',
-  enviado:    'Enviado',
-  entregado:  'Entregado',
-  cancelado:  'Cancelado',
-}
+export default function VentaDetalle({ venta: ventaBase, onClose, onUpdate }: VentaDetalleProps) {
+  const toast                     = useToast()
+  const { openModal, closeModal } = useModal()
 
-export default function VentaFila({ venta, onClick, onUpdate }: VentaFilaProps) {
-  const toast = useToast()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [updating, setUpdating] = useState(false)
+  const [venta,   setVenta]   = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  async function cambiarEstado(nuevoEstado: string) {
-    setMenuOpen(false)
-    setUpdating(true)
-    try {
-      await window.electronAPI.db.run(
-        `UPDATE ventas SET estado = ?, updated_at = datetime('now') WHERE id = ?`,
-        [nuevoEstado, venta.id]
-      )
-      toast.success(`Venta actualizada a "${ESTADO_LABEL[nuevoEstado]}"`)
-      onUpdate()
-    } catch (err) {
-      console.error(err)
-      toast.error('Error al actualizar estado')
-    } finally {
-      setUpdating(false)
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getVentaById(ventaBase.id)
+        setVenta(data)
+      } catch {
+        toast.error('Error al cargar detalle')
+      } finally {
+        setLoading(false)
+      }
     }
+    load()
+  }, [ventaBase.id])
+
+  async function handleCancelar() {
+    openModal(
+      <ConfirmDialog
+        title="¿Cancelar esta venta?"
+        description={`Se cancelará la venta ${ventaBase.numero_venta}.`}
+        confirmLabel="Sí, cancelar"
+        variant="danger"
+        onCancel={closeModal}
+        onConfirm={async () => {
+          closeModal()
+          try {
+            await window.electronAPI.db.run(
+              `UPDATE ventas SET estado = 'cancelado',
+               updated_at = datetime('now') WHERE id = ?`,
+              [ventaBase.id]
+            )
+            toast.success('Venta cancelada')
+            onUpdate()
+            onClose()
+          } catch (err) {
+            console.error(err)
+            toast.error('Error al cancelar la venta')
+          }
+        }}
+      />
+    )
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-14">
+        <Spinner size="lg" />
+      </div>
+    )
+  }
+
+  if (!venta) {
+    return <p className="text-center text-primary-muted py-8">No se encontró la venta.</p>
+  }
+
+  const items = venta.items ?? []
+
   return (
-    <tr className={cn(updating && 'opacity-50 pointer-events-none')}>
-      {/* Número */}
-      <td>
-        <span className="font-mono text-[13px] font-semibold text-accent-DEFAULT">
-          {venta.numero}
-        </span>
-      </td>
+    <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
 
-      {/* Fecha */}
-      <td className="text-primary-muted text-[13px]">
-        {formatDate(venta.fecha)}
-      </td>
-
-      {/* Cliente */}
-      <td>
-        <span className="text-[13.5px] text-primary-DEFAULT">
-          {venta.cliente_nombre || <span className="text-primary-muted italic">Sin nombre</span>}
+      {/* Encabezado */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
+                          justify-center text-accent">
+            <ShoppingBag size={18} />
+          </div>
+          <div>
+            <p className="text-[17px] font-bold text-primary font-mono">
+              {venta.numero_venta}
+            </p>
+            <p className="text-[12.5px] text-primary-muted">
+              Registrada el {formatDate(venta.created_at ?? venta.fecha)}
+            </p>
+          </div>
+        </div>
+        <span className={cn('badge text-[12px]', ESTADO_BADGE[venta.estado] ?? 'badge-muted')}>
+          {venta.estado}
         </span>
-        {venta.cliente_contacto && (
-          <p className="text-[11.5px] text-primary-muted mt-0.5">
-            {venta.cliente_contacto}
-          </p>
+      </div>
+
+      {/* Info general */}
+      <div className="grid grid-cols-2 gap-3">
+        <InfoRow icon={Calendar} label="Fecha"        value={formatDate(venta.fecha)} />
+        <InfoRow icon={Store}    label="Canal"         value={venta.canal_nombre ?? '—'} />
+        <InfoRow icon={User}     label="Cliente"
+          value={venta.cliente_nombre || 'Sin nombre'}
+          sub={venta.cliente_telefono} />
+        <InfoRow icon={CreditCard} label="Medio de pago" value={venta.medio_pago_nombre ?? '—'} />
+        {venta.costo_envio > 0 && (
+          <InfoRow icon={Truck} label="Costo de envío" value={formatCOP(venta.costo_envio)} />
         )}
-      </td>
+        {venta.notas && (
+          <InfoRow icon={FileText} label="Notas" value={venta.notas} className="col-span-2" />
+        )}
+      </div>
 
-      {/* Canal */}
-      <td>
-        <span className="badge badge-muted text-[11.5px]">
-          {venta.canal_nombre}
-        </span>
-      </td>
+      {/* Ítems */}
+      <div>
+        <p className="input-label mb-2">Productos</p>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Talla</th>
+                <th className="text-right">Cant.</th>
+                <th className="text-right">Precio</th>
+                <th className="text-right">Desc.</th>
+                <th className="text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item: any, idx: number) => (
+                <tr key={idx}>
+                  <td className="font-medium text-[13.5px]">{item.producto_nombre}</td>
+                  <td><span className="badge badge-muted">{item.talla_nombre ?? '—'}</span></td>
+                  <td className="text-right text-[13px]">{item.cantidad}</td>
+                  <td className="text-right text-[13px]">{formatCOP(item.precio_unitario)}</td>
+                  <td className="text-right text-[13px] text-danger">
+                    {item.descuento_item > 0 ? `-${formatCOP(item.descuento_item)}` : '—'}
+                  </td>
+                  <td className="text-right font-semibold text-[13.5px]">
+                    {formatCOP(item.subtotal_item)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      {/* Medio pago */}
-      <td className="text-[13px] text-primary-muted">
-        {venta.medio_pago_nombre ?? '—'}
-      </td>
-
-      {/* Total */}
-      <td className="text-right">
-        <span className="font-semibold text-[14px] text-primary-DEFAULT">
-          {formatCOP(venta.total)}
-        </span>
+      {/* Resumen financiero */}
+      <div className="bg-[#0B0B16] border border-border rounded-xl p-4 flex flex-col gap-1.5">
+        <FinRow label="Subtotal" value={formatCOP(venta.subtotal)} />
         {venta.descuento > 0 && (
-          <p className="text-[11.5px] text-danger mt-0.5">
-            -{formatCOP(venta.descuento)}
-          </p>
+          <FinRow label="Descuento" value={`-${formatCOP(venta.descuento)}`} className="text-danger" />
         )}
-      </td>
-
-      {/* Comisión */}
-      <td className="text-right">
-        {venta.comision_canal > 0
-          ? <span className="text-[13px] text-warning">{formatCOP(venta.comision_canal)}</span>
-          : <span className="text-primary-muted text-[13px]">—</span>
-        }
-      </td>
-
-      {/* Estado */}
-      <td>
-        <span className={cn('badge', ESTADO_BADGE[venta.estado] ?? 'badge-muted')}>
-          {ESTADO_LABEL[venta.estado] ?? venta.estado}
-        </span>
-      </td>
+        {venta.costo_envio > 0 && (
+          <FinRow label="Envío" value={formatCOP(venta.costo_envio)} />
+        )}
+        {venta.comision_canal > 0 && (
+          <FinRow label="Comisión canal"
+            value={`-${formatCOP(venta.comision_canal)}`}
+            className="text-warning" />
+        )}
+        <div className="border-t border-border mt-1 pt-2 flex justify-between">
+          <span className="text-[14px] font-bold text-primary">Total</span>
+          <span className="text-[18px] font-bold text-accent">
+            {formatCOP(venta.total)}
+          </span>
+        </div>
+      </div>
 
       {/* Acciones */}
-      <td>
-        <div className="flex items-center gap-1 justify-end relative">
-          {/* Ver detalle */}
-          <button
-            onClick={onClick}
-            className="p-1.5 rounded-lg text-primary-muted hover:text-primary-DEFAULT
-                       hover:bg-white/5 transition-colors"
-            title="Ver detalle"
-          >
-            <Eye size={14} />
+      <div className="flex items-center justify-between pt-1 border-t border-border">
+        {venta.estado !== 'cancelado' && (
+          <button onClick={handleCancelar} className="btn-danger text-[13px]">
+            <RotateCcw size={13} /> Cancelar venta
           </button>
-
-          {/* Menú de estado */}
-          {venta.estado !== 'cancelado' && venta.estado !== 'entregado' && (
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-1.5 rounded-lg text-primary-muted hover:text-primary-DEFAULT
-                           hover:bg-white/5 transition-colors"
-                title="Cambiar estado"
-              >
-                <MoreHorizontal size={14} />
-              </button>
-
-              {menuOpen && (
-                <>
-                  {/* Overlay para cerrar */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-8 z-20 bg-card border border-border
-                                  rounded-xl shadow-xl py-1.5 min-w-[160px] animate-fade-in">
-                    {venta.estado === 'pendiente' && (
-                      <button
-                        onClick={() => cambiarEstado('enviado')}
-                        className="flex items-center gap-2.5 w-full px-4 py-2
-                                   text-[13px] text-primary-muted hover:text-primary-DEFAULT
-                                   hover:bg-white/5 transition-colors"
-                      >
-                        <Truck size={13} className="text-accent-DEFAULT" />
-                        Marcar como enviado
-                      </button>
-                    )}
-                    {(venta.estado === 'pendiente' || venta.estado === 'enviado') && (
-                      <button
-                        onClick={() => cambiarEstado('entregado')}
-                        className="flex items-center gap-2.5 w-full px-4 py-2
-                                   text-[13px] text-primary-muted hover:text-primary-DEFAULT
-                                   hover:bg-white/5 transition-colors"
-                      >
-                        <CheckCircle size={13} className="text-success" />
-                        Marcar como entregado
-                      </button>
-                    )}
-                    <div className="divider my-1" />
-                    <button
-                      onClick={() => cambiarEstado('cancelado')}
-                      className="flex items-center gap-2.5 w-full px-4 py-2
-                                 text-[13px] text-danger hover:bg-danger/5
-                                 transition-colors"
-                    >
-                      <XCircle size={13} />
-                      Cancelar venta
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+        )}
+        <div className="ml-auto">
+          <button onClick={onClose} className="btn-ghost text-[13px]">Cerrar</button>
         </div>
-      </td>
-    </tr>
+      </div>
+
+    </div>
+  )
+}
+
+// ── Sub-componentes ────────────────────────────────────────────────────────
+
+function InfoRow({ icon: Icon, label, value, sub, className }: {
+  icon: React.ElementType
+  label: string
+  value: string
+  sub?: string | null
+  className?: string
+}) {
+  return (
+    <div className={cn(
+      'flex items-start gap-3 p-3 bg-[#0B0B16] rounded-xl border border-border',
+      className
+    )}>
+      <div className="w-7 h-7 rounded-lg bg-accent-light flex items-center
+                      justify-center text-accent shrink-0 mt-0.5">
+        <Icon size={13} />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary-muted mb-0.5">
+          {label}
+        </p>
+        <p className="text-[13.5px] font-medium text-primary">{value}</p>
+        {sub && <p className="text-[12px] text-primary-muted mt-0.5">{sub}</p>}
+      </div>
+    </div>
+  )
+}
+
+function FinRow({ label, value, className }: {
+  label: string
+  value: string
+  className?: string
+}) {
+  return (
+    <div className={cn('flex justify-between text-[13px] text-primary-muted', className)}>
+      <span>{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
   )
 }

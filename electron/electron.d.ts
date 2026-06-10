@@ -4,7 +4,7 @@
  * para que TypeScript lo reconozca en todo el renderer.
  */
 
-import type { ElectronAPI } from './src/types'
+import type { ElectronAPI } from '../src/types'
 
 declare global {
   interface Window {

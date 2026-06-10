@@ -1,4 +1,4 @@
-import { Pencil, PowerOff, Power, Package } from 'lucide-react'
+﻿import { Pencil, PowerOff, Power, Package } from 'lucide-react'
 import { formatCOP } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -29,7 +29,7 @@ export default function ProductoCard({
     <div
       className={cn(
         'card flex flex-col gap-0 p-0 overflow-hidden group',
-        'transition-all duration-200 hover:border-accent-DEFAULT/40',
+        'transition-all duration-200 hover:border-accent/40',
         !isActivo && 'opacity-60'
       )}
     >
@@ -68,7 +68,7 @@ export default function ProductoCard({
             onClick={onEditar}
             className="w-7 h-7 rounded-lg bg-card/90 border border-border
                        flex items-center justify-center text-primary-muted
-                       hover:text-primary-DEFAULT hover:bg-card
+                       hover:text-primary hover:bg-card
                        transition-colors shadow"
             title="Editar"
           >
@@ -104,7 +104,7 @@ export default function ProductoCard({
         )}
 
         {/* Nombre */}
-        <p className="text-[14.5px] font-bold text-primary-DEFAULT leading-snug
+        <p className="text-[14.5px] font-bold text-primary leading-snug
                       line-clamp-2">
           {producto.nombre}
         </p>
@@ -120,7 +120,7 @@ export default function ProductoCard({
         <div className="mt-auto pt-2 border-t border-border flex items-center
                         justify-between">
           <span className="text-[12px] text-primary-muted">Precio venta</span>
-          <span className="text-[15px] font-bold text-accent-DEFAULT">
+          <span className="text-[15px] font-bold text-accent">
             {formatCOP(producto.precio_venta)}
           </span>
         </div>

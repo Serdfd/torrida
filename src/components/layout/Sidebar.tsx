@@ -1,4 +1,4 @@
-import {
+﻿import {
   LayoutDashboard,
   ShoppingBag,
   Package,
@@ -8,27 +8,32 @@ import {
   CalendarCheck,
   Settings,
   Store,
+  BarChart2,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { useAppStore } from '@/store/useAppStore'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { id: 'dashboard',      label: 'Dashboard',       icon: LayoutDashboard },
-  { id: 'ventas',         label: 'Ventas',           icon: ShoppingBag },
-  { id: 'productos',      label: 'Productos',        icon: Package },
-  { id: 'produccion',     label: 'Producción',       icon: Factory },
-  { id: 'inventario',     label: 'Inventario',       icon: Boxes },
-  { id: 'gastos',         label: 'Gastos',           icon: Receipt },
-  { id: 'cierre',         label: 'Cierre Mensual',   icon: CalendarCheck },
-  { id: 'tiendanube',     label: 'Tienda Nube',      icon: Store },
-  { id: 'administracion', label: 'Administración',   icon: Settings }
+  { id: 'dashboard',      label: 'Dashboard',      icon: LayoutDashboard },
+  { id: 'ventas',         label: 'Ventas',          icon: ShoppingBag     },
+  { id: 'productos',      label: 'Productos',       icon: Package         },
+  { id: 'produccion',     label: 'Producción',      icon: Factory         },
+  { id: 'inventario',     label: 'Inventario',      icon: Boxes           },
+  { id: 'gastos',         label: 'Gastos',          icon: Receipt         },
+  { id: 'reportes',       label: 'Reportes',        icon: BarChart2       },
+  { id: 'cierre',         label: 'Cierre Mensual',  icon: CalendarCheck   },
+  { id: 'tiendanube',     label: 'Tienda Nube',     icon: Store           },
+  { id: 'administracion', label: 'Administración',  icon: Settings        },
 ]
 
-export default function Sidebar() {
-  const { activePage, setActivePage } = useAppStore()
+interface SidebarProps {
+  currentPage: string
+  onNavigate:  (page: string) => void
+}
+
+export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -50,7 +55,7 @@ export default function Sidebar() {
           className="w-8 h-8 rounded-lg object-cover shrink-0"
         />
         {!collapsed && (
-          <span className="font-bold text-[16px] text-primary-DEFAULT tracking-tight">
+          <span className="font-bold text-[16px] text-primary tracking-tight">
             Tórrida
           </span>
         )}
@@ -61,10 +66,10 @@ export default function Sidebar() {
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
-            onClick={() => setActivePage(id)}
+            onClick={() => onNavigate(id)}
             className={cn(
               'nav-item w-full',
-              activePage === id && 'active',
+              currentPage === id && 'active',
               collapsed && 'justify-center px-0 w-full'
             )}
             title={collapsed ? label : undefined}

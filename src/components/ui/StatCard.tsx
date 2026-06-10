@@ -1,4 +1,4 @@
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+﻿import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StatCardProps {
@@ -66,7 +66,7 @@ export default function StatCard({
           )}>
             <Icon
               size={16}
-              className={featured ? 'text-white' : 'text-accent-DEFAULT'}
+              className={featured ? 'text-white' : 'text-accent'}
             />
           </div>
         )}
@@ -78,7 +78,7 @@ export default function StatCard({
       ) : (
         <p className={cn(
           'text-[26px] font-bold leading-none mb-1',
-          featured ? 'text-white' : 'text-primary-DEFAULT'
+          featured ? 'text-white' : 'text-primary'
         )}>
           {value}
         </p>

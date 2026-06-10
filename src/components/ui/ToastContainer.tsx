@@ -1,12 +1,9 @@
-﻿import { useAppStore }                              from '@/store/useAppStore'
+import React from 'react'
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
-import { cn }                                       from '@/lib/utils'
-import type { ToastType }                           from '@/types'
+import { cn } from '@/lib/utils'
+import type { ToastType } from '@/types'
 
-const TOAST_CONFIG: Record<ToastType, {
-  icon:    React.ReactNode
-  classes: string
-}> = {
+const TOAST_CONFIG: Record<ToastType, { icon: React.ReactNode; classes: string }> = {
   success: {
     icon:    <CheckCircle size={16} />,
     classes: 'bg-success/10 border-success/30 text-success'
@@ -25,12 +22,17 @@ const TOAST_CONFIG: Record<ToastType, {
   }
 }
 
-export default function Toast() {
-  const { toast, dismissToast } = useAppStore()
+interface ToastContainerProps {
+  visible:   boolean
+  message:   string
+  type:      ToastType
+  onDismiss: () => void
+}
 
-  if (!toast.visible) return null
+export default function ToastContainer({ visible, message, type, onDismiss }: ToastContainerProps) {
+  if (!visible) return null
 
-  const config = TOAST_CONFIG[toast.type]
+  const config = TOAST_CONFIG[type]
 
   return (
     <div className="fixed bottom-6 right-6 z-[100]">
@@ -43,13 +45,9 @@ export default function Toast() {
         )}
       >
         <span className="shrink-0">{config.icon}</span>
-
-        <p className="text-[13.5px] font-medium flex-1 leading-snug">
-          {toast.message}
-        </p>
-
+        <p className="text-[13.5px] font-medium flex-1 leading-snug">{message}</p>
         <button
-          onClick={dismissToast}
+          onClick={onDismiss}
           className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
         >
           <X size={14} />

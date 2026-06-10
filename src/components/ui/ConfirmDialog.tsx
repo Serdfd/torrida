@@ -1,4 +1,4 @@
-import { AlertTriangle, Trash2, Info } from 'lucide-react'
+﻿import { AlertTriangle, Trash2, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ConfirmDialogProps {
@@ -25,7 +25,7 @@ const VARIANT_CONFIG = {
   },
   info: {
     icon: Info,
-    iconClass: 'text-accent-DEFAULT bg-accent-light',
+    iconClass: 'text-accent bg-accent-light',
     confirmClass: 'btn-primary'
   }
 }
@@ -55,7 +55,7 @@ export default function ConfirmDialog({
         </div>
 
         <div className="flex flex-col gap-1 pt-0.5">
-          <p className="text-[15px] font-bold text-primary-DEFAULT">
+          <p className="text-[15px] font-bold text-primary">
             {title}
           </p>
           {description && (

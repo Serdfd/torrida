@@ -13,13 +13,9 @@ import './index.css'
 
 async function initDatabase() {
   try {
-    // Ejecutar migraciones pendientes al arrancar
-    await window.electronAPI.db.query(
-      `PRAGMA journal_mode = WAL`
-    )
-    await window.electronAPI.db.query(
-      `PRAGMA foreign_keys = ON`
-    )
+    // Configurar pragmas al arrancar
+    await window.electronAPI.db.run(`PRAGMA journal_mode = WAL`)
+    await window.electronAPI.db.run(`PRAGMA foreign_keys = ON`)
     console.log('[main] ✅ Base de datos lista')
   } catch (err) {
     console.error('[main] ❌ Error inicializando DB:', err)

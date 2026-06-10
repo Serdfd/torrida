@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { Search, Package, ArrowUpCircle, ArrowDownCircle, RefreshCw } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getStockCompleto } from '@/lib/queries'
@@ -20,9 +20,13 @@ interface ProductoStock {
 }
 
 interface TallaStock {
-  talla_id:   number
+  talla_id:     number
   talla_nombre: string
-  stock:      number
+  stock:        number
+}
+
+interface InventarioProps {
+  onVerProductos?: () => void
 }
 
 function agruparPorProducto(items: StockItem[]): ProductoStock[] {
@@ -41,9 +45,9 @@ function agruparPorProducto(items: StockItem[]): ProductoStock[] {
     }
     const prod = map.get(item.producto_id)!
     prod.tallas.push({
-      talla_id:    item.talla_id,
+      talla_id:     item.talla_id,
       talla_nombre: item.talla_nombre,
-      stock:       item.stock
+      stock:        item.stock
     })
     prod.totalStock      += item.stock
     prod.valorInventario += item.stock * (item.costo_unitario ?? 0)
@@ -52,7 +56,7 @@ function agruparPorProducto(items: StockItem[]): ProductoStock[] {
   return Array.from(map.values())
 }
 
-export default function Inventario() {
+export default function Inventario({ onVerProductos }: InventarioProps) {
   const toast = useToast()
   const { openModal, closeModal } = useModal()
 
@@ -82,8 +86,8 @@ export default function Inventario() {
   // Totales globales
   const totalUnidades = productosFiltrados.reduce((s, p) => s + p.totalStock, 0)
   const totalValor    = productosFiltrados.reduce((s, p) => s + p.valorInventario, 0)
-  const totalAgotados = productosFiltrados.reduce((p, prod) =>
-    p + prod.tallas.filter(t => t.stock === 0).length, 0)
+  const totalAgotados = productosFiltrados.reduce((acc, prod) =>
+    acc + prod.tallas.filter(t => t.stock === 0).length, 0)
 
   function handleAjuste(producto: ProductoStock) {
     openModal(
@@ -138,14 +142,14 @@ export default function Inventario() {
         <div className="card py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Total unidades</p>
-          <p className="text-[22px] font-bold text-primary-DEFAULT">
+          <p className="text-[22px] font-bold text-primary">
             {formatNumber(totalUnidades)}
           </p>
         </div>
         <div className="card py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Valor inventario</p>
-          <p className="text-[22px] font-bold text-accent-DEFAULT">
+          <p className="text-[22px] font-bold text-accent">
             {formatCOP(totalValor)}
           </p>
         </div>
@@ -169,11 +173,18 @@ export default function Inventario() {
           icon={Package}
           title="Sin productos en inventario"
           description="Crea productos primero para ver su stock aquí."
+          action={
+            onVerProductos && (
+              <button onClick={onVerProductos} className="btn-primary">
+                <Package size={14} /> Ir a Productos
+              </button>
+            )
+          }
         />
       ) : (
         <div className="card p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="tbl">
+            <table className="table w-full">
               <thead>
                 <tr>
                   <th>Producto</th>
@@ -190,7 +201,7 @@ export default function Inventario() {
 
                     {/* Nombre */}
                     <td>
-                      <p className="font-semibold text-[13.5px] text-primary-DEFAULT">
+                      <p className="font-semibold text-[13.5px] text-primary">
                         {prod.producto_nombre}
                       </p>
                     </td>
@@ -225,18 +236,12 @@ export default function Inventario() {
 
                     {/* Costo */}
                     <td className="text-right text-[13px] text-primary-muted">
-                      {prod.costo_unitario
-                        ? formatCOP(prod.costo_unitario)
-                        : '—'
-                      }
+                      {prod.costo_unitario ? formatCOP(prod.costo_unitario) : '—'}
                     </td>
 
                     {/* Valor */}
                     <td className="text-right font-semibold text-[13.5px]">
-                      {prod.valorInventario > 0
-                        ? formatCOP(prod.valorInventario)
-                        : '—'
-                      }
+                      {prod.valorInventario > 0 ? formatCOP(prod.valorInventario) : '—'}
                     </td>
 
                     {/* Acciones */}
@@ -246,8 +251,8 @@ export default function Inventario() {
                           onClick={() => handleAjuste(prod)}
                           className="flex items-center gap-1 px-2.5 py-1 rounded-lg
                                      text-[12px] font-semibold
-                                     bg-accent-light text-accent-DEFAULT
-                                     hover:bg-accent-DEFAULT hover:text-white
+                                     bg-accent-light text-accent
+                                     hover:bg-accent hover:text-white
                                      transition-colors"
                           title="Ajustar stock"
                         >
@@ -259,7 +264,7 @@ export default function Inventario() {
                           className="flex items-center gap-1 px-2.5 py-1 rounded-lg
                                      text-[12px] font-semibold
                                      bg-card border border-border text-primary-muted
-                                     hover:text-primary-DEFAULT hover:border-accent-DEFAULT/40
+                                     hover:text-primary hover:border-accent/40
                                      transition-colors"
                           title="Ver movimientos"
                         >

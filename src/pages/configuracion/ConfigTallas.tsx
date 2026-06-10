@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Ruler, Check, X, GripVertical } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
@@ -201,8 +201,8 @@ export default function ConfigTallas() {
       {/* Título sección */}
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <Ruler size={16} className="text-accent-DEFAULT" />
-          <h3 className="text-[15px] font-bold text-primary-DEFAULT">
+          <Ruler size={16} className="text-accent" />
+          <h3 className="text-[15px] font-bold text-primary">
             Tallas
           </h3>
         </div>
@@ -237,7 +237,7 @@ export default function ConfigTallas() {
                     'transition-colors',
                     existe
                       ? 'border-border text-primary-muted opacity-40 cursor-not-allowed'
-                      : 'border-dashed border-border text-primary-muted hover:border-accent-DEFAULT/40 hover:text-accent-DEFAULT'
+                      : 'border-dashed border-border text-primary-muted hover:border-accent/40 hover:text-accent'
                   )}
                 >
                   {existe ? '✓' : '+'} {s}
@@ -251,7 +251,7 @@ export default function ConfigTallas() {
       {/* Formulario nuevo */}
       {adding && (
         <div className="flex items-end gap-2 p-4 rounded-xl border
-                        border-accent-DEFAULT/30 bg-accent-light
+                        border-accent/30 bg-accent-light
                         animate-fade-in">
           <div className="flex-1">
             <label className="input-label">Nombre talla</label>
@@ -322,7 +322,7 @@ export default function ConfigTallas() {
                   'flex items-center gap-3 px-4 py-3 rounded-xl border',
                   'transition-all duration-150',
                   isEditing
-                    ? 'border-accent-DEFAULT/40 bg-accent-light'
+                    ? 'border-accent/40 bg-accent-light'
                     : 'border-border bg-[#0B0B16]',
                   !talla.activo && 'opacity-50'
                 )}
@@ -332,7 +332,7 @@ export default function ConfigTallas() {
                   <button
                     onClick={() => handleMoverOrden(talla, 'up')}
                     disabled={isFirst}
-                    className="text-primary-muted hover:text-primary-DEFAULT
+                    className="text-primary-muted hover:text-primary
                                disabled:opacity-20 transition-colors"
                   >
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24"
@@ -345,7 +345,7 @@ export default function ConfigTallas() {
                   <button
                     onClick={() => handleMoverOrden(talla, 'down')}
                     disabled={isLast}
-                    className="text-primary-muted hover:text-primary-DEFAULT
+                    className="text-primary-muted hover:text-primary
                                disabled:opacity-20 transition-colors"
                   >
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24"
@@ -401,8 +401,8 @@ export default function ConfigTallas() {
                     <div className="flex-1">
                       <span className="inline-flex items-center justify-center
                                        w-12 h-8 rounded-lg bg-accent-light
-                                       border border-accent-DEFAULT/20
-                                       text-[13px] font-bold text-accent-DEFAULT">
+                                       border border-accent/20
+                                       text-[13px] font-bold text-accent">
                         {talla.nombre}
                       </span>
                     </div>
@@ -420,7 +420,7 @@ export default function ConfigTallas() {
                         'border transition-colors',
                         talla.activo
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
-                          : 'border-border text-primary-muted hover:border-accent-DEFAULT/30'
+                          : 'border-border text-primary-muted hover:border-accent/30'
                       )}
                     >
                       {talla.activo ? 'Activa' : 'Inactiva'}
@@ -435,7 +435,7 @@ export default function ConfigTallas() {
                           setAdding(false)
                         }}
                         className="p-1.5 rounded-lg text-primary-muted
-                                   hover:text-primary-DEFAULT hover:bg-white/5
+                                   hover:text-primary hover:bg-white/5
                                    transition-colors"
                         title="Editar"
                       >
@@ -460,9 +460,9 @@ export default function ConfigTallas() {
       )}
 
       {/* Info orden */}
-      <div className="p-3 rounded-xl bg-accent-light border border-accent-DEFAULT/20">
+      <div className="p-3 rounded-xl bg-accent-light border border-accent/20">
         <p className="text-[12px] text-primary-muted leading-relaxed">
-          <strong className="text-accent-DEFAULT">Tip:</strong> Usa las flechas
+          <strong className="text-accent">Tip:</strong> Usa las flechas
           ▲▼ para ordenar cómo aparecen las tallas en el formulario de ventas.
           El orden afecta la visualización en toda la app.
         </p>

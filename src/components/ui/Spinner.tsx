@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+﻿import { cn } from '@/lib/utils'
 
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg'
@@ -15,7 +15,7 @@ export default function Spinner({ size = 'md', className }: SpinnerProps) {
   return (
     <div
       className={cn(
-        'rounded-full border-accent-DEFAULT border-t-transparent animate-spin',
+        'rounded-full border-accent border-t-transparent animate-spin',
         SIZE_CLASSES[size],
         className
       )}

@@ -11,24 +11,32 @@ export default {
       // ── Colores ──────────────────────────────────────────────────────────
       colors: {
         bg: {
-          DEFAULT:  '#0A0A14',
-          surface:  '#0F0F1E',
-          elevated: '#13132A'
+          DEFAULT:  '#0F0F1A',
+          surface:  '#16162A',
+          elevated: '#1E1E35'
+        },
+        sidebar: {
+          DEFAULT: '#0B0B16',
+          border:  '#1E1E35',
+          text:    '#C8C8E0',
+          active:  '#E07A5F'
         },
         primary: {
-          DEFAULT: '#E8E8F0',
-          muted:   '#6B6B8A',
+          DEFAULT: '#EEEEF0',
+          muted:   '#8A8AA8',
           subtle:  '#3D3D5C'
         },
         accent: {
-          DEFAULT: '#7C6AF7',
-          light:   'rgba(124,106,247,0.08)',
-          hover:   '#9B8DFF'
+          DEFAULT: '#E07A5F',
+          light:   'rgba(224,122,95,0.12)',
+          hover:   '#E8917A',
+          2:       '#F2CC8F'
         },
-        border:   'rgba(255,255,255,0.07)',
-        success:  '#34D399',
-        warning:  '#FBBF24',
-        danger:   '#F87171',
+        card:     '#16162A',
+        border:   '#1E1E35',
+        success:  '#4CAF82',
+        warning:  '#F2CC8F',
+        danger:   '#E07A5F',
         info:     '#60A5FA'
       },
 
@@ -65,7 +73,7 @@ export default {
         'soft':  '0 2px 12px rgba(0,0,0,0.4)',
         'card':  '0 4px 24px rgba(0,0,0,0.5)',
         'modal': '0 8px 48px rgba(0,0,0,0.7)',
-        'glow':  '0 0 24px rgba(124,106,247,0.25)'
+        'glow':  '0 0 24px rgba(224,122,95,0.25)'
       },
 
       // ── Transiciones ─────────────────────────────────────────────────────

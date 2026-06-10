@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import {
   ArrowUpCircle, ArrowDownCircle,
   SlidersHorizontal, History
@@ -45,7 +45,7 @@ const TIPO_CONFIG: Record<string, {
   ajuste_manual: {
     label: 'Ajuste manual',
     icon:  SlidersHorizontal,
-    color: 'text-accent-DEFAULT',
+    color: 'text-accent',
     bg:    'bg-accent-light'
   }
 }
@@ -97,11 +97,11 @@ export default function MovimientosPanel({
       {/* Encabezado */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
-                        justify-center text-accent-DEFAULT">
+                        justify-center text-accent">
           <History size={18} />
         </div>
         <div>
-          <h2 className="text-[16px] font-bold text-primary-DEFAULT">
+          <h2 className="text-[16px] font-bold text-primary">
             Historial de movimientos
           </h2>
           <p className="text-[12.5px] text-primary-muted">

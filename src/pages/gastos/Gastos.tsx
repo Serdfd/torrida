@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { Plus, Search, Download, Receipt } from 'lucide-react'
 import { useAppStore, useToast, useModal } from '@/store/useAppStore'
 import { getGastos, getTotalGastos } from '@/lib/queries'
@@ -170,8 +170,8 @@ export default function Gastos() {
             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border
                         text-[12.5px] font-semibold transition-all
                         ${catFiltro === null
-                          ? 'bg-accent-light border-accent-DEFAULT/40 text-accent-DEFAULT'
-                          : 'border-border text-primary-muted hover:border-accent-DEFAULT/30'
+                          ? 'bg-accent-light border-accent/40 text-accent'
+                          : 'border-border text-primary-muted hover:border-accent/30'
                         }`}
           >
             Todos
@@ -184,8 +184,8 @@ export default function Gastos() {
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border
                           text-[12.5px] font-semibold transition-all
                           ${catFiltro === cat.id
-                            ? 'bg-accent-light border-accent-DEFAULT/40 text-accent-DEFAULT'
-                            : 'border-border text-primary-muted hover:border-accent-DEFAULT/30'
+                            ? 'bg-accent-light border-accent/40 text-accent'
+                            : 'border-border text-primary-muted hover:border-accent/30'
                           }`}
             >
               <span
@@ -211,14 +211,14 @@ export default function Gastos() {
         <div className="card py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Registros</p>
-          <p className="text-[20px] font-bold text-primary-DEFAULT">
+          <p className="text-[20px] font-bold text-primary">
             {gastosFiltrados.length}
           </p>
         </div>
         <div className="card py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Promedio</p>
-          <p className="text-[20px] font-bold text-primary-DEFAULT">
+          <p className="text-[20px] font-bold text-primary">
             {gastosFiltrados.length > 0
               ? formatCOP(totalFiltrado / gastosFiltrados.length)
               : '$0'
@@ -228,7 +228,7 @@ export default function Gastos() {
         <div className="card py-3">
           <p className="text-[11px] font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Categorías</p>
-          <p className="text-[20px] font-bold text-primary-DEFAULT">
+          <p className="text-[20px] font-bold text-primary">
             {categorias.length}
           </p>
         </div>
@@ -257,7 +257,7 @@ export default function Gastos() {
       ) : (
         <div className="card p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="tbl">
+            <table className="table w-full">
               <thead>
                 <tr>
                   <th>Fecha</th>

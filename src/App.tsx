@@ -1,10 +1,4 @@
-/**
- * App.tsx
- * Componente raíz de la app.
- * Maneja: layout principal, sidebar, rutas, modal y toast.
- */
-
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useAppStore }         from '@/store/useAppStore'
 import Sidebar                 from '@/components/layout/Sidebar'
 import TopBar                  from '@/components/layout/TopBar'
@@ -14,16 +8,18 @@ import ToastContainer          from '@/components/ui/ToastContainer'
 // ── Páginas ────────────────────────────────────────────────────────────────
 import Dashboard        from '@/pages/dashboard/Dashboard'
 import Ventas           from '@/pages/ventas/Ventas'
-import NuevaVenta       from '@/pages/ventas/NuevaVenta'
+import VentaForm        from '@/pages/ventas/VentaForm'
 import Gastos           from '@/pages/gastos/Gastos'
 import Inventario       from '@/pages/inventario/Inventario'
 import Productos        from '@/pages/productos/Productos'
+import Produccion       from '@/pages/produccion/Produccion'
 import Reportes         from '@/pages/reportes/Reportes'
 import CierreMensual    from '@/pages/cierre/CierreMensual'
+import TiendaNube       from '@/pages/tiendanube/TiendaNube'
+import Administracion   from '@/pages/administracion/Administracion'
 import Configuracion    from '@/pages/configuracion/Configuracion'
 
 // ── Tipos de rutas ─────────────────────────────────────────────────────────
-
 export type PageId =
   | 'dashboard'
   | 'ventas'
@@ -32,42 +28,45 @@ export type PageId =
   | 'gastos'
   | 'inventario'
   | 'productos'
+  | 'produccion'
   | 'reportes'
   | 'cierre'
+  | 'tiendanube'
+  | 'administracion'
   | 'configuracion'
 
-// ── Mapa de páginas ────────────────────────────────────────────────────────
-
+// ── Títulos de página ──────────────────────────────────────────────────────
 const PAGE_TITLES: Record<PageId, string> = {
-  'dashboard':    'Dashboard',
-  'ventas':       'Ventas',
-  'nueva-venta':  'Nueva venta',
-  'editar-venta': 'Editar venta',
-  'gastos':       'Gastos',
-  'inventario':   'Inventario',
-  'productos':    'Productos',
-  'reportes':     'Reportes',
-  'cierre':       'Cierre mensual',
-  'configuracion':'Configuración'
+  'dashboard':      'Dashboard',
+  'ventas':         'Ventas',
+  'nueva-venta':    'Nueva venta',
+  'editar-venta':   'Editar venta',
+  'gastos':         'Gastos',
+  'inventario':     'Inventario',
+  'productos':      'Productos',
+  'produccion':     'Producción',
+  'reportes':       'Reportes',
+  'cierre':         'Cierre mensual',
+  'tiendanube':     'Tienda Nube',
+  'administracion': 'Administración',
+  'configuracion':  'Configuración',
 }
 
-// ── Componente ─────────────────────────────────────────────────────────────
-
+// ── Componente principal ───────────────────────────────────────────────────
 export default function App() {
   const { sidebarOpen, modal, toast, dismissToast } = useAppStore()
 
-  const [currentPage,   setCurrentPage]   = useState<PageId>('dashboard')
+  const [currentPage,    setCurrentPage]    = useState<PageId>('dashboard')
   const [editingVentaId, setEditingVentaId] = useState<number | null>(null)
 
-  // ── Navegación ───────────────────────────────────────────────────────────
-  function navigate(page: PageId, params?: { ventaId?: number }) {
-    setCurrentPage(page)
+  // ── Navegación ────────────────────────────────────────────────────────────
+  function navigate(page: string, params?: { ventaId?: number }) {
+    setCurrentPage(page as PageId)
     if (params?.ventaId !== undefined) {
       setEditingVentaId(params.ventaId)
     } else {
       setEditingVentaId(null)
     }
-    // Scroll al top al cambiar de página
     window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
@@ -86,15 +85,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [modal.open])
 
-  // ── Renderizado de página activa ─────────────────────────────────────────
+  // ── Renderizado de página activa ──────────────────────────────────────────
   function renderPage() {
     switch (currentPage) {
+
       case 'dashboard':
-        return (
-          <Dashboard
-            onNavigate={navigate}
-          />
-        )
+        return <Dashboard onNavigate={navigate} />
 
       case 'ventas':
         return (
@@ -106,7 +102,7 @@ export default function App() {
 
       case 'nueva-venta':
         return (
-          <NuevaVenta
+          <VentaForm
             onSuccess={() => navigate('ventas')}
             onCancel={() => navigate('ventas')}
           />
@@ -114,7 +110,7 @@ export default function App() {
 
       case 'editar-venta':
         return (
-          <NuevaVenta
+          <VentaForm
             ventaId={editingVentaId ?? undefined}
             onSuccess={() => navigate('ventas')}
             onCancel={() => navigate('ventas')}
@@ -134,11 +130,20 @@ export default function App() {
       case 'productos':
         return <Productos />
 
+      case 'produccion':
+        return <Produccion />
+
       case 'reportes':
         return <Reportes />
 
       case 'cierre':
         return <CierreMensual />
+
+      case 'tiendanube':
+        return <TiendaNube />
+
+      case 'administracion':
+        return <Administracion />
 
       case 'configuracion':
         return <Configuracion />
@@ -149,38 +154,31 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-bg-DEFAULT overflow-hidden">
+    <div className="flex h-screen bg-bg overflow-hidden">
 
-      {/* ── Sidebar ──────────────────────────────────────────────────── */}
+      {/* Sidebar */}
       <Sidebar
         currentPage={currentPage}
         onNavigate={navigate}
       />
 
-      {/* ── Contenido principal ──────────────────────────────────────── */}
-      <div className={`
-        flex flex-col flex-1 min-w-0 overflow-hidden
-        transition-all duration-300
-        ${sidebarOpen ? 'ml-0' : 'ml-0'}
-      `}>
+      {/* Contenido principal */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden transition-all duration-300">
 
-        {/* TopBar */}
         <TopBar
           title={PAGE_TITLES[currentPage]}
           currentPage={currentPage}
           onNavigate={navigate}
         />
 
-        {/* Página activa */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden
-                         px-5 py-5 md:px-7 md:py-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-5 md:px-7 md:py-6">
           <div className="max-w-[1400px] mx-auto">
             {renderPage()}
           </div>
         </main>
       </div>
 
-      {/* ── Modal global ─────────────────────────────────────────────── */}
+      {/* Modal global */}
       <ModalContainer
         open={modal.open}
         onClose={() => useAppStore.getState().closeModal()}
@@ -188,7 +186,7 @@ export default function App() {
         {modal.content}
       </ModalContainer>
 
-      {/* ── Toast global ─────────────────────────────────────────────── */}
+      {/* Toast global */}
       <ToastContainer
         visible={toast.visible}
         message={toast.message}

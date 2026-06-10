@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { Plus, Search, Package, ToggleLeft, ToggleRight } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getProductos } from '@/lib/queries'
@@ -113,7 +113,7 @@ export default function Productos() {
           className="flex items-center gap-2 btn-ghost h-9 text-[13px]"
         >
           {soloActivos
-            ? <ToggleRight size={16} className="text-accent-DEFAULT" />
+            ? <ToggleRight size={16} className="text-accent" />
             : <ToggleLeft  size={16} className="text-primary-muted" />
           }
           {soloActivos ? 'Solo activos' : 'Todos'}

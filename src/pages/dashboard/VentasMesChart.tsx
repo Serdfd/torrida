@@ -1,14 +1,9 @@
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
+﻿import {
+  AreaChart, Area, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
-import { VentasPorMes } from '@/types'
-import { formatCOP } from '@/lib/utils'
+import { formatCOP }       from '@/lib/utils'
+import type { VentasPorMes } from './Dashboard'
 
 interface VentasMesChartProps {
   data: VentasPorMes[]
@@ -17,15 +12,15 @@ interface VentasMesChartProps {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-3 shadow-xl">
+    <div className="bg-bg-elevated border border-border rounded-xl px-4 py-3 shadow-xl">
       <p className="text-[12px] font-bold text-primary-muted uppercase tracking-wide mb-1">
         {label}
       </p>
-      <p className="text-[15px] font-bold text-accent-DEFAULT">
+      <p className="text-[15px] font-bold text-accent">
         {formatCOP(payload[0]?.value ?? 0)}
       </p>
       <p className="text-[12px] text-primary-muted">
-        {payload[1]?.value ?? 0} unidades
+        {payload[1]?.value ?? 0} ventas
       </p>
     </div>
   )
@@ -34,8 +29,7 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function VentasMesChart({ data }: VentasMesChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[200px]
-                      text-primary-muted text-[13.5px]">
+      <div className="flex items-center justify-center h-[200px] text-primary-muted text-[13.5px]">
         Sin datos para mostrar
       </div>
     )
@@ -43,84 +37,71 @@ export default function VentasMesChart({ data }: VentasMesChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <AreaChart
-        data={data}
-        margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
-      >
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
         <defs>
-          <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor="#E07A5F" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="#E07A5F" stopOpacity={0} />
+          <linearGradient id="gradIngresos" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#7C6AF7" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="#7C6AF7" stopOpacity={0}    />
           </linearGradient>
-          <linearGradient id="gradUnidades" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor="#4CAF82" stopOpacity={0.2} />
-            <stop offset="95%" stopColor="#4CAF82" stopOpacity={0} />
+          <linearGradient id="gradCantidad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#34D399" stopOpacity={0.2} />
+            <stop offset="95%" stopColor="#34D399" stopOpacity={0}   />
           </linearGradient>
         </defs>
 
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="#1E1E35"
-          vertical={false}
-        />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
 
         <XAxis
           dataKey="mes"
-          tick={{ fill: '#8A8AA8', fontSize: 12 }}
-          axisLine={false}
-          tickLine={false}
-          dy={6}
+          tick={{ fill: '#6B6B8A', fontSize: 12 }}
+          axisLine={false} tickLine={false} dy={6}
         />
 
         <YAxis
-          yAxisId="total"
+          yAxisId="ingresos"
           orientation="left"
-          tick={{ fill: '#8A8AA8', fontSize: 11 }}
-          axisLine={false}
-          tickLine={false}
-          tickFormatter={(v) =>
-            v >= 1_000_000
-              ? `${(v / 1_000_000).toFixed(1)}M`
-              : v >= 1_000
-                ? `${(v / 1_000).toFixed(0)}K`
-                : String(v)
+          tick={{ fill: '#6B6B8A', fontSize: 11 }}
+          axisLine={false} tickLine={false}
+          tickFormatter={v =>
+            v >= 1_000_000 ? `${(v/1_000_000).toFixed(1)}M`
+            : v >= 1_000   ? `${(v/1_000).toFixed(0)}K`
+            : String(v)
           }
           width={52}
         />
 
         <YAxis
-          yAxisId="cant"
+          yAxisId="cantidad"
           orientation="right"
-          tick={{ fill: '#8A8AA8', fontSize: 11 }}
-          axisLine={false}
-          tickLine={false}
+          tick={{ fill: '#6B6B8A', fontSize: 11 }}
+          axisLine={false} tickLine={false}
           width={32}
         />
 
         <Tooltip content={<CustomTooltip />} />
 
         <Area
-          yAxisId="total"
+          yAxisId="ingresos"
           type="monotone"
-          dataKey="total"
-          name="Total"
-          stroke="#E07A5F"
+          dataKey="ingresos"
+          name="Ingresos"
+          stroke="#7C6AF7"
           strokeWidth={2.5}
-          fill="url(#gradTotal)"
+          fill="url(#gradIngresos)"
           dot={false}
-          activeDot={{ r: 5, fill: '#E07A5F', strokeWidth: 0 }}
+          activeDot={{ r: 5, fill: '#7C6AF7', strokeWidth: 0 }}
         />
 
         <Area
-          yAxisId="cant"
+          yAxisId="cantidad"
           type="monotone"
           dataKey="cantidad"
-          name="Unidades"
-          stroke="#4CAF82"
+          name="Ventas"
+          stroke="#34D399"
           strokeWidth={2}
-          fill="url(#gradUnidades)"
+          fill="url(#gradCantidad)"
           dot={false}
-          activeDot={{ r: 4, fill: '#4CAF82', strokeWidth: 0 }}
+          activeDot={{ r: 4, fill: '#34D399', strokeWidth: 0 }}
           strokeDasharray="4 3"
         />
       </AreaChart>

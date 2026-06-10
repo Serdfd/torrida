@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Tag, Check, X } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
@@ -146,8 +146,8 @@ export default function ConfigCanales() {
       {/* Título sección */}
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <Tag size={16} className="text-accent-DEFAULT" />
-          <h3 className="text-[15px] font-bold text-primary-DEFAULT">
+          <Tag size={16} className="text-accent" />
+          <h3 className="text-[15px] font-bold text-primary">
             Canales de venta
           </h3>
         </div>
@@ -164,7 +164,7 @@ export default function ConfigCanales() {
       {/* Formulario nuevo */}
       {adding && (
         <div className="flex items-end gap-2 p-4 rounded-xl border
-                        border-accent-DEFAULT/30 bg-accent-light
+                        border-accent/30 bg-accent-light
                         animate-fade-in">
           <div className="flex-1">
             <label className="input-label">Nombre</label>
@@ -232,7 +232,7 @@ export default function ConfigCanales() {
                   'flex items-center gap-3 px-4 py-3 rounded-xl border',
                   'transition-all duration-150',
                   isEditing
-                    ? 'border-accent-DEFAULT/40 bg-accent-light'
+                    ? 'border-accent/40 bg-accent-light'
                     : 'border-border bg-[#0B0B16]',
                   !canal.activo && 'opacity-50'
                 )}
@@ -286,7 +286,7 @@ export default function ConfigCanales() {
                   <>
                     {/* Nombre */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13.5px] font-semibold text-primary-DEFAULT">
+                      <p className="text-[13.5px] font-semibold text-primary">
                         {canal.nombre}
                       </p>
                     </div>
@@ -312,7 +312,7 @@ export default function ConfigCanales() {
                         'border transition-colors',
                         canal.activo
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
-                          : 'border-border text-primary-muted hover:border-accent-DEFAULT/30'
+                          : 'border-border text-primary-muted hover:border-accent/30'
                       )}
                     >
                       {canal.activo ? 'Activo' : 'Inactivo'}
@@ -323,7 +323,7 @@ export default function ConfigCanales() {
                       <button
                         onClick={() => startEdit(canal)}
                         className="p-1.5 rounded-lg text-primary-muted
-                                   hover:text-primary-DEFAULT hover:bg-white/5
+                                   hover:text-primary hover:bg-white/5
                                    transition-colors"
                         title="Editar"
                       >
@@ -348,9 +348,9 @@ export default function ConfigCanales() {
       )}
 
       {/* Tip comisiones */}
-      <div className="p-3 rounded-xl bg-accent-light border border-accent-DEFAULT/20">
+      <div className="p-3 rounded-xl bg-accent-light border border-accent/20">
         <p className="text-[12px] text-primary-muted leading-relaxed">
-          <strong className="text-accent-DEFAULT">Tip:</strong> La comisión se descuenta
+          <strong className="text-accent">Tip:</strong> La comisión se descuenta
           automáticamente al registrar una venta por ese canal.
           Ej: Instagram con 3% → una venta de $100.000 genera $3.000 de comisión.
         </p>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Store, Save, ImagePlus } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -158,8 +158,8 @@ export default function ConfigNegocio() {
 
       {/* Título sección */}
       <div className="flex items-center gap-2 pb-2 border-b border-border">
-        <Store size={16} className="text-accent-DEFAULT" />
-        <h3 className="text-[15px] font-bold text-primary-DEFAULT">
+        <Store size={16} className="text-accent" />
+        <h3 className="text-[15px] font-bold text-primary">
           Datos del negocio
         </h3>
       </div>

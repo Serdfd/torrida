@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipo Dark — Opciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── TEMA 1: Dark Studio (navy + terracota) ── */
+  :root {
+    --bg:                #0F0F1A;
+    --bg2:               #16162A;
+    --sidebar-bg:        #0B0B16;
+    --sidebar-border:    #1E1E35;
+    --card-bg:           #16162A;
+    --border:            #1E1E35;
+    --text-primary:      #EEEEF0;
+    --text-secondary:    #8A8AA8;
+    --accent:            #E07A5F;
+    --accent-light:      rgba(224,122,95,0.12);
+    --accent2:           #F2CC8F;
+    --success:           #4CAF82;
+    --warning:           #F2CC8F;
+    --danger:            #E07A5F;
+    --sidebar-text:      #C8C8E0;
+    --sidebar-active-bg: rgba(224,122,95,0.12);
+    --sidebar-active:    #E07A5F;
+    --input-bg:          #1E1E35;
+  }
+  [data-theme="midnight"] {
+    --bg:                #0A0A0A;
+    --bg2:               #111111;
+    --sidebar-bg:        #080808;
+    --sidebar-border:    #1A1A1A;
+    --card-bg:           #111111;
+    --border:            #1C1C1C;
+    --text-primary:      #F0EEE8;
+    --text-secondary:    #888880;
+    --accent:            #D4A96A;
+    --accent-light:      rgba(212,169,106,0.10);
+    --accent2:           #C8A882;
+    --success:           #5BAF7A;
+    --warning:           #D4A96A;
+    --danger:            #C1666B;
+    --sidebar-text:      #C8C4BC;
+    --sidebar-active-bg: rgba(212,169,106,0.10);
+    --sidebar-active:    #D4A96A;
+    --input-bg:          #1A1A1A;
+  }
+  [data-theme="deeprose"] {
+    --bg:                #12080F;
+    --bg2:               #1A0D16;
+    --sidebar-bg:        #0E0609;
+    --sidebar-border:    #2A1222;
+    --card-bg:           #1A0D16;
+    --border:            #2A1222;
+    --text-primary:      #F0E8EC;
+    --text-secondary:    #9A7A88;
+    --accent:            #D4688A;
+    --accent-light:      rgba(212,104,138,0.12);
+    --accent2:           #E8A0B8;
+    --success:           #5BAF82;
+    --warning:           #E8A878;
+    --danger:            #D4688A;
+    --sidebar-text:      #D4C0C8;
+    --sidebar-active-bg: rgba(212,104,138,0.12);
+    --sidebar-active:    #D4688A;
+    --input-bg:          #2A1222;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-primary); transition:all 0.3s; }
+
+  /* ── Selector ── */
+  .selector {
+    position:fixed; top:0; left:0; right:0; z-index:999;
+    background:#0A0A14; border-bottom:1px solid #1E1E35;
+    padding:10px 24px; display:flex; align-items:center; gap:12px;
+  }
+  .selector label { font-size:11px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:1px; }
+  .tbtn {
+    padding:6px 18px; border-radius:20px; border:1.5px solid transparent;
+    cursor:pointer; font-size:12px; font-weight:600; font-family:'Inter',sans-serif;
+    transition:all 0.2s; opacity:0.4; background:transparent;
+  }
+  .tbtn.active { opacity:1; }
+  .tbtn.t1 { color:#E07A5F; border-color:#E07A5F; }
+  .tbtn.t1.active { background:rgba(224,122,95,0.12); }
+  .tbtn.t2 { color:#D4A96A; border-color:#D4A96A; }
+  .tbtn.t2.active { background:rgba(212,169,106,0.10); }
+  .tbtn.t3 { color:#D4688A; border-color:#D4688A; }
+  .tbtn.t3.active { background:rgba(212,104,138,0.10); }
+
+  /* ── Layout ── */
+  .wrapper { display:flex; height:100vh; padding-top:49px; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width:228px; flex-shrink:0;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--sidebar-border);
+    display:flex; flex-direction:column;
+    padding:20px 0; transition:all 0.3s;
+  }
+  .logo-area {
+    padding:0 18px 20px;
+    border-bottom:1px solid var(--sidebar-border);
+    margin-bottom:12px;
+  }
+  .logo-pill {
+    display:inline-block;
+    background:var(--accent-light);
+    border:1px solid var(--accent);
+    border-radius:6px;
+    padding:3px 10px;
+    font-size:11px; font-weight:700;
+    color:var(--accent);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .logo-sub { font-size:10px; color:var(--text-secondary); letter-spacing:0.5px; }
+
+  .nav-group { padding:0 10px; margin-bottom:4px; }
+  .nav-label {
+    font-size:9px; font-weight:700; text-transform:uppercase;
+    letter-spacing:1px; color:var(--text-secondary); opacity:0.5;
+    padding:0 8px; margin-bottom:4px; margin-top:12px;
+  }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; border-radius:8px; cursor:pointer;
+    font-size:13px; font-weight:500; color:var(--sidebar-text);
+    opacity:0.55; transition:all 0.15s; margin-bottom:1px;
+  }
+  .nav-item:hover  { opacity:1; background:var(--sidebar-active-bg); }
+  .nav-item.active { opacity:1; background:var(--sidebar-active-bg); color:var(--sidebar-active); }
+  .ico { font-size:14px; width:18px; text-align:center; }
+  .badge {
+    margin-left:auto; background:var(--accent); color:#fff;
+    font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;
+  }
+
+  .user-area {
+    margin-top:auto; padding:14px 18px;
+    border-top:1px solid var(--sidebar-border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .avatar {
+    width:32px; height:32px; border-radius:50%;
+    background:var(--accent-light); border:1.5px solid var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--accent);
+  }
+  .user-info .user-name { font-size:12.5px; font-weight:600; color:var(--text-primary); }
+  .user-info .user-role { font-size:10.5px; color:var(--text-secondary); }
+
+  /* ── Main ── */
+  .main { flex:1; overflow-y:auto; padding:28px 32px; background:var(--bg); transition:all 0.3s; }
+
+  /* Topbar */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;
+  }
+  .page-head h1 { font-size:22px; font-weight:700; color:var(--text-primary); }
+  .page-head p  { font-size:13px; color:var(--text-secondary); margin-top:3px; }
+  .top-actions { display:flex; align-items:center; gap:10px; }
+  .chip {
+    background:var(--accent-light); color:var(--accent);
+    font-size:11.5px; font-weight:600; padding:5px 14px;
+    border-radius:20px; border:1px solid var(--accent);
+  }
+  .btn {
+    padding:8px 16px; border-radius:8px; border:none;
+    cursor:pointer; font-size:12.5px; font-weight:600;
+    font-family:'Inter',sans-serif; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { opacity:0.88; }
+  .btn-ghost {
+    background:var(--card-bg); color:var(--text-secondary);
+    border:1px solid var(--border);
+  }
+
+  /* ── KPIs ── */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .kpi {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:14px; padding:20px 18px; transition:all 0.3s; position:relative; overflow:hidden;
+  }
+  .kpi.featured { background:var(--accent); border-color:transparent; }
+  .kpi.featured::after {
+    content:''; position:absolute; top:-20px; right:-20px;
+    width:80px; height:80px; border-radius:50%;
+    background:rgba(255,255,255,0.08);
+  }
+  .kpi-lbl {
+    font-size:10.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.6px; color:var(--text-secondary); margin-bottom:10px;
+  }
+  .kpi.featured .kpi-lbl { color:rgba(255,255,255,0.7); }
+  .kpi-val { font-size:22px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+  .kpi.featured .kpi-val { color:#fff; }
+  .kpi-delta { font-size:11.5px; font-weight:500; }
+  .kpi.featured .kpi-delta { color:rgba(255,255,255,0.8); }
+  .up   { color:var(--success); }
+  .down { color:var(--danger); }
+  .kpi-icon {
+    position:absolute; top:16px; right:16px;
+    font-size:18px; opacity:0.2;
+  }
+
+  /* ── Charts row ── */
+  .charts-row { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:20px; }
+  .card {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:14px; padding:20px; transition:all 0.3s;
+  }
+  .card-title { font-size:13.5px; font-weight:600; color:var(--text-primary); }
+  .card-sub   { font-size:11.5px; color:var(--text-secondary); margin-top:2px; margin-bottom:18px; }
+
+  /* Bar chart */
+  .bars-wrap { display:flex; align-items:flex-end; gap:8px; height:120px; }
+  .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
+  .bar { width:100%; border-radius:5px 5px 0 0; background:var(--accent); transition:background 0.3s; min-height:4px; }
+  .bar.dim { opacity:0.2; }
+  .bar.current { opacity:1; }
+  .bar-lbl { font-size:9.5px; color:var(--text-secondary); }
+  .bar-val { font-size:9px; color:var(--accent); font-weight:600; }
+
+  /* Donut */
+  .donut-wrap { display:flex; align-items:center; justify-content:center; height:120px; gap:16px; }
+  .donut-ring {
+    width:96px; height:96px; border-radius:50%; flex-shrink:0; position:relative;
+    background: conic-gradient(
+      var(--accent) 0% 38%,
+      var(--success) 38% 62%,
+      var(--warning) 62% 78%,
+      var(--text-secondary) 78% 100%
+    );
+  }
+  .donut-hole {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:58px; height:58px; border-radius:50%;
+    background:var(--card-bg);
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+  }
+  .donut-hole span { font-size:14px; font-weight:700; color:var(--text-primary); }
+  .donut-hole small { font-size:9px; color:var(--text-secondary); }
+  .legend { display:flex; flex-direction:column; gap:8px; }
+  .leg { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--text-secondary); }
+  .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── Tabla ── */
+  .tbl-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:all 0.3s; }
+  .tbl-head {
+    padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--border);
+  }
+  .tbl-head h3 { font-size:13.5px; font-weight:600; color:var(--text-primary); }
+  .btn-row { display:flex; gap:8px; }
+
+  table { width:100%; border-collapse:collapse; }
+  th {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+    color:var(--text-secondary); padding:10px 18px; text-align:left;
+    background:var(--bg); border-bottom:1px solid var(--border);
+  }
+  td { font-size:13px; color:var(--text-primary); padding:12px 18px; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); transition:background 0.15s; }
+
+  .order-num { font-weight:600; color:var(--accent); }
+  .sbadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:600; }
+  .s-ok  { background:rgba(76,175,130,0.12); color:var(--success); border:1px solid rgba(76,175,130,0.2); }
+  .s-mid { background:var(--accent-light); color:var(--accent); border:1px solid rgba(224,122,95,0.2); }
+  .s-pnd { background:rgba(242,204,143,0.10); color:var(--warning); border:1px solid rgba(242,204,143,0.2); }
+  .util  { font-weight:600; color:var(--success); }
+  .canal-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:11.5px; color:var(--text-secondary);
+  }
+
+  /* ── Bottom row ── */
+  .bottom-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:20px; }
+  .fin-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:20px; transition:all 0.3s; }
+  .fin-title {
+    font-size:10.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.7px; color:var(--text-secondary); margin-bottom:16px;
+  }
+  .fin-line { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); }
+  .fin-line:last-child { border:none; font-weight:700; margin-top:4px; }
+  .fin-lbl { font-size:12.5px; color:var(--text-secondary); }
+  .fin-val { font-size:12.5px; font-weight:500; color:var(--text-primary); }
+  .fin-val.neg { color:var(--danger); }
+  .fin-val.pos { color:var(--success); font-weight:700; font-size:14px; }
+
+  .dist-item { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); }
+  .dist-item:last-child { border:none; }
+  .dist-label { font-size:12.5px; color:var(--text-secondary); }
+  .dist-pct {
+    font-size:10.5px; color:var(--accent); font-weight:700;
+    background:var(--accent-light); padding:2px 8px; border-radius:10px; margin-left:auto; margin-right:10px;
+  }
+  .dist-val { font-size:13px; font-weight:700; color:var(--text-primary); }
+
+  /* Stock mini */
+  .stock-item { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
+  .stock-item:last-child { border:none; }
+  .stock-name { font-size:12.5px; color:var(--text-primary); font-weight:500; }
+  .stock-sub  { font-size:10.5px; color:var(--text-secondary); margin-top:1px; }
+  .stock-bar-wrap { width:80px; height:4px; background:var(--border); border-radius:2px; margin:0 12px; }
+  .stock-bar-fill { height:100%; border-radius:2px; background:var(--accent); transition:background 0.3s; }
+  .stock-bar-fill.low { background:var(--danger); }
+  .stock-num { font-size:12px; font-weight:600; color:var(--text-primary); min-width:28px; text-align:right; }
+</style>
+</head>
+<body>
+
+<div class="selector">
+  <label>Tema oscuro:</label>
+  <button class="tbtn t1 active" onclick="setTheme('',this)">🌙 Dark Studio</button>
+  <button class="tbtn t2"        onclick="setTheme('midnight',this)">🖤 Midnight Warm</button>
+  <button class="tbtn t3"        onclick="setTheme('deeprose',this)">🌹 Deep Rose</button>
+</div>
+
+<div class="wrapper" id="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-area">
+      <div class="logo-pill">La Marca</div>
+      <div class="logo-sub">gestión de marca · 2025</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-item active"><span class="ico">⊞</span> Dashboard</div>
+      <div class="nav-item"><span class="ico">🛍️</span> Ventas <span class="badge">3</span></div>
+      <div class="nav-item"><span class="ico">👗</span> Productos</div>
+      <div class="nav-item"><span class="ico">🏭</span> Producción</div>
+      <div class="nav-item"><span class="ico">📦</span> Inventario</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Finanzas</div>
+      <div class="nav-item"><span class="ico">💸</span> Gastos</div>
+      <div class="nav-item"><span class="ico">📊</span> Cierre Mensual</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Sistema</div>
+      <div class="nav-item"><span class="ico">⚙️</span> Administración</div>
+      <div class="nav-item"><span class="ico">🔗</span> Tienda Nube</div>
+    </div>
+
+    <div class="user-area">
+      <div class="avatar">S</div>
+      <div class="user-info">
+        <div class="user-name">Socia 1</div>
+        <div class="user-role">Administradora</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="page-head">
+        <h1>Dashboard</h1>
+        <p>Resumen del rendimiento de la marca</p>
+      </div>
+      <div class="top-actions">
+        <span class="chip">Junio 2025</span>
+        <button class="btn btn-ghost">↓ Exportar</button>
+        <button class="btn btn-primary">+ Nueva venta</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi featured">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-lbl">Ingresos del mes</div>
+        <div class="kpi-val">$4.820.000</div>
+        <div class="kpi-delta">↑ 18% vs mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-lbl">Utilidad neta</div>
+        <div class="kpi-val">$1.930.000</div>
+        <div class="kpi-delta up">↑ 12% vs mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon">👗</div>
+        <div class="kpi-lbl">Unidades vendidas</div>
+        <div class="kpi-val">47</div>
+        <div class="kpi-delta up">↑ 8 unidades</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-icon">↩️</div>
+        <div class="kpi-lbl">Devoluciones</div>
+        <div class="kpi-val">2</div>
+        <div class="kpi-delta down">−$185.000</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">Ventas por mes</div>
+        <div class="card-sub">Ingresos acumulados 2025</div>
+        <div class="bars-wrap">
+          <div class="bar-col">
+            <div class="bar-val">$2.1M</div>
+            <div class="bar dim" style="height:42%"></div>
+            <div class="bar-lbl">Ene</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val">$2.8M</div>
+            <div class="bar dim" style="height:56%"></div>
+            <div class="bar-lbl">Feb</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val">$2.5M</div>
+            <div class="bar dim" style="height:49%"></div>
+            <div class="bar-lbl">Mar</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val">$3.4M</div>
+            <div class="bar dim" style="height:67%"></div>
+            <div class="bar-lbl">Abr</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val">$4.1M</div>
+            <div class="bar dim" style="height:80%"></div>
+            <div class="bar-lbl">May</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val">$4.8M</div>
+            <div class="bar current" style="height:100%"></div>
+            <div class="bar-lbl">Jun</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ventas por canal</div>
+        <div class="card-sub">Distribución junio</div>
+        <div class="donut-wrap">
+          <div class="donut-ring">
+            <div class="donut-hole">
+              <span>47</span>
+              <small>ventas</small>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="leg"><div class="dot" style="background:var(--accent)"></div>WhatsApp 38%</div>
+            <div class="leg"><div class="dot" style="background:var(--success)"></div>Tienda Nube 24%</div>
+            <div class="leg"><div class="dot" style="background:var(--warning)"></div>Instagram 16%</div>
+            <div class="leg"><div class="dot" style="background:var(--text-secondary)"></div>Otros 22%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="tbl-card">
+      <div class="tbl-head">
+        <h3>Ventas recientes</h3>
+        <div class="btn-row">
+          <button class="btn btn-ghost">↓ Exportar CSV</button>
+          <button class="btn btn-primary">+ Registrar venta</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Orden</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Canal</th>
+            <th>Total</th>
+            <th>Utilidad</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="order-num">#0089</span></td>
+            <td>María García</td>
+            <td>Blusa Linda · M</td>
+            <td><span class="canal-tag">💬 WhatsApp</span></td>
+            <td>$85.000</td>
+            <td class="util">$38.200</td>
+            <td><span class="sbadge s-ok">Entregado</span></td>
+          </tr>
+          <tr>
+            <td><span class="order-num">#0088</span></td>
+            <td>Laura Martínez</td>
+            <td>Pantalón Cargo · S + Blusa · S</td>
+            <td><span class="canal-tag">🛍️ Tienda Nube</span></td>
+            <td>$210.000</td>
+            <td class="util">$89.600</td>
+            <td><span class="sbadge s-mid">Enviado</span></td>
+          </tr>
+          <tr>
+            <td><span class="order-num">#0087</span></td>
+            <td>Valentina Ruiz</td>
+            <td>Vestido Verano · L</td>
+            <td><span class="canal-tag">📸 Instagram</span></td>
+            <td>$120.000</td>
+            <td class="util">$52.400</td>
+            <td><span class="sbadge s-pnd">Pendiente</span></td>
+          </tr>
+          <tr>
+            <td><span class="order-num">#0086</span></td>
+            <td>Daniela Torres</td>
+            <td>Blusa Linda · XL</td>
+            <td><span class="canal-tag">💬 WhatsApp</span></td>
+            <td>$85.000</td>
+            <td class="util">$38.200</td>
+            <td><span class="sbadge s-ok">Entregado</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="bottom-row">
+
+      <div class="fin-card">
+        <div class="fin-title">Estado de resultados — Jun 2025</div>
+        <div class="fin-line">
+          <span class="fin-lbl">Ventas brutas</span>
+          <span class="fin-val">$4.820.000</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Devoluciones</span>
+          <span class="fin-val neg">−$185.000</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Costo prendas</span>
+          <span class="fin-val neg">−$1.920.000</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Comisiones canal</span>
+          <span class="fin-val neg">−$96.400</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Envíos asumidos</span>
+          <span class="fin-val neg">−$240.000</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Gastos operativos</span>
+          <span class="fin-val neg">−$448.600</span>
+        </div>
+        <div class="fin-line">
+          <span class="fin-lbl">Utilidad neta</span>
+          <span class="fin-val pos">$1.930.000</span>
+        </div>
+      </div>
+
+      <div class="fin-card">
+        <div class="fin-title">Distribución del mes</div>
+        <div class="dist-item">
+          <span class="dist-label">Reinversión</span>
+          <span class="dist-pct">40%</span>
+          <span class="dist-val">$772.000</span>
+        </div>
+        <div class="dist-item">
+          <span class="dist-label">Retiro Socia 1</span>
+          <span class="dist-pct">30%</span>
+          <span class="dist-val">$579.000</span>
+        </div>
+        <div class="dist-item">
+          <span class="dist-label">Retiro Socia 2</span>
+          <span class="dist-pct">30%</span>
+          <span class="dist-val">$579.000</span>
+        </div>
+        <div class="dist-item" style="margin-top:8px; padding-top:12px; border-top:2px solid var(--border)">
+          <span style="font-size:13px; font-weight:700; color:var(--text-primary)">Total</span>
+          <span></span>
+          <span style="font-size:14px; font-weight:700; color:var(--accent)">$1.930.000</span>
+        </div>
+      </div>
+
+      <div class="fin-card">
+        <div class="fin-title">Stock crítico</div>
+        <div class="stock-item">
+          <div>
+            <div class="stock-name">Blusa Linda</div>
+            <div class="stock-sub">Talla S</div>
+          </div>
+          <div class="stock-bar-wrap"><div class="stock-bar-fill low" style="width:20%"></div></div>
+          <span class="stock-num" style="color:var(--danger)">2</span>
+        </div>
+        <div class="stock-item">
+          <div>
+            <div class="stock-name">Vestido Verano</div>
+            <div class="stock-sub">Talla M</div>
+          </div>
+          <div class="stock-bar-wrap"><div class="stock-bar-fill low" style="width:30%"></div></div>
+          <span class="stock-num" style="color:var(--danger)">3</span>
+        </div>
+        <div class="stock-item">
+          <div>
+            <div class="stock-name">Pantalón Cargo</div>
+            <div class="stock-sub">Talla XL</div>
+          </div>
+          <div class="stock-bar-wrap"><div class="stock-bar-fill" style="width:60%"></div></div>
+          <span class="stock-num">6</span>
+        </div>
+        <div class="stock-item">
+          <div>
+            <div class="stock-name">Blusa Linda</div>
+            <div class="stock-sub">Talla L</div>
+          </div>
+          <div class="stock-bar-wrap"><div class="stock-bar-fill" style="width:80%"></div></div>
+          <span class="stock-num">8</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  function setTheme(t, btn) {
+    const app = document.getElementById('app');
+    t === '' ? app.removeAttribute('data-theme') : app.setAttribute('data-theme', t);
+    document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

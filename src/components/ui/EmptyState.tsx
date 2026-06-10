@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+﻿import { cn } from '@/lib/utils'
 import { LucideIcon } from 'lucide-react'
 
 interface EmptyStateProps {
@@ -26,14 +26,14 @@ export default function EmptyState({
       {/* Icono */}
       {Icon && (
         <div className="w-14 h-14 rounded-2xl bg-accent-light flex items-center
-                        justify-center text-accent-DEFAULT">
+                        justify-center text-accent">
           <Icon size={26} strokeWidth={1.5} />
         </div>
       )}
 
       {/* Texto */}
       <div className="flex flex-col gap-1.5 max-w-xs">
-        <p className="text-[15px] font-semibold text-primary-DEFAULT">
+        <p className="text-[15px] font-semibold text-primary">
           {title}
         </p>
         {description && (

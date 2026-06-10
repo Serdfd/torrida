@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Package, ImagePlus } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -195,8 +195,8 @@ export default function ProductoForm({
 
       {/* Título */}
       <div className="flex items-center gap-2 mb-1">
-        <Package size={18} className="text-accent-DEFAULT" />
-        <h2 className="text-[16px] font-bold text-primary-DEFAULT">
+        <Package size={18} className="text-accent" />
+        <h2 className="text-[16px] font-bold text-primary">
           {isEditing ? 'Editar producto' : 'Nuevo producto'}
         </h2>
       </div>
@@ -267,7 +267,7 @@ export default function ProductoForm({
                 className="w-4 h-4 accent-accent-DEFAULT"
                 {...register('activo')}
               />
-              <span className="text-[13.5px] text-primary-DEFAULT">Activo</span>
+              <span className="text-[13.5px] text-primary">Activo</span>
             </label>
           </div>
         </div>

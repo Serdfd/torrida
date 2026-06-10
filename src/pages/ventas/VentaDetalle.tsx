@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import {
   ShoppingBag, Calendar, User, CreditCard,
   Store, Truck, Tag, FileText, RotateCcw
@@ -114,11 +114,11 @@ export default function VentaDetalle({
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
-                          justify-center text-accent-DEFAULT">
+                          justify-center text-accent">
             <ShoppingBag size={18} />
           </div>
           <div>
-            <p className="text-[17px] font-bold text-primary-DEFAULT font-mono">
+            <p className="text-[17px] font-bold text-primary font-mono">
               {venta.numero}
             </p>
             <p className="text-[12.5px] text-primary-muted">
@@ -229,8 +229,8 @@ export default function VentaDetalle({
           />
         )}
         <div className="border-t border-border mt-1 pt-2 flex justify-between">
-          <span className="text-[14px] font-bold text-primary-DEFAULT">Total</span>
-          <span className="text-[18px] font-bold text-accent-DEFAULT">
+          <span className="text-[14px] font-bold text-primary">Total</span>
+          <span className="text-[18px] font-bold text-accent">
             {formatCOP(venta.total)}
           </span>
         </div>
@@ -274,7 +274,7 @@ function InfoRow({ icon: Icon, label, value, sub, className }: InfoRowProps) {
       className
     )}>
       <div className="w-7 h-7 rounded-lg bg-accent-light flex items-center
-                      justify-center text-accent-DEFAULT shrink-0 mt-0.5">
+                      justify-center text-accent shrink-0 mt-0.5">
         <Icon size={13} />
       </div>
       <div>
@@ -282,7 +282,7 @@ function InfoRow({ icon: Icon, label, value, sub, className }: InfoRowProps) {
                       text-primary-muted mb-0.5">
           {label}
         </p>
-        <p className="text-[13.5px] font-medium text-primary-DEFAULT">
+        <p className="text-[13.5px] font-medium text-primary">
           {value}
         </p>
         {sub && (

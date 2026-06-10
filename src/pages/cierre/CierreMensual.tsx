@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { useAppStore, useToast, useModal } from '@/store/useAppStore'
 import {
   LockKeyhole, UnlockKeyhole, TrendingUp,
@@ -288,7 +288,7 @@ export default function CierreMensual() {
             <FinancialRow
               label="Utilidad neta"
               value={resumen?.utilidad ?? 0}
-              color={(resumen?.utilidad ?? 0) >= 0 ? 'text-accent-DEFAULT' : 'text-danger'}
+              color={(resumen?.utilidad ?? 0) >= 0 ? 'text-accent' : 'text-danger'}
               bold
             />
           </div>
@@ -346,7 +346,7 @@ function FinancialRow({ label, value, color, sign, bold }: FinancialRowProps) {
     )}>
       <span className={cn(
         'text-primary-muted',
-        bold && 'font-bold text-primary-DEFAULT'
+        bold && 'font-bold text-primary'
       )}>
         {label}
       </span>

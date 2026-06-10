@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Pencil, Trash2, ExternalLink } from 'lucide-react'
 import { formatCOP, formatDate } from '@/lib/utils'
 import { useModal } from '@/store/useAppStore'
@@ -70,7 +70,7 @@ export default function GastoFila({
 
       {/* Descripción */}
       <td>
-        <p className="text-[13.5px] text-primary-DEFAULT font-medium">
+        <p className="text-[13.5px] text-primary font-medium">
           {gasto.descripcion}
         </p>
         {gasto.comprobante_url && (
@@ -79,7 +79,7 @@ export default function GastoFila({
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 text-[11.5px]
-                       text-accent-DEFAULT hover:underline mt-0.5"
+                       text-accent hover:underline mt-0.5"
           >
             <ExternalLink size={10} />
             Ver comprobante
@@ -112,7 +112,7 @@ export default function GastoFila({
           <button
             onClick={onEditar}
             className="p-1.5 rounded-lg text-primary-muted
-                       hover:text-primary-DEFAULT hover:bg-white/5
+                       hover:text-primary hover:bg-white/5
                        transition-colors"
             title="Editar"
           >

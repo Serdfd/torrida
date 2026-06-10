@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { History, LockKeyhole, UnlockKeyhole, TrendingUp, TrendingDown } from 'lucide-react'
 import { getCierresHistorial } from '@/lib/queries'
 import { formatCOP, formatPct, monthYearLabel } from '@/lib/utils'
@@ -103,7 +103,7 @@ export default function HistorialCierres() {
 
                   {/* Período */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-bold text-primary-DEFAULT">
+                    <p className="text-[14px] font-bold text-primary">
                       {monthYearLabel(cierre.anio, cierre.mes)}
                     </p>
                     <p className="text-[12px] text-primary-muted">
@@ -122,7 +122,7 @@ export default function HistorialCierres() {
                   {/* Ingresos */}
                   <div className="text-right hidden sm:block">
                     <p className="text-[11px] text-primary-muted mb-0.5">Ingresos</p>
-                    <p className="text-[13.5px] font-bold text-primary-DEFAULT">
+                    <p className="text-[13.5px] font-bold text-primary">
                       {formatCOP(cierre.ingresos)}
                     </p>
                   </div>
@@ -190,7 +190,7 @@ export default function HistorialCierres() {
                     <DetalleItem
                       label="Unidades vendidas"
                       value={String(cierre.unidades)}
-                      color="text-primary-DEFAULT"
+                      color="text-primary"
                     />
                     <DetalleItem
                       label="Devoluciones"
@@ -200,7 +200,7 @@ export default function HistorialCierres() {
                     <DetalleItem
                       label="Utilidad neta"
                       value={formatCOP(cierre.utilidad_neta)}
-                      color={esPositivo ? 'text-accent-DEFAULT' : 'text-danger'}
+                      color={esPositivo ? 'text-accent' : 'text-danger'}
                       bold
                     />
                     <DetalleItem
