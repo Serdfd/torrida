@@ -18,6 +18,7 @@ import CierreMensual    from '@/pages/cierre/CierreMensual'
 import TiendaNube       from '@/pages/tiendanube/TiendaNube'
 import Administracion   from '@/pages/administracion/Administracion'
 import Configuracion    from '@/pages/configuracion/Configuracion'
+import SesionesFotograficas from '@/pages/sesiones/SesionesFotograficas'
 
 // ── Tipos de rutas ─────────────────────────────────────────────────────────
 export type PageId =
@@ -34,6 +35,7 @@ export type PageId =
   | 'tiendanube'
   | 'administracion'
   | 'configuracion'
+  | 'sesiones'
 
 // ── Títulos de página ──────────────────────────────────────────────────────
 const PAGE_TITLES: Record<PageId, string> = {
@@ -50,6 +52,7 @@ const PAGE_TITLES: Record<PageId, string> = {
   'tiendanube':     'Tienda Nube',
   'administracion': 'Administración',
   'configuracion':  'Configuración',
+  'sesiones':       'Sesiones Fotográficas',
 }
 
 // ── Componente principal ───────────────────────────────────────────────────
@@ -147,6 +150,9 @@ export default function App() {
 
       case 'configuracion':
         return <Configuracion />
+
+      case 'sesiones':
+        return <SesionesFotograficas />
 
       default:
         return <Dashboard onNavigate={navigate} />

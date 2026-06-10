@@ -9,6 +9,7 @@
   Settings,
   Store,
   BarChart2,
+  Camera,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
@@ -16,16 +17,17 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { id: 'dashboard',      label: 'Dashboard',      icon: LayoutDashboard },
-  { id: 'ventas',         label: 'Ventas',          icon: ShoppingBag     },
-  { id: 'productos',      label: 'Productos',       icon: Package         },
-  { id: 'produccion',     label: 'Producción',      icon: Factory         },
-  { id: 'inventario',     label: 'Inventario',      icon: Boxes           },
-  { id: 'gastos',         label: 'Gastos',          icon: Receipt         },
-  { id: 'reportes',       label: 'Reportes',        icon: BarChart2       },
-  { id: 'cierre',         label: 'Cierre Mensual',  icon: CalendarCheck   },
-  { id: 'tiendanube',     label: 'Tienda Nube',     icon: Store           },
-  { id: 'administracion', label: 'Administración',  icon: Settings        },
+  { id: 'dashboard',      label: 'Dashboard',            icon: LayoutDashboard },
+  { id: 'ventas',         label: 'Ventas',               icon: ShoppingBag     },
+  { id: 'productos',      label: 'Productos',            icon: Package         },
+  { id: 'produccion',     label: 'Producción',           icon: Factory         },
+  { id: 'inventario',     label: 'Inventario',           icon: Boxes           },
+  { id: 'gastos',         label: 'Gastos',               icon: Receipt         },
+  { id: 'sesiones',       label: 'Sesiones Fotográficas',icon: Camera          },
+  { id: 'reportes',       label: 'Reportes',             icon: BarChart2       },
+  { id: 'cierre',         label: 'Cierre Mensual',       icon: CalendarCheck   },
+  { id: 'tiendanube',     label: 'Tienda Nube',          icon: Store           },
+  { id: 'administracion', label: 'Administración',       icon: Settings        },
 ]
 
 interface SidebarProps {

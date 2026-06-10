@@ -219,6 +219,38 @@ const MIGRATIONS: Migration[] = [
     }
   },
 
+  // ── v13: Tablas de sesiones fotográficas ────────────────────────────────
+  {
+    version:     13,
+    description: 'Crear tablas sesiones_fotograficas y sesion_fotografica_items',
+    up(db) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS sesiones_fotograficas (
+          id             INTEGER PRIMARY KEY AUTOINCREMENT,
+          fecha          TEXT    NOT NULL,
+          fotografo      TEXT,
+          costo_total    REAL    NOT NULL DEFAULT 0,
+          cantidad_looks INTEGER NOT NULL DEFAULT 0,
+          notas          TEXT,
+          created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+          updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS sesion_fotografica_items (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          sesion_id       INTEGER NOT NULL REFERENCES sesiones_fotograficas(id) ON DELETE CASCADE,
+          producto_id     INTEGER REFERENCES productos(id) ON DELETE SET NULL,
+          descripcion     TEXT,
+          costo_asignado  REAL    NOT NULL DEFAULT 0,
+          created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_sesion_items_sesion
+          ON sesion_fotografica_items(sesion_id);
+      `)
+    }
+  },
+
   // ── v12: View resumen anual ──────────────────────────────────────────────
   {
     version:     12,
