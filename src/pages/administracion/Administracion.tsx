@@ -1,12 +1,16 @@
 ﻿import { useEffect, useState, useCallback } from 'react'
 import {
   Settings, Database, BarChart2, Wrench,
-  Download, FileText, RefreshCw, Trash2
+  Download, FileText, RefreshCw, Trash2,
+  Truck, Package
 } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { formatNumber } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import Proveedores   from './Proveedores'
+import Insumos       from './Insumos'
 
 interface Stats {
   productos:   number
@@ -35,6 +39,15 @@ function SeccionTitulo({
 export default function Administracion() {
   const toast = useToast()
   const { openModal, closeModal } = useModal()
+
+  type TabId = 'sistema' | 'proveedores' | 'insumos'
+  const [tab, setTab] = useState<TabId>('proveedores')
+
+  const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
+    { id: 'proveedores', label: 'Proveedores',        icon: Truck   },
+    { id: 'insumos',     label: 'Insumos y materiales', icon: Package },
+    { id: 'sistema',     label: 'Sistema',             icon: Settings },
+  ]
 
   const [loading, setLoading] = useState(true)
   const [stats,   setStats]   = useState<Stats>({
@@ -117,7 +130,7 @@ export default function Administracion() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
 
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -126,22 +139,35 @@ export default function Administracion() {
           <Settings size={20} />
         </div>
         <div>
-          <h2 className="text-[17px] font-bold text-primary">
-            Administración
-          </h2>
-          <p className="text-[12.5px] text-primary-muted">
-            Panel de control del sistema
-          </p>
+          <h2 className="text-[17px] font-bold text-primary">Administración</h2>
+          <p className="text-[12.5px] text-primary-muted">Catálogos y configuración del sistema</p>
         </div>
-        <button
-          onClick={loadStats}
-          className="ml-auto btn-ghost h-9 text-[13px]"
-          title="Recargar estadísticas"
-        >
-          <RefreshCw size={14} />
-          Recargar
-        </button>
       </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-border">
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold',
+              'border-b-2 -mb-px transition-colors',
+              tab === id
+                ? 'border-accent text-accent'
+                : 'border-transparent text-primary-muted hover:text-primary'
+            )}
+          >
+            <Icon size={14} />{label}
+          </button>
+        ))}
+      </div>
+
+      {/* Contenido por tab */}
+      {tab === 'proveedores' && <Proveedores />}
+      {tab === 'insumos'     && <Insumos />}
+      {tab === 'sistema'     && (
+        <div className="flex flex-col gap-5">
 
       {/* ── Estadísticas del sistema ── */}
       <div className="card">
@@ -232,6 +258,8 @@ export default function Administracion() {
         </p>
       </div>
 
+        </div>
+      )}
     </div>
   )
 }
