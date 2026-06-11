@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Settings, Database, BarChart2, Wrench,
   Download, FileText, RefreshCw, Trash2,
@@ -214,14 +214,14 @@ export default function Administracion() {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleExportarBackup}
-            className="btn-primary text-[13px]"
+            className="btn-primary"
           >
             <Download size={14} />
             Exportar backup
           </button>
           <button
             onClick={handleVerLogs}
-            className="btn-ghost text-[13px]"
+            className="btn-ghost"
           >
             <FileText size={14} />
             Ver logs del sistema
@@ -238,14 +238,14 @@ export default function Administracion() {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleRecalcularTotales}
-            className="btn-ghost text-[13px]"
+            className="btn-ghost"
           >
             <RefreshCw size={14} />
             Recalcular totales
           </button>
           <button
             onClick={handleLimpiarDatos}
-            className="btn-ghost text-[13px] text-danger hover:text-danger
+            className="btn-ghost text-danger hover:text-danger
                        hover:border-danger/30"
           >
             <Trash2 size={14} />

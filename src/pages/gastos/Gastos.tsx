@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Plus, Search, Download, Receipt } from 'lucide-react'
 import { useAppStore, useToast, useModal } from '@/store/useAppStore'
 import { getGastos, getTotalGastos } from '@/lib/queries'
@@ -151,12 +151,12 @@ export default function Gastos() {
           />
         </div>
 
-        <button onClick={handleExportar} className="btn-ghost h-9 text-[13px]">
+        <button onClick={handleExportar} className="btn-ghost">
           <Download size={14} />
           CSV
         </button>
 
-        <button onClick={handleNuevoGasto} className="btn-primary h-9 text-[13px]">
+        <button onClick={handleNuevoGasto} className="btn-primary">
           <Plus size={14} />
           Nuevo gasto
         </button>

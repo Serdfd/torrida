@@ -21,7 +21,7 @@ const VARIANT_CONFIG = {
   warning: {
     icon: AlertTriangle,
     iconClass: 'text-warning bg-warning/10',
-    confirmClass: 'btn bg-warning/10 text-warning border border-warning/20 hover:bg-warning/20'
+    confirmClass: 'btn-ghost bg-warning/10 text-warning border-warning/20 hover:bg-warning/20'
   },
   info: {
     icon: Info,

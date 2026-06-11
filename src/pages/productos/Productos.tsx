@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Plus, Search, Package } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getProductos } from '@/lib/queries'
@@ -143,7 +143,7 @@ export default function Productos() {
         </div>
 
         {/* Nuevo producto */}
-        <button onClick={handleNuevoProducto} className="btn-primary h-9 text-[13px]">
+        <button onClick={handleNuevoProducto} className="btn-primary">
           <Plus size={14} />
           Nuevo producto
         </button>

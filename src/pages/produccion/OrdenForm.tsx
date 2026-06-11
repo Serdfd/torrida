@@ -312,7 +312,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
             onClick={handleAgregarProducto}
             disabled={!prodSelector}
             className={cn(
-              'btn-primary text-[13px]',
+              'btn-primary',
               !prodSelector && 'opacity-50 cursor-not-allowed'
             )}
           >
@@ -411,10 +411,10 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
       {/* ── Acciones ── */}
       <div className="flex gap-2 justify-end">
-        <button onClick={onCancel} className="btn-ghost text-[13px]" disabled={saving}>
+        <button onClick={onCancel} className="btn-ghost" disabled={saving}>
           Cancelar
         </button>
-        <button onClick={handleSave} className="btn-primary text-[13px]" disabled={saving || items.length === 0}>
+        <button onClick={handleSave} className="btn-primary" disabled={saving || items.length === 0}>
           <Check size={14} />
           {saving ? 'Guardando…' : 'Crear orden'}
         </button>

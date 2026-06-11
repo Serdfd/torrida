@@ -154,7 +154,7 @@ export default function ConfigUnidades() {
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
-          className="btn-primary h-8 text-[12.5px]"
+          className="btn-primary"
           disabled={adding}
         >
           <Plus size={13} /> Nueva unidad
@@ -199,12 +199,12 @@ export default function ConfigUnidades() {
           </div>
           <button
             onClick={() => { setAdding(false); setNewNombre('') }}
-            className="btn-ghost h-9 text-[13px]"
+            className="btn-ghost"
             disabled={saving}
           >
             <X size={14} /> Cancelar
           </button>
-          <button onClick={handleAgregar} disabled={saving} className="btn-primary h-9 text-[13px]">
+          <button onClick={handleAgregar} disabled={saving} className="btn-primary">
             {saving ? <Spinner size="sm" /> : <Check size={14} />}
             Guardar
           </button>
@@ -243,13 +243,13 @@ export default function ConfigUnidades() {
                       onKeyDown={e => e.key === 'Enter' && handleGuardarEdicion(u.id)}
                       autoFocus
                     />
-                    <button onClick={() => setEditId(null)} className="btn-ghost h-8 text-[12.5px]">
+                    <button onClick={() => setEditId(null)} className="btn-ghost">
                       <X size={13} /> Cancelar
                     </button>
                     <button
                       onClick={() => handleGuardarEdicion(u.id)}
                       disabled={saving}
-                      className="btn-primary h-8 text-[12.5px]"
+                      className="btn-primary"
                     >
                       {saving ? <Spinner size="sm" /> : <Check size={13} />}
                       Guardar

@@ -213,7 +213,7 @@ export default function InsumoMovimientosPanel({
 
       {/* Cerrar */}
       <div className="flex justify-end pt-1 border-t border-border">
-        <button onClick={onClose} className="btn-ghost text-[13px]">
+        <button onClick={onClose} className="btn-ghost">
           Cerrar
         </button>
       </div>

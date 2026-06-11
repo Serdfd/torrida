@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Palette, Check, X } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
@@ -78,7 +78,7 @@ function ColeccionFormInline({
         <button
           type="button"
           onClick={onCancel}
-          className="btn-ghost h-9 text-[13px]"
+          className="btn-ghost"
           disabled={saving}
         >
           <X size={13} /> Cancelar
@@ -87,7 +87,7 @@ function ColeccionFormInline({
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="btn-primary h-9 text-[13px]"
+          className="btn-primary"
         >
           {saving ? <Spinner size="sm" /> : <Check size={13} />}
           Guardar
@@ -249,7 +249,7 @@ export default function ConfigColecciones() {
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
-          className="btn-primary h-8 text-[12.5px]"
+          className="btn-primary"
           disabled={adding}
         >
           <Plus size={13} />

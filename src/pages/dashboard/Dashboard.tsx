@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAppStore, useToast }            from '@/store/useAppStore'
 import {
   DollarSign, ShoppingBag, TrendingUp,
@@ -202,7 +202,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </p>
         <button
           onClick={() => onNavigate('nueva-venta')}
-          className="btn-primary text-[12px] h-8 px-3"
+          className="btn-primary px-3"
         >
           + Nueva venta
         </button>

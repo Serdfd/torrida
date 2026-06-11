@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ShoppingBag, Calendar, User, CreditCard,
   Store, Truck, FileText, RotateCcw, Package
@@ -271,13 +271,13 @@ export default function VentaDetalle({
       {/* Acciones */}
       <div className="flex items-center justify-between pt-1 border-t border-border">
         {venta.estado !== 'cancelado' && (
-          <button onClick={handleCancelar} className="btn-danger text-[13px]">
+          <button onClick={handleCancelar} className="btn-danger">
             <RotateCcw size={13} />
             Cancelar venta
           </button>
         )}
         <div className="ml-auto">
-          <button onClick={onClose} className="btn-ghost text-[13px]">
+          <button onClick={onClose} className="btn-ghost">
             Cerrar
           </button>
         </div>

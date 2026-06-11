@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Factory, Plus, ChevronDown, ChevronRight,
   CheckCircle2, Clock, Truck, PackageCheck,
@@ -179,8 +179,8 @@ function PagoModal({
         </div>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onCancel} className="btn-ghost text-[13px]" disabled={saving}>Cancelar</button>
-        <button onClick={handleOk} className="btn-primary text-[13px]" disabled={saving}>
+        <button onClick={onCancel} className="btn-ghost" disabled={saving}>Cancelar</button>
+        <button onClick={handleOk} className="btn-primary" disabled={saving}>
           {saving ? 'Guardando…' : 'Confirmar'}
         </button>
       </div>
@@ -411,14 +411,14 @@ function OrdenFila({
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
           {sig && (
-            <button onClick={() => onAvanzar(orden)} className="btn-primary text-[12px] py-1.5 px-3">
+            <button onClick={() => onAvanzar(orden)} className="btn-primary px-3">
               {sig.label}
             </button>
           )}
           {puedeCancelar && (
             <button
               onClick={() => onCancelar(orden)}
-              className="btn-ghost text-[12px] py-1.5 px-2 text-danger hover:border-danger/30"
+              className="btn-ghost px-2 text-danger hover:border-danger/30"
               title="Cancelar orden"
             >
               <XCircle size={13} />
@@ -427,7 +427,7 @@ function OrdenFila({
           {puedeEliminar && (
             <button
               onClick={() => onEliminar(orden)}
-              className="btn-ghost text-[12px] py-1.5 px-2 text-danger hover:border-danger/30"
+              className="btn-ghost px-2 text-danger hover:border-danger/30"
               title="Eliminar orden"
             >
               <Trash2 size={13} />
@@ -833,20 +833,20 @@ export default function Produccion() {
             Gestión de talleres y seguimiento de estados
           </p>
         </div>
-        <button onClick={() => loadOrdenes()} className="btn-ghost text-[13px]" title="Recargar">
+        <button onClick={() => loadOrdenes()} className="btn-ghost" title="Recargar">
           <RefreshCw size={14} />
         </button>
         <button
           onClick={handleExportarOrdenes}
           disabled={ordenes.length === 0}
-          className="btn-ghost text-[13px]"
+          className="btn-ghost"
           title="Exportar CSV"
         >
           <Download size={14} />
           CSV
         </button>
         {!showForm && (
-          <button onClick={() => setShowForm(true)} className="btn-primary text-[13px]">
+          <button onClick={() => setShowForm(true)} className="btn-primary">
             <Plus size={15} /> Nueva orden
           </button>
         )}

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Search, Package, ArrowUpCircle, ArrowDownCircle, RefreshCw,
   ClipboardCheck, Layers, AlertTriangle, History, Download
@@ -282,7 +282,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
             </div>
             <button
               onClick={loadInventario}
-              className="btn-ghost h-9 text-[13px]"
+              className="btn-ghost"
               title="Recargar"
             >
               <RefreshCw size={14} />
@@ -290,7 +290,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
             </button>
             <button
               onClick={handleExportarInventario}
-              className="btn-ghost h-9 text-[13px]"
+              className="btn-ghost"
               title="Exportar CSV"
             >
               <Download size={14} />
@@ -476,7 +476,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
             </div>
             <button
               onClick={loadInsumos}
-              className="btn-ghost h-9 text-[13px]"
+              className="btn-ghost"
             >
               <RefreshCw size={14} />
               Recargar

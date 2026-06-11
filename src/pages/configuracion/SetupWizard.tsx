@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import {
   Store, Wifi, WifiOff, ChevronRight, ChevronLeft,
   CheckCircle2, Sparkles, Instagram, Globe, Phone,
@@ -473,7 +473,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <button
                   onClick={handleTestTN}
                   disabled={tnTestando || !tn.storeId.trim() || !tn.token.trim()}
-                  className="btn-ghost text-[13px] self-start"
+                  className="btn-ghost self-start"
                 >
                   {tnTestando ? <Spinner size="sm" /> : <Wifi size={13} />}
                   Probar conexión
@@ -494,7 +494,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                     <button
                       onClick={handleImportarTN}
                       disabled={tnImportando}
-                      className="btn-primary text-[13px] self-start"
+                      className="btn-primary self-start"
                     >
                       {tnImportando
                         ? <><Spinner size="sm" /> Importando…</>
@@ -581,7 +581,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         setCanales(p => [...p, { nombre: nuevoCanal.trim(), comision_pct: 0 }])
                         setNuevoCanal('')
                       }}
-                      className="btn-ghost h-8 text-[12px] px-2 shrink-0"
+                      className="btn-ghost px-2 shrink-0"
                     >
                       <Plus size={13} /> Agregar
                     </button>
@@ -635,7 +635,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         setMedios(p => [...p, { nombre: nuevoMedio.trim() }])
                         setNuevoMedio('')
                       }}
-                      className="btn-ghost h-8 text-[12px] px-2 shrink-0"
+                      className="btn-ghost px-2 shrink-0"
                     >
                       <Plus size={13} /> Agregar
                     </button>
@@ -695,7 +695,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <button
                 onClick={() => setStep(s => s - 1)}
                 disabled={saving}
-                className="btn-ghost text-[13px]"
+                className="btn-ghost"
               >
                 <ChevronLeft size={15} /> Atrás
               </button>
@@ -710,7 +710,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   }
                   setStep(s => s + 1)
                 }}
-                className="btn-primary text-[13px]"
+                className="btn-primary"
               >
                 {step === 2 && !tnConectado && !tn.storeId
                   ? 'Saltear este paso'
@@ -724,7 +724,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <button
                 onClick={handleFinalizar}
                 disabled={saving}
-                className="btn-primary text-[13px]"
+                className="btn-primary"
               >
                 {saving
                   ? <><Spinner size="sm" /> Guardando…</>

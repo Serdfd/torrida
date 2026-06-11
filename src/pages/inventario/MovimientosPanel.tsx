@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowUpCircle, ArrowDownCircle,
   SlidersHorizontal, History, RefreshCw
@@ -230,7 +230,7 @@ export default function MovimientosPanel({
 
       {/* Cerrar */}
       <div className="flex justify-end pt-1 border-t border-border">
-        <button onClick={onClose} className="btn-ghost text-[13px]">
+        <button onClick={onClose} className="btn-ghost">
           Cerrar
         </button>
       </div>

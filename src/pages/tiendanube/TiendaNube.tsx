@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Store, Wifi, WifiOff, RefreshCw, ShoppingCart,
   Package, Boxes, CheckCircle, AlertTriangle,
@@ -483,17 +483,17 @@ export default function TiendaNube() {
                   <button
                     onClick={handleTestConexion}
                     disabled={testando}
-                    className="btn-ghost text-[13px]"
+                    className="btn-ghost"
                   >
                     {testando ? <Spinner size="sm" /> : <Wifi size={13} />}
                     Probar conexión
                   </button>
-                  <button onClick={() => setEditando(true)} className="btn-ghost text-[13px]">
+                  <button onClick={() => setEditando(true)} className="btn-ghost">
                     Cambiar
                   </button>
                   <button
                     onClick={handleDesconectar}
-                    className="btn-ghost text-[13px] text-danger hover:text-danger ml-auto"
+                    className="btn-ghost text-danger hover:text-danger ml-auto"
                   >
                     Desconectar
                   </button>
@@ -518,13 +518,13 @@ export default function TiendaNube() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleGuardar} className="btn-primary text-[13px]">
+                  <button onClick={handleGuardar} className="btn-primary">
                     Guardar
                   </button>
                   {editando && (
                     <button
                       onClick={() => { setEditando(false); setStoreId(savedStoreId); setToken(savedToken) }}
-                      className="btn-ghost text-[13px]"
+                      className="btn-ghost"
                     >
                       Cancelar
                     </button>
@@ -611,7 +611,7 @@ export default function TiendaNube() {
             <button
               onClick={handleSyncProductos}
               disabled={syncing}
-              className="btn-ghost h-8 text-[12px]"
+              className="btn-ghost"
             >
               {syncingProd ? <Spinner size="sm" /> : <RefreshCw size={13} />}
               Sincronizar
@@ -676,7 +676,7 @@ export default function TiendaNube() {
             <button
               onClick={handleSyncOrdenes}
               disabled={syncing}
-              className="btn-ghost h-8 text-[12px]"
+              className="btn-ghost"
             >
               {syncingOrd ? <Spinner size="sm" /> : <RefreshCw size={13} />}
               Sincronizar

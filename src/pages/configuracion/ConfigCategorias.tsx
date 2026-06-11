@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Package, Check, X } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
@@ -230,7 +230,7 @@ export default function ConfigCategorias() {
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
-          className="btn-primary h-8 text-[12.5px]"
+          className="btn-primary"
           disabled={adding}
         >
           <Plus size={13} />
@@ -311,7 +311,7 @@ export default function ConfigCategorias() {
           <div className="flex justify-end gap-2">
             <button
               onClick={() => { setAdding(false); setNewData({ nombre: '', color: '#8A8AA8' }) }}
-              className="btn-ghost h-9 text-[13px]"
+              className="btn-ghost"
               disabled={saving}
             >
               <X size={14} />
@@ -320,7 +320,7 @@ export default function ConfigCategorias() {
             <button
               onClick={handleAgregar}
               disabled={saving}
-              className="btn-primary h-9 text-[13px]"
+              className="btn-primary"
             >
               {saving ? <Spinner size="sm" /> : <Check size={14} />}
               Guardar
@@ -390,14 +390,14 @@ export default function ConfigCategorias() {
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => setEditId(null)}
-                        className="btn-ghost h-8 text-[12.5px]"
+                        className="btn-ghost"
                       >
                         <X size={13} /> Cancelar
                       </button>
                       <button
                         onClick={() => handleGuardarEdicion(cat.id)}
                         disabled={saving}
-                        className="btn-primary h-8 text-[12.5px]"
+                        className="btn-primary"
                       >
                         {saving ? <Spinner size="sm" /> : <Check size={13} />}
                         Guardar

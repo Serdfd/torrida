@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Download, BarChart2 } from 'lucide-react'
 import { useAppStore, useToast } from '@/store/useAppStore'
 import {
@@ -142,7 +142,7 @@ export default function Reportes() {
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
-          <button onClick={handleExportar} className="btn-ghost h-9 text-[13px]">
+          <button onClick={handleExportar} className="btn-ghost">
             <Download size={14} />
             CSV
           </button>

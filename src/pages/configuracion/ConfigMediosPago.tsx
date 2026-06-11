@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Plus, Pencil, Trash2, CreditCard, Check, X,
   ChevronDown, ChevronRight, Percent, DollarSign
@@ -256,7 +256,7 @@ export default function ConfigMediosPago() {
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
-          className="btn-primary h-8 text-[12.5px]"
+          className="btn-primary"
           disabled={adding}
         >
           <Plus size={13} /> Nuevo medio
@@ -280,11 +280,11 @@ export default function ConfigMediosPago() {
             />
           </div>
           <button onClick={handleAgregar} disabled={saving}
-            className="btn-primary h-9 text-[13px] shrink-0">
+            className="btn-primary shrink-0">
             {saving ? <Spinner size="sm" /> : <Check size={14} />} Guardar
           </button>
           <button onClick={() => { setAdding(false); setNewNombre('') }}
-            className="btn-ghost h-9 text-[13px] shrink-0" disabled={saving}>
+            className="btn-ghost shrink-0" disabled={saving}>
             <X size={14} />
           </button>
         </div>
@@ -419,7 +419,7 @@ export default function ConfigMediosPago() {
                       </p>
                       <button
                         onClick={() => { setAddingTarifa(true); setEditTarifaId(null) }}
-                        className="btn-ghost h-7 text-[12px]"
+                        className="btn-ghost h-7"
                         disabled={addingTarifa}
                       >
                         <Plus size={12} /> Agregar tarifa
@@ -461,14 +461,14 @@ export default function ConfigMediosPago() {
                         <button
                           onClick={() => handleAgregarTarifa(medio.id)}
                           disabled={savingTarifa}
-                          className="btn-primary h-8 text-[12.5px] shrink-0"
+                          className="btn-primary shrink-0"
                         >
                           {savingTarifa ? <Spinner size="sm" /> : <Check size={13} />}
                           Guardar
                         </button>
                         <button
                           onClick={() => { setAddingTarifa(false); setNewTarifa({ concepto: '', comision_pct: 0, comision_fija: 0 }) }}
-                          className="btn-ghost h-8 text-[12.5px] shrink-0"
+                          className="btn-ghost shrink-0"
                         >
                           <X size={13} />
                         </button>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAppStore, useToast, useModal }  from '@/store/useAppStore'
 import { Plus, Search, Filter, Download }   from 'lucide-react'
 import { getVentas }                        from '@/lib/queries'
@@ -125,11 +125,11 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
           ))}
         </div>
 
-        <button onClick={handleExportar} className="btn-ghost h-9 text-[13px]">
+        <button onClick={handleExportar} className="btn-ghost">
           <Download size={14} /> CSV
         </button>
 
-        <button onClick={onNuevaVenta} className="btn-primary h-9 text-[13px]">
+        <button onClick={onNuevaVenta} className="btn-primary">
           <Plus size={14} /> Nueva venta
         </button>
       </div>

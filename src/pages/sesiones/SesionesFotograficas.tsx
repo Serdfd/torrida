@@ -130,10 +130,10 @@ function SesionForm({
       </div>
 
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={onCancel} className="btn-ghost text-[13px]">
+        <button type="button" onClick={onCancel} className="btn-ghost">
           Cancelar
         </button>
-        <button type="submit" className="btn-primary text-[13px]">
+        <button type="submit" className="btn-primary">
           <Check size={14} /> Guardar
         </button>
       </div>
@@ -383,10 +383,10 @@ function SesionDetalle({
             <div className="flex gap-2 justify-end">
               <button type="button"
                 onClick={() => { setShowGastoForm(false); setGDesc(''); setGMonto('') }}
-                className="btn-ghost h-8 text-[12px]">
+                className="btn-ghost">
                 <X size={12} /> Cancelar
               </button>
-              <button type="submit" className="btn-primary h-8 text-[12px]">
+              <button type="submit" className="btn-primary">
                 <Check size={12} /> Agregar
               </button>
             </div>
@@ -489,10 +489,10 @@ function SesionDetalle({
             <div className="flex gap-2 justify-end">
               <button type="button"
                 onClick={() => { setShowProdForm(false); setPProdId(''); setPUnidades('') }}
-                className="btn-ghost h-8 text-[12px]">
+                className="btn-ghost">
                 <X size={12} /> Cancelar
               </button>
-              <button type="submit" className="btn-primary h-8 text-[12px]">
+              <button type="submit" className="btn-primary">
                 <Check size={12} /> Agregar
               </button>
             </div>
@@ -708,7 +708,7 @@ export default function SesionesFotograficas() {
         {!showForm && (
           <button
             onClick={() => { setEditando(null); setShowForm(true) }}
-            className="btn-primary text-[13px]"
+            className="btn-primary"
           >
             <Plus size={15} /> Nueva sesión
           </button>

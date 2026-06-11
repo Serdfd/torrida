@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { Plus, Trash2, ShoppingBag, Truck } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -511,7 +511,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
             <button type="button"
               onClick={() => append({ producto_id: 0, talla_id: 0, cantidad: 1,
                 precio_unitario: 0, descuento_item: 0, costo_unitario_snap: 0 })}
-              className="btn-ghost h-7 text-[12px] px-2">
+              className="btn-ghost h-7 px-2">
               <Plus size={12} /> Agregar
             </button>
           </div>

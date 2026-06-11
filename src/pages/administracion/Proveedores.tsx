@@ -167,7 +167,7 @@ export default function Proveedores() {
         {!adding && (
           <button
             onClick={() => { setAdding(true); setEditId(null) }}
-            className="btn-primary h-8 text-[12.5px]"
+            className="btn-primary"
           >
             <Plus size={13} /> Agregar
           </button>
@@ -227,10 +227,10 @@ export default function Proveedores() {
             </div>
           </div>
           <div className="flex gap-2 justify-end">
-            <button onClick={cancelAdd} className="btn-ghost h-8 text-[12.5px]">
+            <button onClick={cancelAdd} className="btn-ghost">
               <X size={13} /> Cancelar
             </button>
-            <button onClick={handleAgregar} disabled={saving} className="btn-primary h-8 text-[12.5px]">
+            <button onClick={handleAgregar} disabled={saving} className="btn-primary">
               <Check size={13} /> {saving ? 'Guardando…' : 'Guardar'}
             </button>
           </div>
@@ -297,10 +297,10 @@ export default function Proveedores() {
                     </div>
                   </div>
                   <div className="flex gap-2 justify-end">
-                    <button onClick={cancelEdit} className="btn-ghost h-8 text-[12.5px]">
+                    <button onClick={cancelEdit} className="btn-ghost">
                       <X size={13} /> Cancelar
                     </button>
-                    <button onClick={handleGuardarEdicion} disabled={saving} className="btn-primary h-8 text-[12.5px]">
+                    <button onClick={handleGuardarEdicion} disabled={saving} className="btn-primary">
                       <Check size={13} /> {saving ? 'Guardando…' : 'Guardar'}
                     </button>
                   </div>

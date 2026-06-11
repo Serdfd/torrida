@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAppStore, useToast, useModal } from '@/store/useAppStore'
 import {
   LockKeyhole, UnlockKeyhole, TrendingUp,
@@ -279,10 +279,10 @@ export default function CierreMensual() {
         <button
           onClick={estaCerrado ? handleReabrirMes : handleCerrarMes}
           className={cn(
-            'btn text-[13px] shrink-0',
+            'shrink-0',
             estaCerrado
-              ? 'btn-ghost border border-success/30 text-success hover:bg-success/10'
-              : 'btn bg-warning/10 border border-warning/30 text-warning hover:bg-warning/20'
+              ? 'btn-ghost border-success/30 text-success hover:bg-success/10'
+              : 'btn-ghost bg-warning/10 border-warning/30 text-warning hover:bg-warning/20'
           )}
         >
           {estaCerrado
@@ -485,7 +485,7 @@ export default function CierreMensual() {
                 <button
                   onClick={handleGuardarDistribucion}
                   disabled={savingDist}
-                  className="btn-primary text-[13px]"
+                  className="btn-primary"
                 >
                   {savingDist ? 'Guardando…' : 'Guardar distribución'}
                 </button>

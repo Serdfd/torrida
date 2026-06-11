@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Ruler, Check, X, GripVertical } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
@@ -208,7 +208,7 @@ export default function ConfigTallas() {
         </div>
         <button
           onClick={openAdding}
-          className="btn-primary h-8 text-[12.5px]"
+          className="btn-primary"
           disabled={adding}
         >
           <Plus size={13} />
@@ -282,14 +282,14 @@ export default function ConfigTallas() {
           <button
             onClick={handleAgregar}
             disabled={saving}
-            className="btn-primary h-9 text-[13px] shrink-0"
+            className="btn-primary shrink-0"
           >
             {saving ? <Spinner size="sm" /> : <Check size={14} />}
             Guardar
           </button>
           <button
             onClick={() => { setAdding(false); setNewData({ nombre: '', orden: 0 }) }}
-            className="btn-ghost h-9 text-[13px] shrink-0"
+            className="btn-ghost shrink-0"
             disabled={saving}
           >
             <X size={14} />

@@ -318,7 +318,7 @@ export default function Insumos() {
         {!adding && (
           <button
             onClick={() => { setAdding(true); setEditId(null) }}
-            className="btn-primary h-8 text-[12.5px]"
+            className="btn-primary"
           >
             <Plus size={13} /> Agregar
           </button>
@@ -495,7 +495,7 @@ export default function Insumos() {
                             setAddingLoteFor(ins.id)
                             setNewLote({ ...EMPTY_LOTE })
                           }}
-                          className="btn-primary h-7 text-[12px]"
+                          className="btn-primary h-7"
                         >
                           <ShoppingCart size={12} /> Registrar compra
                         </button>
@@ -569,14 +569,14 @@ export default function Insumos() {
                         <div className="flex gap-2 justify-end">
                           <button
                             onClick={() => setAddingLoteFor(null)}
-                            className="btn-ghost h-7 text-[12px]"
+                            className="btn-ghost h-7"
                           >
                             <X size={12} /> Cancelar
                           </button>
                           <button
                             onClick={() => handleAgregarLote(ins.id)}
                             disabled={savingLote}
-                            className="btn-primary h-7 text-[12px]"
+                            className="btn-primary h-7"
                           >
                             <Check size={12} /> {savingLote ? 'Guardando…' : 'Guardar'}
                           </button>
@@ -711,10 +711,10 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
         </div>
       </div>
       <div className="flex gap-2 justify-end">
-        <button onClick={onCancel} className="btn-ghost h-8 text-[12.5px]">
+        <button onClick={onCancel} className="btn-ghost">
           <X size={13} /> Cancelar
         </button>
-        <button onClick={onSave} disabled={saving} className="btn-primary h-8 text-[12.5px]">
+        <button onClick={onSave} disabled={saving} className="btn-primary">
           <Check size={13} /> {saving ? 'Guardando…' : 'Guardar'}
         </button>
       </div>

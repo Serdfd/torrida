@@ -338,7 +338,7 @@ export default function FichaCostoPanel({
               {!editing && (
                 <button
                   onClick={startEditing}
-                  className="btn-primary text-[12px] py-1.5 px-3"
+                  className="btn-primary px-3"
                 >
                   <Plus size={13} />
                   {ficha ? 'Nueva versión' : 'Crear ficha'}
@@ -460,14 +460,14 @@ export default function FichaCostoPanel({
                 <div className="flex gap-2 justify-end mt-3">
                   <button
                     onClick={() => setEditing(false)}
-                    className="btn-ghost text-[13px]"
+                    className="btn-ghost"
                     disabled={saving}
                   >
                     <X size={13} /> Cancelar
                   </button>
                   <button
                     onClick={handleSave}
-                    className="btn-primary text-[13px]"
+                    className="btn-primary"
                     disabled={saving}
                   >
                     <Check size={13} />
