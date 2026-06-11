@@ -74,7 +74,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         collapsed && 'justify-center px-0'
       )}>
         <img
-          src="https://acdn-us.mitiendanube.com/stores/002/468/927/themes/common/ogimage-574228055-1717697925-883faf78a57d288d6c494ab9a0897ca01717697925.jpg?0"
+          src="/icon.png"
           alt="Tórrida"
           className="w-8 h-8 rounded-lg object-cover shrink-0"
         />
