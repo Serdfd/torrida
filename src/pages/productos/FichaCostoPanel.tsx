@@ -81,7 +81,7 @@ function CostoFila({ label, value, editing, onChange }: {
   if (editing && onChange) {
     return (
       <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
-        <span className="text-[12.5px] text-primary-muted">{label}</span>
+        <span className="text-sm text-primary-muted">{label}</span>
         <input
           type="number"
           min="0"
@@ -89,15 +89,15 @@ function CostoFila({ label, value, editing, onChange }: {
           value={value as string}
           onChange={e => onChange(e.target.value)}
           placeholder="0"
-          className="input text-right text-[13px] py-1 h-7 w-36"
+          className="input text-right text-base py-1 h-7 w-36"
         />
       </div>
     )
   }
   return (
     <div className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-0">
-      <span className="text-[12.5px] text-primary-muted">{label}</span>
-      <span className="text-[13px] text-primary font-medium">{fmtCOP(value as number)}</span>
+      <span className="text-sm text-primary-muted">{label}</span>
+      <span className="text-base text-primary font-medium">{fmtCOP(value as number)}</span>
     </div>
   )
 }
@@ -285,29 +285,29 @@ export default function FichaCostoPanel({
           <DollarSign size={18} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-bold text-primary truncate">Ficha de costo</p>
-          <p className="text-[12px] text-primary-muted truncate">{productoNombre}</p>
+          <p className="text-md font-bold text-primary truncate">Ficha de costo</p>
+          <p className="text-sm text-primary-muted truncate">{productoNombre}</p>
         </div>
       </div>
 
       {loading ? (
-        <p className="text-[13px] text-primary-muted py-4 text-center">Cargando…</p>
+        <p className="text-base text-primary-muted py-4 text-center">Cargando…</p>
       ) : (
         <>
           {/* ── Indicadores rápidos ── */}
           {(ficha || editing) && (
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-sidebar border border-border rounded-xl px-3 py-2.5 text-center">
-                <p className="text-[10px] uppercase tracking-wider text-primary-muted font-bold mb-0.5">
+                <p className="text-2xs uppercase tracking-wider text-primary-muted font-bold mb-0.5">
                   Costo total
                 </p>
-                <p className="text-[16px] font-bold text-warning">{fmtCOP(costoTotalForm)}</p>
+                <p className="text-lg font-bold text-warning">{fmtCOP(costoTotalForm)}</p>
               </div>
               <div className="bg-sidebar border border-border rounded-xl px-3 py-2.5 text-center">
-                <p className="text-[10px] uppercase tracking-wider text-primary-muted font-bold mb-0.5">
+                <p className="text-2xs uppercase tracking-wider text-primary-muted font-bold mb-0.5">
                   Precio venta
                 </p>
-                <p className="text-[16px] font-bold text-primary">{fmtCOP(precioVenta)}</p>
+                <p className="text-lg font-bold text-primary">{fmtCOP(precioVenta)}</p>
               </div>
               <div className={cn(
                 'border rounded-xl px-3 py-2.5 text-center',
@@ -315,11 +315,11 @@ export default function FichaCostoPanel({
                   ? 'bg-success/10 border-success/30'
                   : 'bg-danger/10 border-danger/30'
               )}>
-                <p className="text-[10px] uppercase tracking-wider text-primary-muted font-bold mb-0.5">
+                <p className="text-2xs uppercase tracking-wider text-primary-muted font-bold mb-0.5">
                   Margen real
                 </p>
                 <p className={cn(
-                  'text-[16px] font-bold flex items-center justify-center gap-1',
+                  'text-lg font-bold flex items-center justify-center gap-1',
                   margenBueno ? 'text-success' : 'text-danger'
                 )}>
                   {margenBueno ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
@@ -332,7 +332,7 @@ export default function FichaCostoPanel({
           {/* ── Desglose de costos ── */}
           <div className="card gap-0 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] font-semibold text-primary">
+              <p className="text-base font-semibold text-primary">
                 {ficha ? `Versión ${ficha.version} (vigente)` : 'Sin ficha de costo'}
               </p>
               {!editing && (
@@ -351,7 +351,7 @@ export default function FichaCostoPanel({
                 {/* Confección con sugerencia desde orden de producción */}
                 <div className="flex flex-col border-b border-border/40 py-1.5 gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[12.5px] text-primary-muted">Confección / Mano de obra</span>
+                    <span className="text-sm text-primary-muted">Confección / Mano de obra</span>
                     <input
                       type="number"
                       min="0"
@@ -359,7 +359,7 @@ export default function FichaCostoPanel({
                       value={form.costo_confeccion}
                       onChange={e => setF('costo_confeccion', e.target.value)}
                       placeholder="0"
-                      className="w-32 text-right text-[13px] font-semibold bg-transparent
+                      className="w-32 text-right text-base font-semibold bg-transparent
                                  border border-border rounded-lg px-2 py-1
                                  focus:outline-none focus:border-accent text-primary"
                     />
@@ -369,7 +369,7 @@ export default function FichaCostoPanel({
                       <button
                         type="button"
                         onClick={() => setF('costo_confeccion', costoConfeccionSugerido.toString())}
-                        className="flex items-center gap-1 text-[11px] font-semibold
+                        className="flex items-center gap-1 text-xs font-semibold
                                    text-warning border border-warning/30 rounded-full
                                    px-2 py-0.5 hover:bg-warning/10 transition-colors"
                       >
@@ -384,7 +384,7 @@ export default function FichaCostoPanel({
                 {/* Fotografía con sugerencia desde sesiones */}
                 <div className="flex flex-col border-b border-border/40 py-1.5 gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[12.5px] text-primary-muted">Fotografía (porción)</span>
+                    <span className="text-sm text-primary-muted">Fotografía (porción)</span>
                     <input
                       type="number"
                       min="0"
@@ -392,18 +392,18 @@ export default function FichaCostoPanel({
                       value={form.costo_foto}
                       onChange={e => setF('costo_foto', e.target.value)}
                       placeholder="0"
-                      className="input text-right text-[13px] py-1 h-7 w-36 shrink-0"
+                      className="input text-right text-base py-1 h-7 w-36 shrink-0"
                     />
                   </div>
                   {costoFotoSugerido > 0 && (
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-[11px] text-primary-muted/70">
+                      <span className="text-xs text-primary-muted/70">
                         Sesión fotográfica sugiere:
                       </span>
                       <button
                         type="button"
                         onClick={() => setF('costo_foto', costoFotoSugerido.toString())}
-                        className="text-[11px] px-2 py-0.5 rounded-full border border-accent/40
+                        className="text-xs px-2 py-0.5 rounded-full border border-accent/40
                                    bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
                       >
                         Usar {fmtCOP(costoFotoSugerido)}/ud
@@ -416,8 +416,8 @@ export default function FichaCostoPanel({
 
                 {/* Separador total */}
                 <div className="flex items-center justify-between py-2 mt-1 border-t-2 border-border">
-                  <span className="text-[13px] font-bold text-primary">Costo total calculado</span>
-                  <span className="text-[15px] font-bold text-warning">{fmtCOP(calcCostoTotal(form))}</span>
+                  <span className="text-base font-bold text-primary">Costo total calculado</span>
+                  <span className="text-md font-bold text-warning">{fmtCOP(calcCostoTotal(form))}</span>
                 </div>
 
                 {/* Margen y precio sugerido */}
@@ -429,7 +429,7 @@ export default function FichaCostoPanel({
                       value={form.margen_objetivo_pct}
                       onChange={e => setF('margen_objetivo_pct', e.target.value)}
                       placeholder="50"
-                      className="input text-[13px]"
+                      className="input text-base"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -439,7 +439,7 @@ export default function FichaCostoPanel({
                       value={form.precio_venta_sugerido}
                       onChange={e => setF('precio_venta_sugerido', e.target.value)}
                       placeholder="0"
-                      className="input text-[13px]"
+                      className="input text-base"
                     />
                   </div>
                 </div>
@@ -452,7 +452,7 @@ export default function FichaCostoPanel({
                     onChange={e => setF('notas', e.target.value)}
                     rows={2}
                     placeholder="Cambios respecto a versión anterior…"
-                    className="input resize-none text-[13px]"
+                    className="input resize-none text-base"
                   />
                 </div>
 
@@ -483,24 +483,24 @@ export default function FichaCostoPanel({
                 <CostoFila label="Fotografía (porción)"         value={ficha.costo_foto} />
                 <CostoFila label="Otros costos"                 value={ficha.otros_costos} />
                 <div className="flex items-center justify-between py-2 mt-1 border-t-2 border-border">
-                  <span className="text-[13px] font-bold text-primary">Costo total</span>
-                  <span className="text-[15px] font-bold text-warning">{fmtCOP(ficha.costo_total)}</span>
+                  <span className="text-base font-bold text-primary">Costo total</span>
+                  <span className="text-md font-bold text-warning">{fmtCOP(ficha.costo_total)}</span>
                 </div>
                 {ficha.precio_venta_sugerido > 0 && (
                   <div className="flex items-center justify-between py-1.5">
-                    <span className="text-[12.5px] text-primary-muted">Precio sugerido ({fmtPct(ficha.margen_objetivo_pct)} margen)</span>
-                    <span className="text-[13px] text-accent font-medium">{fmtCOP(ficha.precio_venta_sugerido)}</span>
+                    <span className="text-sm text-primary-muted">Precio sugerido ({fmtPct(ficha.margen_objetivo_pct)} margen)</span>
+                    <span className="text-base text-accent font-medium">{fmtCOP(ficha.precio_venta_sugerido)}</span>
                   </div>
                 )}
                 {ficha.notas && (
-                  <p className="text-[12px] text-primary-muted mt-2 italic">{ficha.notas}</p>
+                  <p className="text-sm text-primary-muted mt-2 italic">{ficha.notas}</p>
                 )}
-                <p className="text-[11px] text-primary-muted/50 mt-2">
+                <p className="text-xs text-primary-muted/50 mt-2">
                   Creada: {new Date(ficha.created_at).toLocaleDateString('es-CO')}
                 </p>
               </div>
             ) : (
-              <p className="text-[13px] text-primary-muted py-2">
+              <p className="text-base text-primary-muted py-2">
                 Todavía no tiene ficha de costo. Creá la primera versión.
               </p>
             )}
@@ -511,7 +511,7 @@ export default function FichaCostoPanel({
             <div>
               <button
                 onClick={() => setShowHist(s => !s)}
-                className="flex items-center gap-2 text-[12.5px] text-primary-muted hover:text-primary transition-colors"
+                className="flex items-center gap-2 text-sm text-primary-muted hover:text-primary transition-colors"
               >
                 {showHist ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 <History size={13} />
@@ -526,17 +526,17 @@ export default function FichaCostoPanel({
                       className="border border-border/50 rounded-xl px-4 py-3 opacity-60"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[12px] font-semibold text-primary-muted">
+                        <span className="text-sm font-semibold text-primary-muted">
                           Versión {f.version}
                         </span>
-                        <span className="text-[12px] text-warning">{fmtCOP(f.costo_total)}</span>
+                        <span className="text-sm text-warning">{fmtCOP(f.costo_total)}</span>
                       </div>
-                      <div className="flex gap-4 mt-1 text-[11.5px] text-primary-muted/70">
+                      <div className="flex gap-4 mt-1 text-xs text-primary-muted/70">
                         <span>Conf: {fmtCOP(f.costo_confeccion)}</span>
                         <span>Tela: {fmtCOP(f.costo_tela)}</span>
                         <span>Ins: {fmtCOP(f.costo_insumos_total)}</span>
                       </div>
-                      <p className="text-[11px] text-primary-muted/50 mt-1">
+                      <p className="text-xs text-primary-muted/50 mt-1">
                         {new Date(f.created_at).toLocaleDateString('es-CO')}
                         {f.notas && ` — ${f.notas}`}
                       </p>

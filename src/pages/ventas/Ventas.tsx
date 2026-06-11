@@ -106,7 +106,7 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
             placeholder="Buscar por número, cliente o canal…"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="input pl-8 h-9 text-[13.5px]"
+            className="input pl-8 h-9 text-base"
           />
         </div>
 
@@ -115,7 +115,7 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
           <Filter size={13} className="text-primary-muted" />
           {ESTADOS.map(e => (
             <button key={e} onClick={() => setEstado(e)}
-              className={`px-2.5 py-1 rounded-md text-[12px] font-semibold capitalize
+              className={`px-2.5 py-1 rounded-md text-sm font-semibold capitalize
                           transition-colors duration-100
                           ${estado === e
                             ? 'bg-accent text-white'
@@ -143,10 +143,10 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
           { label: 'Total reg.', value: ventasFiltradas.length, fmt: String }
         ].map(({ label, value, fmt }) => (
           <div key={label} className="card py-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">
               {label}
             </p>
-            <p className="text-[20px] font-bold text-primary">
+            <p className="text-xl font-bold text-primary">
               {fmt(value as any)}
             </p>
           </div>

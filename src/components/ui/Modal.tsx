@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -61,7 +61,7 @@ export default function Modal({
         {title && (
           <div className="flex items-center justify-between px-6 py-4
                           border-b border-border">
-            <h2 className="text-[16px] font-bold text-primary">
+            <h2 className="text-lg font-bold text-primary">
               {title}
             </h2>
             <button

@@ -125,16 +125,16 @@ export default function VentaDetalle({
             <ShoppingBag size={18} />
           </div>
           <div>
-            <p className="text-[17px] font-bold text-primary font-mono">
+            <p className="text-lg font-bold text-primary font-mono">
               {venta.numero_venta}
             </p>
-            <p className="text-[12.5px] text-primary-muted">
+            <p className="text-sm text-primary-muted">
               Registrada el {formatDate(venta.created_at ?? venta.fecha)}
             </p>
           </div>
         </div>
         <span className={cn(
-          'inline-flex px-2.5 py-1 rounded-full text-[12px] font-semibold border',
+          'inline-flex px-2.5 py-1 rounded-full text-sm font-semibold border',
           ESTADO_BADGE[venta.estado] ?? 'bg-card border-border text-primary-muted'
         )}>
           {venta.estado}
@@ -195,26 +195,26 @@ export default function VentaDetalle({
             <tbody>
               {items.map((item: any, idx: number) => (
                 <tr key={idx}>
-                  <td className="font-medium text-[13.5px]">
+                  <td className="font-medium text-base">
                     {item.producto_nombre}
                   </td>
                   <td>
                     <span className="badge badge-muted">{item.talla_nombre ?? '—'}</span>
                   </td>
-                  <td className="text-right text-[13px]">{item.cantidad}</td>
-                  <td className="text-right text-[13px]">
+                  <td className="text-right text-base">{item.cantidad}</td>
+                  <td className="text-right text-base">
                     {formatCOP(item.precio_unitario)}
                   </td>
-                  <td className="text-right text-[13px] text-warning">
+                  <td className="text-right text-base text-warning">
                     {item.comision_item > 0 ? `-${formatCOP(item.comision_item)}` : '—'}
                   </td>
                   <td className={cn(
-                    'text-right text-[13px] font-semibold',
+                    'text-right text-base font-semibold',
                     (item.utilidad_item ?? 0) >= 0 ? 'text-success' : 'text-danger'
                   )}>
                     {formatCOP(item.utilidad_item ?? 0)}
                   </td>
-                  <td className="text-right font-semibold text-[13.5px]">
+                  <td className="text-right font-semibold text-base">
                     {formatCOP(item.subtotal_item)}
                   </td>
                 </tr>
@@ -252,14 +252,14 @@ export default function VentaDetalle({
           />
         )}
         <div className="border-t border-border mt-1 pt-2 flex justify-between">
-          <span className="text-[14px] font-bold text-primary">Total</span>
-          <span className="text-[18px] font-bold text-accent">
+          <span className="text-md font-bold text-primary">Total</span>
+          <span className="text-xl font-bold text-accent">
             {formatCOP(venta.total)}
           </span>
         </div>
         {utilidadTotal !== 0 && (
           <div className={cn(
-            'flex justify-between text-[13px] font-semibold mt-0.5',
+            'flex justify-between text-base font-semibold mt-0.5',
             utilidadTotal >= 0 ? 'text-success' : 'text-danger'
           )}>
             <span>Utilidad estimada</span>
@@ -305,12 +305,12 @@ function InfoRow({ icon: Icon, label, value, sub, className }: {
         <Icon size={13} />
       </div>
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wide
+        <p className="text-xs font-semibold uppercase tracking-wide
                       text-primary-muted mb-0.5">
           {label}
         </p>
-        <p className="text-[13.5px] font-medium text-primary">{value}</p>
-        {sub && <p className="text-[12px] text-primary-muted mt-0.5">{sub}</p>}
+        <p className="text-base font-medium text-primary">{value}</p>
+        {sub && <p className="text-sm text-primary-muted mt-0.5">{sub}</p>}
       </div>
     </div>
   )
@@ -320,7 +320,7 @@ function FinRow({ label, value, className }: {
   label: string; value: string; className?: string
 }) {
   return (
-    <div className={cn('flex justify-between text-[13px] text-primary-muted', className)}>
+    <div className={cn('flex justify-between text-base text-primary-muted', className)}>
       <span>{label}</span>
       <span className="font-medium">{value}</span>
     </div>

@@ -231,7 +231,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
         <button
           onClick={() => setTab('productos')}
           className={cn(
-            'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-semibold',
+            'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-base font-semibold',
             'transition-colors',
             tab === 'productos'
               ? 'bg-accent-light text-accent'
@@ -244,7 +244,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
         <button
           onClick={() => setTab('insumos')}
           className={cn(
-            'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[13px] font-semibold',
+            'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-base font-semibold',
             'transition-colors relative',
             tab === 'insumos'
               ? 'bg-accent-light text-accent'
@@ -255,7 +255,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
           Insumos
           {insumosConAlerta > 0 && tab !== 'insumos' && (
             <span className="w-4 h-4 rounded-full bg-danger text-white
-                             text-[10px] font-bold flex items-center justify-center">
+                             text-2xs font-bold flex items-center justify-center">
               {insumosConAlerta}
             </span>
           )}
@@ -277,7 +277,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                 placeholder="Buscar producto…"
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
-                className="input pl-8 h-9 text-[13.5px]"
+                className="input pl-8 h-9 text-base"
               />
             </div>
             <button
@@ -301,31 +301,31 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
           {/* KPIs */}
           <div className="grid grid-cols-4 gap-3">
             <div className="card py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Total productos</p>
-              <p className="text-[22px] font-bold text-primary">
+              <p className="text-2xl font-bold text-primary">
                 {formatNumber(totalProductos)}
               </p>
             </div>
             <div className="card py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Total unidades</p>
-              <p className="text-[22px] font-bold text-primary">
+              <p className="text-2xl font-bold text-primary">
                 {formatNumber(totalUnidades)}
               </p>
             </div>
             <div className="card py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Valor inventario</p>
-              <p className="text-[22px] font-bold text-accent">
+              <p className="text-2xl font-bold text-accent">
                 {formatCOP(totalValor)}
               </p>
             </div>
             <div className="card py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Tallas agotadas</p>
               <p className={cn(
-                'text-[22px] font-bold',
+                'text-2xl font-bold',
                 totalAgotados > 0 ? 'text-danger' : 'text-success'
               )}>
                 {totalAgotados}
@@ -368,7 +368,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                       <tr key={prod.producto_id}>
 
                         <td>
-                          <p className="font-semibold text-[13.5px] text-primary">
+                          <p className="font-semibold text-base text-primary">
                             {prod.producto_nombre}
                           </p>
                         </td>
@@ -380,7 +380,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                                 key={t.talla_id}
                                 className={cn(
                                   'flex items-center gap-1 px-2 py-0.5 rounded-lg',
-                                  'text-[12px] font-semibold border',
+                                  'text-sm font-semibold border',
                                   t.stock === 0
                                     ? 'bg-danger/10 border-danger/20 text-danger'
                                     : t.stock <= 2
@@ -395,15 +395,15 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                           </div>
                         </td>
 
-                        <td className="text-right font-bold text-[14px]">
+                        <td className="text-right font-bold text-md">
                           {formatNumber(prod.totalStock)}
                         </td>
 
-                        <td className="text-right text-[13px] text-primary-muted">
+                        <td className="text-right text-base text-primary-muted">
                           {prod.costo_unitario ? formatCOP(prod.costo_unitario) : '—'}
                         </td>
 
-                        <td className="text-right font-semibold text-[13.5px]">
+                        <td className="text-right font-semibold text-base">
                           {prod.valorInventario > 0 ? formatCOP(prod.valorInventario) : '—'}
                         </td>
 
@@ -412,7 +412,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                             <button
                               onClick={() => handleAjuste(prod)}
                               className="flex items-center gap-1 px-2.5 py-1 rounded-lg
-                                         text-[12px] font-semibold
+                                         text-sm font-semibold
                                          bg-accent-light text-accent
                                          hover:bg-accent hover:text-white
                                          transition-colors"
@@ -424,7 +424,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                             <button
                               onClick={() => handleReconciliar(prod)}
                               className="flex items-center gap-1 px-2.5 py-1 rounded-lg
-                                         text-[12px] font-semibold
+                                         text-sm font-semibold
                                          bg-card border border-border text-primary-muted
                                          hover:text-accent hover:border-accent/40
                                          transition-colors"
@@ -436,7 +436,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                             <button
                               onClick={() => handleMovimientos(prod)}
                               className="flex items-center gap-1 px-2.5 py-1 rounded-lg
-                                         text-[12px] font-semibold
+                                         text-sm font-semibold
                                          bg-card border border-border text-primary-muted
                                          hover:text-primary hover:border-accent/40
                                          transition-colors"
@@ -471,7 +471,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                 placeholder="Buscar insumo…"
                 value={busquedaIns}
                 onChange={e => setBusquedaIns(e.target.value)}
-                className="input pl-8 h-9 text-[13.5px]"
+                className="input pl-8 h-9 text-base"
               />
             </div>
             <button
@@ -488,7 +488,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl
                             border border-warning/20 bg-warning/5">
               <AlertTriangle size={14} className="text-warning shrink-0" />
-              <p className="text-[12.5px] text-warning">
+              <p className="text-sm text-warning">
                 <strong>{insumosConAlerta}</strong> insumo{insumosConAlerta > 1 ? 's' : ''} con
                 stock igual o por debajo del mínimo
               </p>
@@ -524,7 +524,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                       return (
                         <tr key={ins.id}>
                           <td>
-                            <p className="font-semibold text-[13.5px] text-primary">
+                            <p className="font-semibold text-base text-primary">
                               {ins.nombre}
                             </p>
                           </td>
@@ -532,7 +532,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                           <td>
                             {ins.categoria_nombre ? (
                               <span
-                                className="px-2 py-0.5 rounded-full text-[11.5px]
+                                className="px-2 py-0.5 rounded-full text-xs
                                            font-semibold border"
                                 style={{
                                   color:            ins.categoria_color ?? undefined,
@@ -543,30 +543,30 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                                 {ins.categoria_nombre}
                               </span>
                             ) : (
-                              <span className="text-[12px] text-primary-muted">—</span>
+                              <span className="text-sm text-primary-muted">—</span>
                             )}
                           </td>
 
                           <td className="text-right">
                             <span className={cn(
-                              'text-[14px] font-bold',
+                              'text-md font-bold',
                               bajo ? 'text-danger' : 'text-primary'
                             )}>
                               {formatNumber(ins.stock_actual)}
                             </span>
-                            <span className="text-[11px] text-primary-muted ml-1">
+                            <span className="text-xs text-primary-muted ml-1">
                               {ins.unidad}
                             </span>
                           </td>
 
-                          <td className="text-right text-[13px] text-primary-muted">
+                          <td className="text-right text-base text-primary-muted">
                             {formatNumber(ins.stock_minimo)} {ins.unidad}
                           </td>
 
                           <td className="text-center">
                             {bajo ? (
                               <span className="inline-flex items-center gap-1
-                                               px-2 py-0.5 rounded-full text-[11.5px]
+                                               px-2 py-0.5 rounded-full text-xs
                                                font-semibold border
                                                border-danger/20 bg-danger/10 text-danger">
                                 <AlertTriangle size={11} />
@@ -574,7 +574,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1
-                                               px-2 py-0.5 rounded-full text-[11.5px]
+                                               px-2 py-0.5 rounded-full text-xs
                                                font-semibold border
                                                border-success/20 bg-success/10 text-success">
                                 OK
@@ -586,7 +586,7 @@ export default function Inventario({ onVerProductos }: InventarioProps) {
                             <button
                               onClick={() => handleMovimientosInsumo(ins)}
                               className="flex items-center gap-1 px-2.5 py-1 rounded-lg
-                                         text-[12px] font-semibold
+                                         text-sm font-semibold
                                          bg-card border border-border text-primary-muted
                                          hover:text-primary hover:border-accent/40
                                          transition-colors"

@@ -218,7 +218,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
   // ── Render ────────────────────────────────────────────────────────────────
 
   if (loading) {
-    return <p className="text-[13px] text-primary-muted py-8 text-center">Cargando catálogos…</p>
+    return <p className="text-base text-primary-muted py-8 text-center">Cargando catálogos…</p>
   }
 
   return (
@@ -231,8 +231,8 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
           <Factory size={18} />
         </div>
         <div className="flex-1">
-          <p className="text-[15px] font-bold text-primary">Nueva orden de producción</p>
-          <p className="text-[12px] text-primary-muted">Estado inicial: borrador</p>
+          <p className="text-md font-bold text-primary">Nueva orden de producción</p>
+          <p className="text-sm text-primary-muted">Estado inicial: borrador</p>
         </div>
         <button onClick={onCancel} className="text-primary-muted hover:text-primary transition-colors p-1">
           <X size={18} />
@@ -241,7 +241,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
       {/* ── Datos de cabecera ── */}
       <div className="card">
-        <p className="text-[13px] font-semibold text-primary mb-3">Datos generales</p>
+        <p className="text-base font-semibold text-primary mb-3">Datos generales</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 col-span-2">
             <label className="input-label">Fabricante / Taller</label>
@@ -289,7 +289,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
       {/* ── Items ── */}
       <div className="card">
-        <p className="text-[13px] font-semibold text-primary mb-3">
+        <p className="text-base font-semibold text-primary mb-3">
           Productos a producir
         </p>
 
@@ -321,7 +321,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
         </div>
 
         {items.length === 0 ? (
-          <p className="text-[12.5px] text-primary-muted text-center py-4">
+          <p className="text-sm text-primary-muted text-center py-4">
             Todavía no agregaste productos a la orden.
           </p>
         ) : (
@@ -336,15 +336,15 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
                   {/* Header item */}
                   <div className="flex items-center gap-3">
-                    <p className="text-[14px] font-bold text-primary flex-1 truncate">
+                    <p className="text-md font-bold text-primary flex-1 truncate">
                       {item.producto_nombre}
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-primary-muted">
+                      <span className="text-sm text-primary-muted">
                         {cantTotal} ud.
                       </span>
                       {subtotal > 0 && (
-                        <span className="text-[13px] font-semibold text-warning">
+                        <span className="text-base font-semibold text-warning">
                           {fmtCOP(subtotal)}
                         </span>
                       )}
@@ -367,7 +367,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
                       value={item.costo_unitario}
                       onChange={e => setItemCosto(idx, e.target.value)}
                       placeholder="A definir"
-                      className="input w-44 text-[13px]"
+                      className="input w-44 text-base"
                     />
                   </div>
 
@@ -378,7 +378,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
                       {tallas.map(talla => (
                         <div key={talla.id}
                           className="flex flex-col items-center gap-1 w-16">
-                          <span className="text-[11.5px] text-primary-muted font-semibold">
+                          <span className="text-xs text-primary-muted font-semibold">
                             {talla.nombre}
                           </span>
                           <input
@@ -388,7 +388,7 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
                             value={item.tallas[talla.id] ?? ''}
                             onChange={e => setItemTalla(idx, talla.id, e.target.value)}
                             placeholder="0"
-                            className="input text-center text-[13px] w-full px-1"
+                            className="input text-center text-base w-full px-1"
                           />
                         </div>
                       ))}
@@ -400,10 +400,10 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
             {/* Total orden */}
             <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="text-[13px] font-bold text-primary">
+              <span className="text-base font-bold text-primary">
                 Costo total estimado
               </span>
-              <span className="text-[16px] font-bold text-warning">{fmtCOP(costoTotal)}</span>
+              <span className="text-lg font-bold text-warning">{fmtCOP(costoTotal)}</span>
             </div>
           </div>
         )}

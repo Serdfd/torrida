@@ -138,7 +138,7 @@ export default function Productos() {
             placeholder="Buscar por nombre, referencia o colección…"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="input pl-8 h-9 text-[13.5px]"
+            className="input pl-8 h-9 text-base"
           />
         </div>
 
@@ -155,7 +155,7 @@ export default function Productos() {
           <button
             key={f.value}
             onClick={() => setFiltroEstado(f.value)}
-            className={`px-3 py-1 rounded-xl border text-[12px] font-semibold transition-all
+            className={`px-3 py-1 rounded-xl border text-sm font-semibold transition-all
               ${filtroEstado === f.value
                 ? 'bg-accent-light border-accent/40 text-accent'
                 : 'border-border text-primary-muted hover:border-accent/30'
@@ -172,7 +172,7 @@ export default function Productos() {
       </div>
 
       {/* Contador */}
-      <p className="text-[13px] text-primary-muted -mt-2">
+      <p className="text-base text-primary-muted -mt-2">
         {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? 's' : ''}
       </p>
 

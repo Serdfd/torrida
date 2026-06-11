@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Receipt } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -152,7 +152,7 @@ export default function GastoForm({
       {/* Título */}
       <div className="flex items-center gap-2 mb-1">
         <Receipt size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           {isEditing ? 'Editar gasto' : 'Nuevo gasto'}
         </h2>
       </div>
@@ -171,7 +171,7 @@ export default function GastoForm({
             {...register('descripcion', { required: true })}
           />
           {errors.descripcion && (
-            <p className="text-[12px] text-danger mt-1">Campo requerido</p>
+            <p className="text-sm text-danger mt-1">Campo requerido</p>
           )}
         </div>
 
@@ -193,7 +193,7 @@ export default function GastoForm({
               })}
             />
             {errors.monto && (
-              <p className="text-[12px] text-danger mt-1">Monto inválido</p>
+              <p className="text-sm text-danger mt-1">Monto inválido</p>
             )}
           </div>
           <div>
@@ -212,7 +212,7 @@ export default function GastoForm({
             Categoría <span className="text-danger">*</span>
           </label>
           {categorias.length === 0 ? (
-            <p className="text-[12.5px] text-warning mt-1">
+            <p className="text-sm text-warning mt-1">
               No hay categorías activas. Ve a Configuración → Categorías de gasto.
             </p>
           ) : (
@@ -239,7 +239,7 @@ export default function GastoForm({
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: cat.color ?? '#8A8AA8' }}
                   />
-                  <span className="text-[12.5px] font-semibold text-primary
+                  <span className="text-sm font-semibold text-primary
                                    leading-tight truncate">
                     {cat.nombre}
                   </span>
@@ -248,7 +248,7 @@ export default function GastoForm({
             </div>
           )}
           {errors.categoria_id && (
-            <p className="text-[12px] text-danger mt-1">
+            <p className="text-sm text-danger mt-1">
               Selecciona una categoría
             </p>
           )}

@@ -148,7 +148,7 @@ export default function ConfigUnidades() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Ruler size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Unidades de medida
           </h3>
         </div>
@@ -164,14 +164,14 @@ export default function ConfigUnidades() {
       {/* Sugeridas */}
       {sugeridosFaltantes.length > 0 && unidades.length < 4 && (
         <div>
-          <p className="text-[12px] text-primary-muted mb-2">Unidades sugeridas:</p>
+          <p className="text-sm text-primary-muted mb-2">Unidades sugeridas:</p>
           <div className="flex flex-wrap gap-2">
             {sugeridosFaltantes.map(s => (
               <button
                 key={s}
                 onClick={() => handleAgregarSugerida(s)}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-xl border
-                           border-dashed border-border text-[12.5px] font-semibold
+                           border-dashed border-border text-sm font-semibold
                            text-primary-muted hover:border-accent/40 hover:text-accent
                            transition-colors"
               >
@@ -190,7 +190,7 @@ export default function ConfigUnidades() {
             <input
               type="text"
               placeholder="Ej: metro, kg, rollo…"
-              className="input h-9 text-[13px]"
+              className="input h-9 text-base"
               value={newNombre}
               onChange={e => setNewNombre(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAgregar()}
@@ -237,7 +237,7 @@ export default function ConfigUnidades() {
                   <>
                     <input
                       type="text"
-                      className="input h-8 text-[13px] flex-1"
+                      className="input h-8 text-base flex-1"
                       value={editNombre}
                       onChange={e => setEditNombre(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleGuardarEdicion(u.id)}
@@ -257,13 +257,13 @@ export default function ConfigUnidades() {
                   </>
                 ) : (
                   <>
-                    <span className="flex-1 text-[13.5px] font-medium text-primary">
+                    <span className="flex-1 text-base font-medium text-primary">
                       {u.nombre}
                     </span>
                     <button
                       onClick={() => handleToggleActiva(u)}
                       className={cn(
-                        'text-[11.5px] font-semibold px-2 py-0.5 rounded-lg border transition-colors',
+                        'text-xs font-semibold px-2 py-0.5 rounded-lg border transition-colors',
                         u.activa
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
                           : 'border-border text-primary-muted hover:border-accent/30'

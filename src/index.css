@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    index.css — Estilos globales Torrida
    Tailwind base + variables CSS + clases utilitarias
    ============================================================ */
@@ -121,7 +121,7 @@
   .nav-item {
     @apply flex items-center gap-2.5
            px-2.5 py-2 rounded-lg
-           text-[13px] font-medium text-sidebar-text
+           text-base font-medium text-sidebar-text
            opacity-55 transition-all duration-150
            hover:opacity-100 hover:bg-accent/10
            mb-0.5 cursor-pointer;
@@ -135,7 +135,7 @@
   .input {
     @apply w-full rounded-xl border border-border
            bg-sidebar px-3 py-2
-           text-[13.5px] text-primary
+           text-base text-primary
            placeholder:text-primary-muted
            focus:outline-none focus:border-accent/60
            focus:ring-1 focus:ring-accent/30
@@ -155,7 +155,7 @@
   }
 
   .input-label {
-    @apply block text-[12px] font-semibold
+    @apply block text-sm font-semibold
            text-primary-muted uppercase tracking-wide
            mb-1.5;
   }
@@ -165,7 +165,7 @@
     @apply inline-flex items-center justify-center gap-1.5
            h-9 px-4 rounded-xl
            bg-accent text-white
-           text-[13px] font-semibold
+           text-base font-semibold
            hover:bg-accent-hover
            disabled:opacity-40 disabled:cursor-not-allowed
            transition-colors duration-150;
@@ -176,7 +176,7 @@
            h-9 px-4 rounded-xl
            bg-transparent text-primary-muted
            border border-border
-           text-[13px] font-semibold
+           text-base font-semibold
            hover:bg-white/5 hover:text-primary
            disabled:opacity-40 disabled:cursor-not-allowed
            transition-colors duration-150;
@@ -187,7 +187,7 @@
            h-9 px-4 rounded-xl
            bg-danger/10 text-danger
            border border-danger/30
-           text-[13px] font-semibold
+           text-base font-semibold
            hover:bg-danger/20
            disabled:opacity-40 disabled:cursor-not-allowed
            transition-colors duration-150;
@@ -198,7 +198,7 @@
            h-9 px-4 rounded-xl
            bg-success/10 text-success
            border border-success/30
-           text-[13px] font-semibold
+           text-base font-semibold
            hover:bg-success/20
            disabled:opacity-40 disabled:cursor-not-allowed
            transition-colors duration-150;
@@ -208,7 +208,7 @@
   .badge {
     @apply inline-flex items-center gap-1
            px-2 py-0.5 rounded-lg
-           text-[11.5px] font-semibold;
+           text-xs font-semibold;
   }
 
   .badge-success {
@@ -237,7 +237,7 @@
   }
 
   .table {
-    @apply w-full border-collapse text-[13px];
+    @apply w-full border-collapse text-base;
   }
 
   .table thead tr {
@@ -246,7 +246,7 @@
 
   .table th {
     @apply px-4 py-3
-           text-[11px] font-bold uppercase tracking-wider
+           text-xs font-bold uppercase tracking-wider
            text-primary-muted text-left
            whitespace-nowrap;
   }
@@ -263,7 +263,7 @@
 
   .table td {
     @apply px-4 py-3
-           text-[13px] text-primary
+           text-base text-primary
            whitespace-nowrap;
   }
 
@@ -274,18 +274,18 @@
   }
 
   .kpi-value {
-    @apply text-[26px] font-bold text-primary
+    @apply text-3xl font-bold text-primary
            leading-none tracking-tight;
   }
 
   .kpi-label {
-    @apply text-[12px] font-semibold uppercase
+    @apply text-sm font-semibold uppercase
            tracking-widest text-primary-muted;
   }
 
   /* ── Sección ───────────────────────────────────────────────────────────── */
   .section-title {
-    @apply text-[11px] font-bold uppercase
+    @apply text-xs font-bold uppercase
            tracking-widest text-primary-muted
            mb-3;
   }

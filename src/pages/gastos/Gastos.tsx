@@ -147,7 +147,7 @@ export default function Gastos() {
             placeholder="Buscar por descripción o categoría…"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="input pl-8 h-9 text-[13.5px]"
+            className="input pl-8 h-9 text-base"
           />
         </div>
 
@@ -168,7 +168,7 @@ export default function Gastos() {
           <button
             onClick={() => setCatFiltro(null)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border
-                        text-[12.5px] font-semibold transition-all
+                        text-sm font-semibold transition-all
                         ${catFiltro === null
                           ? 'bg-accent-light border-accent/40 text-accent'
                           : 'border-border text-primary-muted hover:border-accent/30'
@@ -182,7 +182,7 @@ export default function Gastos() {
               key={cat.id}
               onClick={() => setCatFiltro(catFiltro === cat.id ? null : cat.id)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border
-                          text-[12.5px] font-semibold transition-all
+                          text-sm font-semibold transition-all
                           ${catFiltro === cat.id
                             ? 'bg-accent-light border-accent/40 text-accent'
                             : 'border-border text-primary-muted hover:border-accent/30'
@@ -202,23 +202,23 @@ export default function Gastos() {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Total gastos</p>
-          <p className="text-[20px] font-bold text-danger">
+          <p className="text-xl font-bold text-danger">
             {formatCOP(totalFiltrado)}
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Registros</p>
-          <p className="text-[20px] font-bold text-primary">
+          <p className="text-xl font-bold text-primary">
             {gastosFiltrados.length}
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Promedio</p>
-          <p className="text-[20px] font-bold text-primary">
+          <p className="text-xl font-bold text-primary">
             {gastosFiltrados.length > 0
               ? formatCOP(totalFiltrado / gastosFiltrados.length)
               : '$0'
@@ -226,9 +226,9 @@ export default function Gastos() {
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Categorías</p>
-          <p className="text-[20px] font-bold text-primary">
+          <p className="text-xl font-bold text-primary">
             {categorias.length}
           </p>
         </div>
@@ -282,12 +282,12 @@ export default function Gastos() {
               {/* Totales */}
               <tfoot>
                 <tr className="border-t border-border bg-[#0B0B16]">
-                  <td colSpan={3} className="px-4 py-3 text-[13px]
+                  <td colSpan={3} className="px-4 py-3 text-base
                                              font-bold text-primary-muted">
                     Total
                   </td>
                   <td className="px-4 py-3 text-right font-bold
-                                 text-[15px] text-danger">
+                                 text-md text-danger">
                     {formatCOP(totalFiltrado)}
                   </td>
                   <td colSpan={2} />

@@ -147,7 +147,7 @@ export default function ConfigCanales() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Tag size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Canales de venta
           </h3>
         </div>
@@ -171,7 +171,7 @@ export default function ConfigCanales() {
             <input
               type="text"
               placeholder="Ej: Instagram, TikTok, Tienda física…"
-              className="input h-9 text-[13px]"
+              className="input h-9 text-base"
               value={newData.nombre}
               onChange={e => setNewData(p => ({ ...p, nombre: e.target.value }))}
               autoFocus
@@ -185,7 +185,7 @@ export default function ConfigCanales() {
               max={100}
               step={0.1}
               placeholder="0"
-              className="input h-9 text-[13px]"
+              className="input h-9 text-base"
               value={newData.comision_pct}
               onChange={e => setNewData(p => ({
                 ...p, comision_pct: parseFloat(e.target.value) || 0
@@ -242,7 +242,7 @@ export default function ConfigCanales() {
                   <>
                     <input
                       type="text"
-                      className="input h-8 text-[13px] flex-1"
+                      className="input h-8 text-base flex-1"
                       value={editData.nombre}
                       onChange={e => setEditData(p => ({
                         ...p, nombre: e.target.value
@@ -255,13 +255,13 @@ export default function ConfigCanales() {
                         min={0}
                         max={100}
                         step={0.1}
-                        className="input h-8 text-[13px] w-20 text-right"
+                        className="input h-8 text-base w-20 text-right"
                         value={editData.comision_pct}
                         onChange={e => setEditData(p => ({
                           ...p, comision_pct: parseFloat(e.target.value) || 0
                         }))}
                       />
-                      <span className="text-[12px] text-primary-muted shrink-0">%</span>
+                      <span className="text-sm text-primary-muted shrink-0">%</span>
                     </div>
                     <button
                       onClick={() => handleGuardarEdicion(canal.id)}
@@ -286,7 +286,7 @@ export default function ConfigCanales() {
                   <>
                     {/* Nombre */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13.5px] font-semibold text-primary">
+                      <p className="text-base font-semibold text-primary">
                         {canal.nombre}
                       </p>
                     </div>
@@ -294,11 +294,11 @@ export default function ConfigCanales() {
                     {/* Comisión */}
                     <div className="text-right w-28">
                       {canal.comision_pct > 0 ? (
-                        <span className="badge badge-warning text-[12px]">
+                        <span className="badge badge-warning text-sm">
                           {canal.comision_pct}% comisión
                         </span>
                       ) : (
-                        <span className="text-[12px] text-primary-muted">
+                        <span className="text-sm text-primary-muted">
                           Sin comisión
                         </span>
                       )}
@@ -308,7 +308,7 @@ export default function ConfigCanales() {
                     <button
                       onClick={() => handleToggleActivo(canal)}
                       className={cn(
-                        'text-[12px] font-semibold px-2.5 py-1 rounded-lg',
+                        'text-sm font-semibold px-2.5 py-1 rounded-lg',
                         'border transition-colors',
                         canal.activo
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
@@ -349,7 +349,7 @@ export default function ConfigCanales() {
 
       {/* Tip comisiones */}
       <div className="p-3 rounded-xl bg-accent-light border border-accent/20">
-        <p className="text-[12px] text-primary-muted leading-relaxed">
+        <p className="text-sm text-primary-muted leading-relaxed">
           <strong className="text-accent">Tip:</strong> La comisión se descuenta
           automáticamente al registrar una venta por ese canal.
           Ej: Instagram con 3% → una venta de $100.000 genera $3.000 de comisión.

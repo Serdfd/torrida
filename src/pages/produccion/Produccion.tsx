@@ -110,30 +110,30 @@ function PagoModal({
   return (
     <div className="flex flex-col gap-5 min-w-[360px]">
       <div>
-        <p className="text-[16px] font-bold text-primary">{titulo}</p>
-        <p className="text-[12.5px] text-primary-muted mt-1">{descripcion}</p>
+        <p className="text-lg font-bold text-primary">{titulo}</p>
+        <p className="text-sm text-primary-muted mt-1">{descripcion}</p>
       </div>
 
       {/* Resumen de pagos */}
       {costoTotal > 0 && (
         <div className="bg-sidebar border border-border rounded-xl p-3 flex flex-col gap-2">
-          <div className="flex justify-between text-[12.5px]">
+          <div className="flex justify-between text-sm">
             <span className="text-primary-muted">Total orden</span>
             <span className="font-semibold text-primary">{fmtCOP(costoTotal)}</span>
           </div>
           {pagadoPrevio > 0 && (
-            <div className="flex justify-between text-[12.5px]">
+            <div className="flex justify-between text-sm">
               <span className="text-primary-muted">Ya pagado (anticipo)</span>
               <span className="font-semibold text-warning">{fmtCOP(pagadoPrevio)}</span>
             </div>
           )}
           {montoNum > 0 && (
-            <div className="flex justify-between text-[12.5px]">
+            <div className="flex justify-between text-sm">
               <span className="text-primary-muted">{labelMonto}</span>
               <span className="font-semibold text-success">{fmtCOP(montoNum)}</span>
             </div>
           )}
-          <div className="border-t border-border/40 pt-2 flex justify-between text-[12.5px]">
+          <div className="border-t border-border/40 pt-2 flex justify-between text-sm">
             <span className="text-primary-muted">Pendiente</span>
             <span className={cn('font-bold', pendiente > 0 ? 'text-danger' : 'text-success')}>
               {pendiente > 0 ? fmtCOP(pendiente) : '¡Cubierto!'}
@@ -151,7 +151,7 @@ function PagoModal({
               }}
             />
           </div>
-          <p className="text-[11px] text-primary-muted text-right">{pct}% pagado</p>
+          <p className="text-xs text-primary-muted text-right">{pct}% pagado</p>
         </div>
       )}
 
@@ -267,19 +267,19 @@ function ItemsOrdenPanel({
     }
   }
 
-  if (loading) return <p className="text-[12px] text-primary-muted py-2">Cargando…</p>
+  if (loading) return <p className="text-sm text-primary-muted py-2">Cargando…</p>
 
   return (
     <div className="mt-3 flex flex-col gap-3 pl-3 border-l-2 border-border">
       {items.map(item => (
         <div key={item.id}>
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <p className="text-[13px] font-semibold text-primary shrink-0">{item.producto_nombre}</p>
+            <p className="text-base font-semibold text-primary shrink-0">{item.producto_nombre}</p>
             <div className="flex items-center gap-3 flex-wrap">
               {estadoOrden === 'entregada' && (
                 <button
                   onClick={() => onActivarProducto(item.producto_id, item.producto_nombre)}
-                  className="flex items-center gap-1 text-[11.5px] font-semibold
+                  className="flex items-center gap-1 text-xs font-semibold
                              text-success border border-success/40 rounded-lg px-2 py-0.5
                              hover:bg-success/10 transition-colors"
                 >
@@ -296,7 +296,7 @@ function ItemsOrdenPanel({
                     step="100"
                     value={editingCosto}
                     onChange={e => setEditingCosto(e.target.value)}
-                    className="w-36 text-right text-[12.5px] font-semibold bg-sidebar
+                    className="w-36 text-right text-sm font-semibold bg-sidebar
                                border border-accent/60 rounded-lg px-2 py-1
                                focus:outline-none text-primary"
                     autoFocus
@@ -316,12 +316,12 @@ function ItemsOrdenPanel({
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[12px] text-primary-muted">
+                  <span className="text-sm text-primary-muted">
                     {item.cantidad_total} ud.
                     {item.costo_unitario > 0 && ` × ${fmtCOP(item.costo_unitario)}`}
                   </span>
                   {item.subtotal > 0 && (
-                    <span className="text-[13px] font-semibold text-warning">{fmtCOP(item.subtotal)}</span>
+                    <span className="text-base font-semibold text-warning">{fmtCOP(item.subtotal)}</span>
                   )}
                   {canEditCosto && (
                     <button
@@ -341,7 +341,7 @@ function ItemsOrdenPanel({
             <div className="flex flex-wrap gap-2 mt-1.5">
               {item.tallas.filter(t => t.cantidad > 0).map(t => (
                 <span key={t.talla_nombre}
-                  className="text-[11.5px] bg-sidebar border border-border
+                  className="text-xs bg-sidebar border border-border
                              rounded-lg px-2 py-0.5 text-primary-muted">
                   {t.talla_nombre}: {t.cantidad}
                 </span>
@@ -392,21 +392,21 @@ function OrdenFila({
         </button>
         <div className={cn('flex items-center gap-1.5 shrink-0 w-36', cfg.color)}>
           <EstIcon size={14} />
-          <span className="text-[12px] font-semibold">{cfg.label}</span>
+          <span className="text-sm font-semibold">{cfg.label}</span>
         </div>
-        <span className="text-[13px] font-mono font-bold text-primary w-32 shrink-0">
+        <span className="text-base font-mono font-bold text-primary w-32 shrink-0">
           {orden.numero}
         </span>
-        <span className="text-[13px] text-primary-muted flex-1 truncate">
+        <span className="text-base text-primary-muted flex-1 truncate">
           {orden.fabricante ?? orden.proveedor_nombre ?? '—'}
         </span>
-        <span className="text-[12px] text-primary-muted w-24 shrink-0 text-center">
+        <span className="text-sm text-primary-muted w-24 shrink-0 text-center">
           {fmtFecha(orden.fecha_orden)}
         </span>
-        <span className="text-[12px] text-primary-muted w-16 shrink-0 text-right">
+        <span className="text-sm text-primary-muted w-16 shrink-0 text-right">
           {orden.unidades_total} ud.
         </span>
-        <span className="text-[13px] font-semibold text-warning w-32 shrink-0 text-right">
+        <span className="text-base font-semibold text-warning w-32 shrink-0 text-right">
           {orden.costo_total > 0 ? fmtCOP(orden.costo_total) : '—'}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -437,7 +437,7 @@ function OrdenFila({
       </div>
 
       {(orden.notas || orden.fecha_entrega || orden.anticipo > 0 || orden.saldo > 0 || orden.costo_total > 0) && (
-        <div className="px-4 py-2 text-[12px] text-primary-muted bg-card
+        <div className="px-4 py-2 text-sm text-primary-muted bg-card
                         border-t border-border/30 flex flex-col gap-2">
           <div className="flex gap-4 flex-wrap items-center">
             {orden.fecha_entrega && (
@@ -481,7 +481,7 @@ function OrdenFila({
                   }}
                 />
               </div>
-              <span className="text-[11px] text-primary-muted shrink-0">{pct}% pagado</span>
+              <span className="text-xs text-primary-muted shrink-0">{pct}% pagado</span>
             </div>
           )}
         </div>
@@ -828,8 +828,8 @@ export default function Produccion() {
           <Factory size={20} />
         </div>
         <div className="flex-1">
-          <h2 className="text-[17px] font-bold text-primary">Órdenes de Producción</h2>
-          <p className="text-[12.5px] text-primary-muted">
+          <h2 className="text-lg font-bold text-primary">Órdenes de Producción</h2>
+          <p className="text-sm text-primary-muted">
             Gestión de talleres y seguimiento de estados
           </p>
         </div>
@@ -864,16 +864,16 @@ export default function Produccion() {
       {!loading && ordenes.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-sidebar border border-border rounded-xl px-5 py-4">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-2">Órdenes activas</p>
-            <p className="text-[24px] font-bold text-accent">{activas}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-2">Órdenes activas</p>
+            <p className="text-2xl font-bold text-accent">{activas}</p>
           </div>
           <div className="bg-sidebar border border-border rounded-xl px-5 py-4">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-2">Entregadas</p>
-            <p className="text-[24px] font-bold text-success">{entregadas}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-2">Entregadas</p>
+            <p className="text-2xl font-bold text-success">{entregadas}</p>
           </div>
           <div className="bg-sidebar border border-border rounded-xl px-5 py-4">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-2">Costo en curso</p>
-            <p className="text-[24px] font-bold text-warning">{fmtCOP(costoActivo)}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-2">Costo en curso</p>
+            <p className="text-2xl font-bold text-warning">{fmtCOP(costoActivo)}</p>
           </div>
         </div>
       )}
@@ -892,7 +892,7 @@ export default function Produccion() {
             placeholder="Buscar por número o proveedor…"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="input pl-8 h-9 text-[13px]"
+            className="input pl-8 h-9 text-base"
           />
         </div>
         <div className="flex gap-1.5 flex-wrap">
@@ -901,7 +901,7 @@ export default function Produccion() {
               key={f.value}
               onClick={() => setFiltroEstado(f.value)}
               className={cn(
-                'px-3 py-1.5 rounded-xl text-[12.5px] font-semibold border transition-colors',
+                'px-3 py-1.5 rounded-xl text-sm font-semibold border transition-colors',
                 filtroEstado === f.value
                   ? 'bg-accent text-white border-accent'
                   : 'border-border text-primary-muted hover:text-primary hover:border-accent/30'
@@ -915,11 +915,11 @@ export default function Produccion() {
 
       {/* Lista */}
       {loading ? (
-        <p className="text-[13px] text-primary-muted">Cargando…</p>
+        <p className="text-base text-primary-muted">Cargando…</p>
       ) : ordenesFiltradas.length === 0 ? (
         <div className="card text-center py-12">
           <Factory size={40} className="mx-auto text-primary-muted/30 mb-3" />
-          <p className="text-[14px] text-primary-muted">
+          <p className="text-md text-primary-muted">
             {busqueda || filtroEstado
               ? 'No se encontraron órdenes con ese filtro.'
               : 'Todavía no hay órdenes de producción.'}
@@ -927,7 +927,7 @@ export default function Produccion() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3 px-4 text-[11px] font-bold
+          <div className="flex items-center gap-3 px-4 text-xs font-bold
                           uppercase tracking-wider text-primary-muted">
             <span className="w-4 shrink-0" />
             <span className="w-36 shrink-0">Estado</span>

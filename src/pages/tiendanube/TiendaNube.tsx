@@ -404,14 +404,14 @@ export default function TiendaNube() {
           <Store size={20} />
         </div>
         <div>
-          <h2 className="text-[17px] font-bold text-primary">Tienda Nube</h2>
-          <p className="text-[12.5px] text-primary-muted">
+          <h2 className="text-lg font-bold text-primary">Tienda Nube</h2>
+          <p className="text-sm text-primary-muted">
             {storeName ?? 'Integración con tu tienda online'}
           </p>
         </div>
         <div className={cn(
           'ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl',
-          'text-[12px] font-semibold border',
+          'text-sm font-semibold border',
           conectado
             ? 'bg-success/10 border-success/20 text-success'
             : 'bg-danger/10  border-danger/20  text-danger'
@@ -434,7 +434,7 @@ export default function TiendaNube() {
             key={t.key}
             onClick={() => setTab(t.key)}
             className={cn(
-              'px-4 py-1.5 rounded-lg text-[13px] font-semibold transition-all',
+              'px-4 py-1.5 rounded-lg text-base font-semibold transition-all',
               tab === t.key
                 ? 'bg-accent text-white'
                 : 'text-primary-muted hover:text-primary'
@@ -450,10 +450,10 @@ export default function TiendaNube() {
         <div className="flex flex-col gap-4">
           <div className="card flex flex-col gap-4">
             <div>
-              <p className="text-[13.5px] font-bold text-primary mb-0.5">
+              <p className="text-base font-bold text-primary mb-0.5">
                 Credenciales de la API
               </p>
-              <p className="text-[12.5px] text-primary-muted">
+              <p className="text-sm text-primary-muted">
                 Encontrás tu Store ID y Access Token en{' '}
                 <button
                   className="text-accent underline"
@@ -471,10 +471,10 @@ export default function TiendaNube() {
                                 border border-success/20 bg-success/5">
                   <CheckCircle size={16} className="text-success shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[12.5px] font-semibold text-primary">
+                    <p className="text-sm font-semibold text-primary">
                       Store ID: <span className="font-mono">{savedStoreId}</span>
                     </p>
-                    <p className="text-[12px] text-primary-muted font-mono">
+                    <p className="text-sm text-primary-muted font-mono">
                       Token: {'•'.repeat(10)}{savedToken.slice(-4)}
                     </p>
                   </div>
@@ -506,7 +506,7 @@ export default function TiendaNube() {
                   <input
                     type="text" placeholder="Ej: 123456"
                     value={storeId} onChange={e => setStoreId(e.target.value)}
-                    className="input font-mono text-[13px]"
+                    className="input font-mono text-base"
                   />
                 </div>
                 <div>
@@ -514,7 +514,7 @@ export default function TiendaNube() {
                   <input
                     type="password" placeholder="Pegar token…"
                     value={token} onChange={e => setToken(e.target.value)}
-                    className="input font-mono text-[13px]"
+                    className="input font-mono text-base"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -537,7 +537,7 @@ export default function TiendaNube() {
           {/* Acciones de sync */}
           {conectado && (
             <div className="card flex flex-col gap-4">
-              <p className="text-[13.5px] font-bold text-primary">
+              <p className="text-base font-bold text-primary">
                 Sincronización manual
               </p>
 
@@ -545,7 +545,7 @@ export default function TiendaNube() {
                 <div className="flex items-center gap-2 p-3 rounded-xl
                                 bg-accent-light border border-accent/20">
                   <Spinner size="sm" />
-                  <span className="text-[13px] text-accent">{syncMsg}</span>
+                  <span className="text-base text-accent">{syncMsg}</span>
                 </div>
               )}
 
@@ -579,17 +579,17 @@ export default function TiendaNube() {
               {/* Log de últimas operaciones */}
               {syncLogs.length > 0 && (
                 <div className="flex flex-col gap-1.5 pt-2 border-t border-border">
-                  <p className="text-[11px] font-bold text-primary-muted uppercase tracking-wider mb-1">
+                  <p className="text-xs font-bold text-primary-muted uppercase tracking-wider mb-1">
                     Últimas operaciones
                   </p>
                   {syncLogs.map((log, i) => (
-                    <div key={i} className="flex items-center gap-3 text-[12.5px]">
+                    <div key={i} className="flex items-center gap-3 text-sm">
                       {log.errores === 0
                         ? <CheckCircle  size={13} className="text-success shrink-0" />
                         : <AlertTriangle size={13} className="text-warning shrink-0" />
                       }
                       <span className="text-primary-muted">{log.mensaje}</span>
-                      <span className="ml-auto text-primary-muted text-[11.5px]">
+                      <span className="ml-auto text-primary-muted text-xs">
                         {formatDate(log.fecha.slice(0, 10))}
                       </span>
                     </div>
@@ -605,7 +605,7 @@ export default function TiendaNube() {
       {tab === 'productos' && (
         <div className="card p-0 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <h3 className="text-[13.5px] font-bold text-primary">
+            <h3 className="text-base font-bold text-primary">
               Productos mapeados con TN
             </h3>
             <button
@@ -641,16 +641,16 @@ export default function TiendaNube() {
                 {productos.map((p: any) => (
                   <tr key={p.id} className="border-b border-border/50
                                              hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-2.5 text-[13px] text-primary">{p.nombre}</td>
-                    <td className="px-4 py-2.5 font-mono text-[12px] text-primary-muted">
+                    <td className="px-4 py-2.5 text-base text-primary">{p.nombre}</td>
+                    <td className="px-4 py-2.5 font-mono text-sm text-primary-muted">
                       {p.tn_product_id}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[13px]">
+                    <td className="px-4 py-2.5 text-right text-base">
                       {formatCOP(p.precio_venta)}
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <span className={cn(
-                        'inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border',
+                        'inline-flex px-2 py-0.5 rounded-full text-xs font-semibold border',
                         p.activo
                           ? 'bg-success/10 border-success/20 text-success'
                           : 'bg-danger/10  border-danger/20  text-danger'
@@ -670,7 +670,7 @@ export default function TiendaNube() {
       {tab === 'ordenes' && (
         <div className="card p-0 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <h3 className="text-[13.5px] font-bold text-primary">
+            <h3 className="text-base font-bold text-primary">
               Órdenes importadas de TN
             </h3>
             <button
@@ -707,16 +707,16 @@ export default function TiendaNube() {
                 {ordenes.map((o: any) => (
                   <tr key={o.id} className="border-b border-border/50
                                              hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-2.5 font-mono text-[12px] text-primary-muted">
+                    <td className="px-4 py-2.5 font-mono text-sm text-primary-muted">
                       {o.numero_venta}
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-primary-muted whitespace-nowrap">
+                    <td className="px-4 py-2.5 text-base text-primary-muted whitespace-nowrap">
                       {formatDate(o.fecha)}
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-primary truncate max-w-[160px]">
+                    <td className="px-4 py-2.5 text-base text-primary truncate max-w-[160px]">
                       {o.cliente_nombre ?? '—'}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-[13.5px] font-bold">
+                    <td className="px-4 py-2.5 text-right text-base font-bold">
                       {formatCOP(o.total)}
                     </td>
                     <td className="px-4 py-2.5">
@@ -726,7 +726,7 @@ export default function TiendaNube() {
                             `https://www.tiendanube.com/admin/orders/${o.tn_order_id}`
                           )
                         }
-                        className="flex items-center gap-1 text-[12px] text-accent hover:underline"
+                        className="flex items-center gap-1 text-sm text-accent hover:underline"
                       >
                         #{o.tn_order_id}
                         <ExternalLink size={11} />
@@ -769,8 +769,8 @@ function SyncCard({ icon, title, desc, loading, disabled, onClick }: SyncCardPro
       )}
     >
       {loading ? <Spinner size="sm" /> : icon}
-      <span className="text-[13px] font-semibold text-primary">{title}</span>
-      <span className="text-[11.5px] text-primary-muted leading-tight">{desc}</span>
+      <span className="text-base font-semibold text-primary">{title}</span>
+      <span className="text-xs text-primary-muted leading-tight">{desc}</span>
     </button>
   )
 }

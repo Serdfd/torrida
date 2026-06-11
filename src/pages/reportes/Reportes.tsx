@@ -127,7 +127,7 @@ export default function Reportes() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <BarChart2 size={20} className="text-accent" />
-          <h2 className="text-[16px] font-bold text-primary">
+          <h2 className="text-lg font-bold text-primary">
             Reporte anual
           </h2>
         </div>
@@ -136,7 +136,7 @@ export default function Reportes() {
           <select
             value={anio}
             onChange={e => setAnio(Number(e.target.value))}
-            className="input h-9 text-[13px] w-[110px]"
+            className="input h-9 text-base w-[110px]"
           >
             {Array.from({ length: 5 }, (_, i) => filtroAnio - i).map(y => (
               <option key={y} value={y}>{y}</option>
@@ -152,30 +152,30 @@ export default function Reportes() {
       {/* KPIs anuales */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Ingresos {anio}</p>
-          <p className="text-[20px] font-bold text-success">
+          <p className="text-xl font-bold text-success">
             {formatCOP(totalIngresos)}
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Gastos {anio}</p>
-          <p className="text-[20px] font-bold text-danger">
+          <p className="text-xl font-bold text-danger">
             {formatCOP(totalGastos)}
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Margen neto</p>
-          <p className={`text-[20px] font-bold ${margenNeto >= 0 ? 'text-success' : 'text-danger'}`}>
+          <p className={`text-xl font-bold ${margenNeto >= 0 ? 'text-success' : 'text-danger'}`}>
             {formatCOP(margenNeto)}
           </p>
         </div>
         <div className="card py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-primary-muted mb-1">Mejor mes</p>
-          <p className="text-[20px] font-bold text-accent truncate">
+          <p className="text-xl font-bold text-accent truncate">
             {mejorMes.ingresos > 0 ? mejorMes.mes : '—'}
           </p>
         </div>
@@ -188,7 +188,7 @@ export default function Reportes() {
           {/* Tabla comparativa mes a mes */}
           <div className="card p-0 overflow-hidden">
             <div className="px-4 py-3 border-b border-border">
-              <h3 className="text-[13.5px] font-bold text-primary">
+              <h3 className="text-base font-bold text-primary">
                 Comparativa mensual {anio}
               </h3>
             </div>
@@ -209,22 +209,22 @@ export default function Reportes() {
                     <tr key={f.mes}
                         className={f.ingresos === 0 && f.gastos === 0
                           ? 'opacity-35' : ''}>
-                      <td className="font-medium text-[13px] text-primary">
+                      <td className="font-medium text-base text-primary">
                         {f.mes}
                       </td>
-                      <td className="text-right text-[13px] text-primary-muted">
+                      <td className="text-right text-base text-primary-muted">
                         {f.ventas > 0 ? formatNumber(f.ventas) : '—'}
                       </td>
-                      <td className="text-right font-semibold text-[13px] text-success">
+                      <td className="text-right font-semibold text-base text-success">
                         {f.ingresos > 0 ? formatCOP(f.ingresos) : '—'}
                       </td>
-                      <td className="text-right text-[13px] text-warning">
+                      <td className="text-right text-base text-warning">
                         {f.comisiones > 0 ? formatCOP(f.comisiones) : '—'}
                       </td>
-                      <td className="text-right text-[13px] text-danger">
+                      <td className="text-right text-base text-danger">
                         {f.gastos > 0 ? formatCOP(f.gastos) : '—'}
                       </td>
-                      <td className={`text-right font-bold text-[13px]
+                      <td className={`text-right font-bold text-base
                         ${f.margen > 0 ? 'text-success' :
                           f.margen < 0 ? 'text-danger' : 'text-primary-muted'}`}>
                         {f.ingresos > 0 || f.gastos > 0 ? formatCOP(f.margen) : '—'}
@@ -234,23 +234,23 @@ export default function Reportes() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t border-border bg-[#0B0B16]">
-                    <td className="px-4 py-3 text-[13px] font-bold text-primary-muted">
+                    <td className="px-4 py-3 text-base font-bold text-primary-muted">
                       Total
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-[13px]
+                    <td className="px-4 py-3 text-right font-bold text-base
                                    text-primary">
                       {formatNumber(filasMeses.reduce((s, f) => s + f.ventas, 0))}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-[13px] text-success">
+                    <td className="px-4 py-3 text-right font-bold text-base text-success">
                       {formatCOP(totalIngresos)}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-[13px] text-warning">
+                    <td className="px-4 py-3 text-right font-bold text-base text-warning">
                       {formatCOP(totalComisiones)}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-[13px] text-danger">
+                    <td className="px-4 py-3 text-right font-bold text-base text-danger">
                       {formatCOP(totalGastos)}
                     </td>
-                    <td className={`px-4 py-3 text-right font-bold text-[14px]
+                    <td className={`px-4 py-3 text-right font-bold text-md
                       ${margenNeto >= 0 ? 'text-success' : 'text-danger'}`}>
                       {formatCOP(margenNeto)}
                     </td>
@@ -266,12 +266,12 @@ export default function Reportes() {
             {/* Top 5 productos */}
             <div className="card p-0 overflow-hidden">
               <div className="px-4 py-3 border-b border-border">
-                <h3 className="text-[13.5px] font-bold text-primary">
+                <h3 className="text-base font-bold text-primary">
                   Top 5 productos — {MESES[filtroMes - 1]}
                 </h3>
               </div>
               {topProductos.length === 0 ? (
-                <div className="px-4 py-8 text-center text-[13px] text-primary-muted">
+                <div className="px-4 py-8 text-center text-base text-primary-muted">
                   Sin datos en este período
                 </div>
               ) : (
@@ -279,19 +279,19 @@ export default function Reportes() {
                   {topProductos.map((p, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3">
                       <span className="w-6 h-6 rounded-full bg-accent-light
-                                       text-accent text-[12px] font-bold
+                                       text-accent text-sm font-bold
                                        flex items-center justify-center shrink-0">
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-primary truncate">
+                        <p className="text-base font-semibold text-primary truncate">
                           {p.producto}
                         </p>
-                        <p className="text-[11.5px] text-primary-muted">
+                        <p className="text-xs text-primary-muted">
                           {formatNumber(p.unidades)} ud.
                         </p>
                       </div>
-                      <span className="font-bold text-[13px] text-success shrink-0">
+                      <span className="font-bold text-base text-success shrink-0">
                         {formatCOP(p.ingresos)}
                       </span>
                     </div>
@@ -303,12 +303,12 @@ export default function Reportes() {
             {/* Ventas por canal */}
             <div className="card p-0 overflow-hidden">
               <div className="px-4 py-3 border-b border-border">
-                <h3 className="text-[13.5px] font-bold text-primary">
+                <h3 className="text-base font-bold text-primary">
                   Ventas por canal — {MESES[filtroMes - 1]}
                 </h3>
               </div>
               {canales.length === 0 ? (
-                <div className="px-4 py-8 text-center text-[13px] text-primary-muted">
+                <div className="px-4 py-8 text-center text-base text-primary-muted">
                   Sin datos en este período
                 </div>
               ) : (
@@ -316,15 +316,15 @@ export default function Reportes() {
                   {canales.map((c, i) => (
                     <div key={i} className="flex items-center gap-3 px-4 py-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-primary truncate">
+                        <p className="text-base font-semibold text-primary truncate">
                           {c.canal ?? 'Sin canal'}
                         </p>
-                        <p className="text-[11.5px] text-primary-muted">
+                        <p className="text-xs text-primary-muted">
                           {formatNumber(c.cantidad)} ventas
                           {c.comisiones > 0 && ` · comisiones ${formatCOP(c.comisiones)}`}
                         </p>
                       </div>
-                      <span className="font-bold text-[13px] text-success shrink-0">
+                      <span className="font-bold text-base text-success shrink-0">
                         {formatCOP(c.total)}
                       </span>
                     </div>

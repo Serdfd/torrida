@@ -445,7 +445,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
       <div className="flex items-center gap-2 mb-1">
         <ShoppingBag size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           {isEditing ? 'Editar venta' : 'Nueva venta'}
         </h2>
       </div>
@@ -474,7 +474,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               <div className="mt-1.5">
                 <label className="input-label">Concepto / tarifa de cobro</label>
                 <select
-                  className="input h-8 text-[12.5px]"
+                  className="input h-8 text-sm"
                   value={selectedTarifaId}
                   onChange={e => setSelectedTarifaId(Number(e.target.value))}
                 >
@@ -526,7 +526,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                   <div className="grid grid-cols-[2fr_1fr_70px_1fr_100px_32px] gap-2 items-end">
                     <div>
                       <label className="input-label">Producto</label>
-                      <select className="input h-9 text-[13px]"
+                      <select className="input h-9 text-base"
                         {...register(`items.${idx}.producto_id`, { required: true, valueAsNumber: true })}
                         onChange={e => handleProductoChange(idx, Number(e.target.value))}>
                         <option value={0}>— Seleccionar —</option>
@@ -536,9 +536,9 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                     <div>
                       <label className="input-label">
                         Talla{prodId > 0 && tallasDisp.length === 0 &&
-                          <span className="text-warning ml-1 text-[10px]">sin tallas</span>}
+                          <span className="text-warning ml-1 text-2xs">sin tallas</span>}
                       </label>
-                      <select className="input h-9 text-[13px]"
+                      <select className="input h-9 text-base"
                         {...register(`items.${idx}.talla_id`, { valueAsNumber: true })}>
                         <option value={0}>—</option>
                         {tallasDisp.map(t =>
@@ -550,17 +550,17 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                     </div>
                     <div>
                       <label className="input-label">Cant.</label>
-                      <input type="number" min={1} className="input h-9 text-[13px]"
+                      <input type="number" min={1} className="input h-9 text-base"
                         {...register(`items.${idx}.cantidad`, { required: true, min: 1, valueAsNumber: true })} />
                     </div>
                     <div>
                       <label className="input-label">Precio unit.</label>
-                      <input type="number" min={0} step="0.01" className="input h-9 text-[13px]"
+                      <input type="number" min={0} step="0.01" className="input h-9 text-base"
                         {...register(`items.${idx}.precio_unitario`, { required: true, min: 0, valueAsNumber: true })} />
                     </div>
                     <div>
                       <label className="input-label">Desc. ítem</label>
-                      <input type="number" min={0} className="input h-9 text-[13px]"
+                      <input type="number" min={0} className="input h-9 text-base"
                         {...register(`items.${idx}.descuento_item`, { valueAsNumber: true })} />
                     </div>
                     <button type="button"
@@ -572,11 +572,11 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                   </div>
 
                   {/* Computed mini-row */}
-                  <div className="grid grid-cols-3 gap-3 pt-1.5 border-t border-white/[0.05] text-[11.5px]">
+                  <div className="grid grid-cols-3 gap-3 pt-1.5 border-t border-white/[0.05] text-xs">
                     <div className="flex items-center gap-1.5 text-primary-muted">
                       <span className="shrink-0">Costo snap:</span>
                       <input type="number" min={0} step="0.01"
-                        className="input h-6 text-[11.5px] px-1.5 flex-1"
+                        className="input h-6 text-xs px-1.5 flex-1"
                         {...register(`items.${idx}.costo_unitario_snap`, { valueAsNumber: true })} />
                     </div>
                     <div className="flex items-center gap-1 text-warning">
@@ -598,13 +598,13 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
         <div className="bg-[#0B0B16] border border-border rounded-lg p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <Truck size={14} className="text-primary-muted" />
-            <span className="text-[13px] font-semibold text-primary">Envío</span>
+            <span className="text-base font-semibold text-primary">Envío</span>
           </div>
           <div className="flex gap-5">
             {(['standard', 'express'] as const).map(tipo => (
               <label key={tipo} className="flex items-center gap-2 cursor-pointer select-none">
                 <input type="radio" value={tipo} {...register('tipo_envio')} className="accent-accent" />
-                <span className="text-[13px] capitalize text-primary-muted">{tipo}</span>
+                <span className="text-base capitalize text-primary-muted">{tipo}</span>
               </label>
             ))}
           </div>
@@ -640,36 +640,36 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
         {/* Resumen */}
         <div className="bg-[#0B0B16] border border-border rounded-xl p-4 flex flex-col gap-1.5">
-          <div className="flex justify-between text-[13px] text-primary-muted">
+          <div className="flex justify-between text-base text-primary-muted">
             <span>Subtotal productos</span><span>{formatCOP(subtotalItems)}</span>
           </div>
           {descuentoGlobal > 0 && (
-            <div className="flex justify-between text-[13px] text-danger">
+            <div className="flex justify-between text-base text-danger">
               <span>Descuento global</span><span>-{formatCOP(descuentoGlobal)}</span>
             </div>
           )}
           {envio > 0 && (
-            <div className="flex justify-between text-[13px] text-primary-muted">
+            <div className="flex justify-between text-base text-primary-muted">
               <span>Costo de envío</span><span>+{formatCOP(envio)}</span>
             </div>
           )}
           {comisionTotal > 0 && (
-            <div className="flex justify-between text-[13px] text-warning">
+            <div className="flex justify-between text-base text-warning">
               <span>Comisión canal ({pctComision}%)</span><span>-{formatCOP(comisionTotal)}</span>
             </div>
           )}
           {comisionMP > 0 && (
-            <div className="flex justify-between text-[13px] text-warning">
+            <div className="flex justify-between text-base text-warning">
               <span>Comisión pasarela{tarifaSelec ? ` (${tarifaSelec.concepto})` : ''}</span>
               <span>-{formatCOP(comisionMP)}</span>
             </div>
           )}
-          <div className={`flex justify-between text-[13px] font-semibold ${totalUtilidad >= 0 ? 'text-success' : 'text-danger'}`}>
+          <div className={`flex justify-between text-base font-semibold ${totalUtilidad >= 0 ? 'text-success' : 'text-danger'}`}>
             <span>Utilidad estimada</span><span>{formatCOP(totalUtilidad)}</span>
           </div>
           <div className="border-t border-border mt-1 pt-1.5 flex justify-between">
-            <span className="text-[14px] font-bold text-primary">Total</span>
-            <span className="text-[18px] font-bold text-accent">{formatCOP(totalVenta)}</span>
+            <span className="text-md font-bold text-primary">Total</span>
+            <span className="text-xl font-bold text-accent">{formatCOP(totalVenta)}</span>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-﻿import {
+import {
   PieChart, Pie, Cell, Tooltip,
   ResponsiveContainer, Legend
 } from 'recharts'
@@ -17,9 +17,9 @@ function CustomTooltip({ active, payload }: any) {
   const total = item.total ?? 0
   return (
     <div className="bg-bg-elevated border border-border rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-[13px] font-bold text-primary mb-1">{item.canal}</p>
-      <p className="text-[15px] font-bold text-accent">{formatCOP(total)}</p>
-      <p className="text-[12px] text-primary-muted">{item.cantidad} ventas</p>
+      <p className="text-base font-bold text-primary mb-1">{item.canal}</p>
+      <p className="text-md font-bold text-accent">{formatCOP(total)}</p>
+      <p className="text-sm text-primary-muted">{item.cantidad} ventas</p>
     </div>
   )
 }
@@ -40,9 +40,9 @@ function CustomLegend({ payload }: any) {
                 className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-[12.5px] text-primary-muted">{entry.value}</span>
+              <span className="text-sm text-primary-muted">{entry.value}</span>
             </div>
-            <span className="text-[12.5px] font-semibold text-primary">
+            <span className="text-sm font-semibold text-primary">
               {formatPct(pct)}
             </span>
           </li>
@@ -55,7 +55,7 @@ function CustomLegend({ payload }: any) {
 export default function VentasCanalChart({ data }: VentasCanalChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[200px] text-primary-muted text-[13.5px]">
+      <div className="flex items-center justify-center h-[200px] text-primary-muted text-base">
         Sin datos para mostrar
       </div>
     )

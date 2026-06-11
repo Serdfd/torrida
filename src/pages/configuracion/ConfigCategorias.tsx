@@ -224,7 +224,7 @@ export default function ConfigCategorias() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Package size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Categorías de gasto
           </h3>
         </div>
@@ -241,7 +241,7 @@ export default function ConfigCategorias() {
       {/* Sugeridas rápidas */}
       {categorias.length < 2 && (
         <div>
-          <p className="text-[12px] text-primary-muted mb-2">
+          <p className="text-sm text-primary-muted mb-2">
             Categorías sugeridas:
           </p>
           <div className="flex flex-wrap gap-2">
@@ -256,7 +256,7 @@ export default function ConfigCategorias() {
                   disabled={existe}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border',
-                    'text-[12.5px] font-semibold transition-colors',
+                    'text-sm font-semibold transition-colors',
                     existe
                       ? 'border-border text-primary-muted opacity-40 cursor-not-allowed'
                       : 'border-dashed border-border text-primary-muted hover:border-accent/40 hover:text-accent'
@@ -285,7 +285,7 @@ export default function ConfigCategorias() {
               <input
                 type="text"
                 placeholder="Ej: Producción, Envíos, Marketing…"
-                className="input h-9 text-[13px]"
+                className="input h-9 text-base"
                 value={newData.nombre}
                 onChange={e => setNewData(p => ({ ...p, nombre: e.target.value }))}
                 onKeyDown={e => e.key === 'Enter' && handleAgregar()}
@@ -363,7 +363,7 @@ export default function ConfigCategorias() {
                         <label className="input-label">Nombre</label>
                         <input
                           type="text"
-                          className="input h-8 text-[13px]"
+                          className="input h-8 text-base"
                           value={editData.nombre}
                           onChange={e => setEditData(p => ({
                             ...p, nombre: e.target.value
@@ -413,7 +413,7 @@ export default function ConfigCategorias() {
                     />
 
                     {/* Nombre */}
-                    <p className="flex-1 text-[13.5px] font-semibold
+                    <p className="flex-1 text-base font-semibold
                                   text-primary">
                       {cat.nombre}
                     </p>
@@ -422,7 +422,7 @@ export default function ConfigCategorias() {
                     <button
                       onClick={() => handleToggleActiva(cat)}
                       className={cn(
-                        'text-[12px] font-semibold px-2.5 py-1 rounded-lg',
+                        'text-sm font-semibold px-2.5 py-1 rounded-lg',
                         'border transition-colors',
                         cat.activa
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'

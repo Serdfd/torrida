@@ -22,50 +22,50 @@ export default function VentaFila({ venta, onClick, onEditar }: VentaFilaProps) 
       className="cursor-pointer hover:bg-white/[0.02] transition-colors"
       onClick={onClick}
     >
-      {/* Número */}
-      <td className="font-mono text-[12.5px] text-primary-muted whitespace-nowrap">
+      {/* Nï¿½mero */}
+      <td className="font-mono text-sm text-primary-muted whitespace-nowrap">
         {venta.numero_venta}
       </td>
 
       {/* Fecha */}
-      <td className="text-[13px] whitespace-nowrap">
+      <td className="text-base whitespace-nowrap">
         {formatDate(venta.fecha)}
       </td>
 
       {/* Cliente */}
-      <td className="text-[13px] text-primary-muted max-w-[140px] truncate">
-        {venta.cliente_nombre ?? '—'}
+      <td className="text-base text-primary-muted max-w-[140px] truncate">
+        {venta.cliente_nombre ?? 'ï¿½'}
       </td>
 
       {/* Canal */}
       <td>
-        <span className="text-[12.5px] font-semibold text-primary-muted">
-          {venta.canal_nombre ?? '—'}
+        <span className="text-sm font-semibold text-primary-muted">
+          {venta.canal_nombre ?? 'ï¿½'}
         </span>
       </td>
 
       {/* Medio pago */}
-      <td className="text-[12.5px] text-primary-muted whitespace-nowrap">
-        {venta.medio_pago_nombre ?? '—'}
+      <td className="text-sm text-primary-muted whitespace-nowrap">
+        {venta.medio_pago_nombre ?? 'ï¿½'}
       </td>
 
       {/* Total */}
-      <td className="text-right font-bold text-[14px] whitespace-nowrap">
+      <td className="text-right font-bold text-md whitespace-nowrap">
         {formatCOP(venta.total)}
       </td>
 
-      {/* Comisión */}
-      <td className="text-right text-[13px] whitespace-nowrap">
+      {/* Comisiï¿½n */}
+      <td className="text-right text-base whitespace-nowrap">
         {venta.comision_canal > 0
           ? <span className="text-warning">{formatCOP(venta.comision_canal)}</span>
-          : <span className="text-primary-muted">—</span>
+          : <span className="text-primary-muted">ï¿½</span>
         }
       </td>
 
       {/* Estado */}
       <td>
         <span className={cn(
-          'inline-flex px-2 py-0.5 rounded-full text-[11.5px] font-semibold border',
+          'inline-flex px-2 py-0.5 rounded-full text-xs font-semibold border',
           estadoStyle
         )}>
           {venta.estado}
@@ -76,7 +76,7 @@ export default function VentaFila({ venta, onClick, onEditar }: VentaFilaProps) 
       <td>
         <button
           onClick={e => { e.stopPropagation(); onEditar() }}
-          className="px-2.5 py-1 rounded-lg text-[12px] font-semibold
+          className="px-2.5 py-1 rounded-lg text-sm font-semibold
                      bg-card border border-border text-primary-muted
                      hover:text-primary hover:border-accent/40 transition-colors"
           title="Editar venta"

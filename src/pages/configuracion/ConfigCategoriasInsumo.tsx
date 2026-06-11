@@ -187,7 +187,7 @@ export default function ConfigCategoriasInsumo() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Categorías de insumos
           </h3>
         </div>
@@ -203,7 +203,7 @@ export default function ConfigCategoriasInsumo() {
       {/* Sugeridas */}
       {categorias.length < 2 && (
         <div>
-          <p className="text-[12px] text-primary-muted mb-2">Categorías sugeridas:</p>
+          <p className="text-sm text-primary-muted mb-2">Categorías sugeridas:</p>
           <div className="flex flex-wrap gap-2">
             {CATEGORIAS_SUGERIDAS.map(s => {
               const existe = categorias.some(c => c.nombre.toLowerCase() === s.nombre.toLowerCase())
@@ -214,7 +214,7 @@ export default function ConfigCategoriasInsumo() {
                   disabled={existe}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border',
-                    'text-[12.5px] font-semibold transition-colors',
+                    'text-sm font-semibold transition-colors',
                     existe
                       ? 'border-border text-primary-muted opacity-40 cursor-not-allowed'
                       : 'border-dashed border-border text-primary-muted hover:border-accent/40 hover:text-accent'
@@ -238,7 +238,7 @@ export default function ConfigCategoriasInsumo() {
               <input
                 type="text"
                 placeholder="Ej: Telas, Cierres, Botones…"
-                className="input h-9 text-[13px]"
+                className="input h-9 text-base"
                 value={newData.nombre}
                 onChange={e => setNewData(p => ({ ...p, nombre: e.target.value }))}
                 onKeyDown={e => e.key === 'Enter' && handleAgregar()}
@@ -299,7 +299,7 @@ export default function ConfigCategoriasInsumo() {
                         <label className="input-label">Nombre</label>
                         <input
                           type="text"
-                          className="input h-8 text-[13px]"
+                          className="input h-8 text-base"
                           value={editData.nombre}
                           onChange={e => setEditData(p => ({ ...p, nombre: e.target.value }))}
                           onKeyDown={e => e.key === 'Enter' && handleGuardarEdicion(cat.id)}
@@ -335,13 +335,13 @@ export default function ConfigCategoriasInsumo() {
                       className="w-3 h-3 rounded-full shrink-0"
                       style={{ backgroundColor: cat.color }}
                     />
-                    <span className="flex-1 text-[13.5px] font-medium text-primary">
+                    <span className="flex-1 text-base font-medium text-primary">
                       {cat.nombre}
                     </span>
                     <button
                       onClick={() => handleToggleActiva(cat)}
                       className={cn(
-                        'text-[11.5px] font-semibold px-2 py-0.5 rounded-lg border transition-colors',
+                        'text-xs font-semibold px-2 py-0.5 rounded-lg border transition-colors',
                         cat.activa
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
                           : 'border-border text-primary-muted hover:border-accent/30'

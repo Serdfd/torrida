@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Pencil, Trash2, ExternalLink } from 'lucide-react'
 import { formatCOP, formatDate } from '@/lib/utils'
 import { useModal } from '@/store/useAppStore'
@@ -51,7 +51,7 @@ export default function GastoFila({
     <tr className={deleting ? 'opacity-40 pointer-events-none' : ''}>
 
       {/* Fecha */}
-      <td className="text-primary-muted text-[13px] whitespace-nowrap">
+      <td className="text-primary-muted text-base whitespace-nowrap">
         {formatDate(gasto.fecha)}
       </td>
 
@@ -62,7 +62,7 @@ export default function GastoFila({
             className="w-2 h-2 rounded-full shrink-0"
             style={{ backgroundColor: gasto.categoria_color ?? '#8A8AA8' }}
           />
-          <span className="text-[12.5px] font-semibold text-primary-muted">
+          <span className="text-sm font-semibold text-primary-muted">
             {gasto.categoria_nombre}
           </span>
         </div>
@@ -70,7 +70,7 @@ export default function GastoFila({
 
       {/* Descripción */}
       <td>
-        <p className="text-[13.5px] text-primary font-medium">
+        <p className="text-base text-primary font-medium">
           {gasto.descripcion}
         </p>
         {gasto.comprobante_url && (
@@ -78,7 +78,7 @@ export default function GastoFila({
             href={gasto.comprobante_url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-[11.5px]
+            className="inline-flex items-center gap-1 text-xs
                        text-accent hover:underline mt-0.5"
           >
             <ExternalLink size={10} />
@@ -89,7 +89,7 @@ export default function GastoFila({
 
       {/* Monto */}
       <td className="text-right">
-        <span className="font-bold text-[14.5px] text-danger">
+        <span className="font-bold text-md text-danger">
           {formatCOP(gasto.monto)}
         </span>
       </td>
@@ -98,11 +98,11 @@ export default function GastoFila({
       <td className="max-w-[180px]">
         {gasto.notas
           ? (
-            <p className="text-[12px] text-primary-muted truncate" title={gasto.notas}>
+            <p className="text-sm text-primary-muted truncate" title={gasto.notas}>
               {gasto.notas}
             </p>
           )
-          : <span className="text-primary-muted text-[13px]">—</span>
+          : <span className="text-primary-muted text-base">—</span>
         }
       </td>
 

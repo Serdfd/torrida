@@ -257,12 +257,12 @@ export default function CierreMensual() {
           </div>
           <div>
             <p className={cn(
-              'text-[15px] font-bold',
+              'text-md font-bold',
               estaCerrado ? 'text-success' : 'text-warning'
             )}>
               {estaCerrado ? 'Período cerrado' : 'Período abierto'}
             </p>
-            <p className="text-[13px] text-primary-muted">
+            <p className="text-base text-primary-muted">
               {monthYearLabel(filtroAnio, filtroMes)}
               {estaCerrado && cierre?.cerrado_en
                 ? ` · Cerrado el ${new Date(cierre.cerrado_en)
@@ -321,7 +321,7 @@ export default function CierreMensual() {
 
       {/* Detalle financiero */}
       <div className="card">
-        <p className="text-[13px] font-bold text-primary-muted uppercase
+        <p className="text-base font-bold text-primary-muted uppercase
                       tracking-wider mb-4">
           Resumen financiero
         </p>
@@ -356,7 +356,7 @@ export default function CierreMensual() {
             />
           </div>
           <div className="flex justify-between items-center
-                          text-[13px] text-primary-muted">
+                          text-base text-primary-muted">
             <span>Margen de utilidad</span>
             <span className={cn(
               'font-semibold',
@@ -377,7 +377,7 @@ export default function CierreMensual() {
         <div className="flex items-start gap-3 p-4 rounded-xl
                         bg-warning/5 border border-warning/20">
           <AlertTriangle size={16} className="text-warning shrink-0 mt-0.5" />
-          <p className="text-[13px] text-primary-muted">
+          <p className="text-base text-primary-muted">
             Este período aún está <strong className="text-warning">abierto</strong>.
             Ciérralo cuando hayas registrado todas las ventas y gastos del mes
             para congelar los datos y generar el historial.
@@ -390,13 +390,13 @@ export default function CierreMensual() {
         <div className="card">
           <div className="flex items-center gap-2 mb-5">
             <Users size={15} className="text-primary-muted" />
-            <p className="text-[13px] font-bold text-primary-muted uppercase tracking-wider">
+            <p className="text-base font-bold text-primary-muted uppercase tracking-wider">
               Distribución de utilidad
             </p>
           </div>
 
           {(resumen?.utilidad ?? 0) <= 0 ? (
-            <p className="text-[13px] text-primary-muted">
+            <p className="text-base text-primary-muted">
               No hay utilidad positiva para distribuir en este período.
             </p>
           ) : (
@@ -423,7 +423,7 @@ export default function CierreMensual() {
                     }}
                     className="flex-1 accent-accent"
                   />
-                  <span className="text-[14px] font-bold text-accent w-10 text-right">
+                  <span className="text-md font-bold text-accent w-10 text-right">
                     {pctReinversion}%
                   </span>
                 </div>
@@ -451,7 +451,7 @@ export default function CierreMensual() {
 
               {/* Resumen distribución */}
               <div className="bg-[#0B0B16] border border-border rounded-xl p-4
-                              flex flex-col gap-1.5 text-[13px]">
+                              flex flex-col gap-1.5 text-base">
                 {[
                   { label: 'Utilidad neta',        val: resumen?.utilidad ?? 0,       color: 'text-success' },
                   { label: `Reinversión (${pctReinversion}%)`, val: -(resumen?.utilidad ?? 0) * (pctReinversion / 100), color: 'text-warning' },
@@ -515,7 +515,7 @@ function FinancialRow({ label, value, color, sign, bold }: FinancialRowProps) {
   return (
     <div className={cn(
       'flex justify-between items-center',
-      bold ? 'text-[15px]' : 'text-[13.5px]'
+      bold ? 'text-md' : 'text-base'
     )}>
       <span className={cn(
         'text-primary-muted',

@@ -112,10 +112,10 @@ export default function InsumoMovimientosPanel({
           <History size={18} />
         </div>
         <div>
-          <h2 className="text-[16px] font-bold text-primary">
+          <h2 className="text-lg font-bold text-primary">
             Historial de movimientos
           </h2>
-          <p className="text-[12.5px] text-primary-muted">
+          <p className="text-sm text-primary-muted">
             {insumoNombre}
           </p>
         </div>
@@ -124,23 +124,23 @@ export default function InsumoMovimientosPanel({
       {/* Resumen */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-success/5 border border-success/20 rounded-xl px-4 py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-success/70 mb-1">
             Total entradas
           </p>
-          <p className="text-[20px] font-bold text-success">
+          <p className="text-xl font-bold text-success">
             +{formatNumber(totalEntradas)}
-            <span className="text-[12px] font-normal ml-1 opacity-70">{unidad}</span>
+            <span className="text-sm font-normal ml-1 opacity-70">{unidad}</span>
           </p>
         </div>
         <div className="bg-danger/5 border border-danger/20 rounded-xl px-4 py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-danger/70 mb-1">
             Total salidas
           </p>
-          <p className="text-[20px] font-bold text-danger">
+          <p className="text-xl font-bold text-danger">
             -{formatNumber(totalSalidas)}
-            <span className="text-[12px] font-normal ml-1 opacity-70">{unidad}</span>
+            <span className="text-sm font-normal ml-1 opacity-70">{unidad}</span>
           </p>
         </div>
       </div>
@@ -182,15 +182,15 @@ export default function InsumoMovimientosPanel({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={cn('text-[12.5px] font-semibold', config.color)}>
+                    <span className={cn('text-sm font-semibold', config.color)}>
                       {config.label}
                     </span>
-                    <span className="text-[11.5px] text-primary-muted">
+                    <span className="text-xs text-primary-muted">
                       · {formatDate(mov.fecha)}
                     </span>
                   </div>
                   {mov.motivo && (
-                    <p className="text-[12.5px] text-primary-muted truncate leading-snug">
+                    <p className="text-sm text-primary-muted truncate leading-snug">
                       {mov.motivo}
                     </p>
                   )}
@@ -198,12 +198,12 @@ export default function InsumoMovimientosPanel({
 
                 <div className="text-right shrink-0">
                   <p className={cn(
-                    'text-[15px] font-bold',
+                    'text-md font-bold',
                     esSalida ? 'text-danger' : 'text-success'
                   )}>
                     {esSalida ? '-' : '+'}{formatNumber(mov.cantidad)}
                   </p>
-                  <p className="text-[11px] text-primary-muted">{unidad}</p>
+                  <p className="text-xs text-primary-muted">{unidad}</p>
                 </div>
               </div>
             )

@@ -129,10 +129,10 @@ export default function MovimientosPanel({
           <History size={18} />
         </div>
         <div>
-          <h2 className="text-[16px] font-bold text-primary">
+          <h2 className="text-lg font-bold text-primary">
             Historial de movimientos
           </h2>
-          <p className="text-[12.5px] text-primary-muted">
+          <p className="text-sm text-primary-muted">
             {productoNombre}
           </p>
         </div>
@@ -141,20 +141,20 @@ export default function MovimientosPanel({
       {/* Resumen */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-success/5 border border-success/20 rounded-xl px-4 py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-success/70 mb-1">
             Total entradas
           </p>
-          <p className="text-[20px] font-bold text-success">
+          <p className="text-xl font-bold text-success">
             +{formatNumber(totalEntradas)}
           </p>
         </div>
         <div className="bg-danger/5 border border-danger/20 rounded-xl px-4 py-3">
-          <p className="text-[11px] font-bold uppercase tracking-wider
+          <p className="text-xs font-bold uppercase tracking-wider
                         text-danger/70 mb-1">
             Total salidas
           </p>
-          <p className="text-[20px] font-bold text-danger">
+          <p className="text-xl font-bold text-danger">
             -{formatNumber(totalSalidas)}
           </p>
         </div>
@@ -198,15 +198,15 @@ export default function MovimientosPanel({
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={cn('text-[12.5px] font-semibold', config.color)}>
+                    <span className={cn('text-sm font-semibold', config.color)}>
                       {config.label}
                     </span>
-                    <span className="text-[11.5px] text-primary-muted">
+                    <span className="text-xs text-primary-muted">
                       · Talla {mov.talla_nombre} · {formatDate(mov.fecha)}
                     </span>
                   </div>
                   {mov.notas && (
-                    <p className="text-[12.5px] text-primary-muted truncate leading-snug">
+                    <p className="text-sm text-primary-muted truncate leading-snug">
                       {mov.notas}
                     </p>
                   )}
@@ -215,12 +215,12 @@ export default function MovimientosPanel({
                 {/* Cantidad */}
                 <div className="text-right shrink-0">
                   <p className={cn(
-                    'text-[15px] font-bold',
+                    'text-md font-bold',
                     esSalida ? 'text-danger' : 'text-success'
                   )}>
                     {esSalida ? '' : '+'}{formatNumber(mov.cantidad)}
                   </p>
-                  <p className="text-[11px] text-primary-muted">ud.</p>
+                  <p className="text-xs text-primary-muted">ud.</p>
                 </div>
               </div>
             )

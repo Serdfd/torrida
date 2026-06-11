@@ -1,4 +1,4 @@
-﻿import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface StatCardProps {
@@ -53,7 +53,7 @@ export default function StatCard({
       {/* Encabezado */}
       <div className="flex items-start justify-between mb-3">
         <p className={cn(
-          'text-[12px] font-semibold uppercase tracking-wider',
+          'text-sm font-semibold uppercase tracking-wider',
           featured ? 'text-white/70' : 'text-primary-muted'
         )}>
           {title}
@@ -77,7 +77,7 @@ export default function StatCard({
         <div className="h-8 w-32 bg-white/10 rounded-lg animate-pulse mb-2" />
       ) : (
         <p className={cn(
-          'text-[26px] font-bold leading-none mb-1',
+          'text-3xl font-bold leading-none mb-1',
           featured ? 'text-white' : 'text-primary'
         )}>
           {value}
@@ -87,7 +87,7 @@ export default function StatCard({
       {/* Subtítulo */}
       {subtitle && (
         <p className={cn(
-          'text-[12.5px] mb-2',
+          'text-sm mb-2',
           featured ? 'text-white/60' : 'text-primary-muted'
         )}>
           {subtitle}
@@ -96,7 +96,7 @@ export default function StatCard({
 
       {/* Delta */}
       {delta !== undefined && !loading && (
-        <div className={cn('flex items-center gap-1 text-[12px] font-medium', deltaColor)}>
+        <div className={cn('flex items-center gap-1 text-sm font-medium', deltaColor)}>
           <DeltaIcon size={13} />
           <span>
             {isNeutral

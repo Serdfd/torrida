@@ -46,15 +46,15 @@ export default {
       },
 
       fontSize: {
-        '2xs': ['10px', { lineHeight: '14px' }],
-        'xs':  ['11px', { lineHeight: '16px' }],
-        'sm':  ['12px', { lineHeight: '18px' }],
-        'base':['13.5px', { lineHeight: '20px' }],
-        'md':  ['14px', { lineHeight: '20px' }],
-        'lg':  ['16px', { lineHeight: '24px' }],
-        'xl':  ['18px', { lineHeight: '28px' }],
-        '2xl': ['22px', { lineHeight: '30px' }],
-        '3xl': ['26px', { lineHeight: '34px' }]
+        '2xs': ['12px', { lineHeight: '16px' }],
+        'xs':  ['13px', { lineHeight: '18px' }],
+        'sm':  ['14px', { lineHeight: '20px' }],
+        'base':['15px', { lineHeight: '22px' }],
+        'md':  ['16px', { lineHeight: '22px' }],
+        'lg':  ['18px', { lineHeight: '26px' }],
+        'xl':  ['20px', { lineHeight: '30px' }],
+        '2xl': ['24px', { lineHeight: '32px' }],
+        '3xl': ['28px', { lineHeight: '36px' }]
       },
 
       // ── Border radius ────────────────────────────────────────────────────

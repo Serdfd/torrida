@@ -1,4 +1,4 @@
-﻿import { AlertTriangle, Package } from 'lucide-react'
+import { AlertTriangle, Package } from 'lucide-react'
 import { formatNumber, cn }       from '@/lib/utils'
 
 interface StockAlerta {
@@ -55,13 +55,13 @@ export default function StockAlertas({ items }: StockAlertasProps) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-primary truncate mb-2">
+              <p className="text-md font-semibold text-primary truncate mb-2">
                 {nombre}
               </p>
               <div className="flex flex-wrap gap-2">
                 {tallas.map((item, i) => (
                   <div key={i} className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-primary-muted">
+                    <span className="text-sm font-bold text-primary-muted">
                       {item.talla_nombre}
                     </span>
                     <StockBadge stock={item.stock} />

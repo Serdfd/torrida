@@ -1,4 +1,4 @@
-﻿import { useAppStore }                              from '@/store/useAppStore'
+import { useAppStore }                              from '@/store/useAppStore'
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
 import { cn }                                       from '@/lib/utils'
 import type { ToastType }                           from '@/types'
@@ -44,7 +44,7 @@ export default function Toast() {
       >
         <span className="shrink-0">{config.icon}</span>
 
-        <p className="text-[13.5px] font-medium flex-1 leading-snug">
+        <p className="text-base font-medium flex-1 leading-snug">
           {toast.message}
         </p>
 

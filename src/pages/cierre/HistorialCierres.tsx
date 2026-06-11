@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { History, LockKeyhole, UnlockKeyhole, TrendingUp, TrendingDown } from 'lucide-react'
 import { getCierresHistorial } from '@/lib/queries'
 import { formatCOP, formatPct, monthYearLabel } from '@/lib/utils'
@@ -49,7 +49,7 @@ export default function HistorialCierres() {
       {/* Encabezado */}
       <div className="flex items-center gap-2 mb-5">
         <History size={16} className="text-primary-muted" />
-        <p className="text-[13px] font-bold text-primary-muted uppercase tracking-wider">
+        <p className="text-base font-bold text-primary-muted uppercase tracking-wider">
           Historial de cierres
         </p>
         <span className="badge badge-muted ml-auto">
@@ -103,10 +103,10 @@ export default function HistorialCierres() {
 
                   {/* Período */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-bold text-primary">
+                    <p className="text-md font-bold text-primary">
                       {monthYearLabel(cierre.anio, cierre.mes)}
                     </p>
-                    <p className="text-[12px] text-primary-muted">
+                    <p className="text-sm text-primary-muted">
                       {estaCerrado && cierre.cerrado_en
                         ? `Cerrado el ${new Date(cierre.cerrado_en)
                             .toLocaleDateString('es-CO', {
@@ -121,17 +121,17 @@ export default function HistorialCierres() {
 
                   {/* Ingresos */}
                   <div className="text-right hidden sm:block">
-                    <p className="text-[11px] text-primary-muted mb-0.5">Ingresos</p>
-                    <p className="text-[13.5px] font-bold text-primary">
+                    <p className="text-xs text-primary-muted mb-0.5">Ingresos</p>
+                    <p className="text-base font-bold text-primary">
                       {formatCOP(cierre.ingresos)}
                     </p>
                   </div>
 
                   {/* Utilidad */}
                   <div className="text-right">
-                    <p className="text-[11px] text-primary-muted mb-0.5">Utilidad</p>
+                    <p className="text-xs text-primary-muted mb-0.5">Utilidad</p>
                     <p className={cn(
-                      'text-[14px] font-bold',
+                      'text-md font-bold',
                       esPositivo ? 'text-success' : 'text-danger'
                     )}>
                       {esPositivo ? '+' : ''}{formatCOP(cierre.utilidad_neta)}
@@ -140,14 +140,14 @@ export default function HistorialCierres() {
 
                   {/* Margen */}
                   <div className="text-right hidden md:block">
-                    <p className="text-[11px] text-primary-muted mb-0.5">Margen</p>
+                    <p className="text-xs text-primary-muted mb-0.5">Margen</p>
                     <div className="flex items-center gap-1 justify-end">
                       {esPositivo
                         ? <TrendingUp   size={12} className="text-success" />
                         : <TrendingDown size={12} className="text-danger"  />
                       }
                       <span className={cn(
-                        'text-[13px] font-bold',
+                        'text-base font-bold',
                         margen >= 30
                           ? 'text-success'
                           : margen >= 10
@@ -238,11 +238,11 @@ interface DetalleItemProps {
 function DetalleItem({ label, value, color, bold }: DetalleItemProps) {
   return (
     <div className="bg-card rounded-xl px-3 py-2.5 border border-border">
-      <p className="text-[11px] text-primary-muted uppercase tracking-wide mb-1">
+      <p className="text-xs text-primary-muted uppercase tracking-wide mb-1">
         {label}
       </p>
       <p className={cn(
-        'text-[14px]',
+        'text-md',
         bold ? 'font-bold' : 'font-semibold',
         color
       )}>

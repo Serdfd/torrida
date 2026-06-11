@@ -45,7 +45,7 @@ export default function ToastContainer({ visible, message, type, onDismiss }: To
         )}
       >
         <span className="shrink-0">{config.icon}</span>
-        <p className="text-[13.5px] font-medium flex-1 leading-snug">{message}</p>
+        <p className="text-base font-medium flex-1 leading-snug">{message}</p>
         <button
           onClick={onDismiss}
           className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"

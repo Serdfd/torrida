@@ -194,7 +194,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       {/* Período */}
       <div className="flex items-center justify-between">
-        <p className="text-primary-muted text-[13.5px]">
+        <p className="text-primary-muted text-base">
           Período activo:{' '}
           <span className="text-primary font-semibold">
             {monthYearLabel(filtroAnio, filtroMes)}
@@ -264,7 +264,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {!loading && (kpis?.ingresos_mes ?? 0) === 0 && porCanal.length === 0 && (
         <div className="card flex flex-col items-center gap-3 py-12">
           <Package size={40} className="text-primary-muted opacity-30" strokeWidth={1.5} />
-          <p className="text-[14px] text-primary-muted">
+          <p className="text-md text-primary-muted">
             No hay ventas registradas en {monthYearLabel(filtroAnio, filtroMes)}
           </p>
         </div>

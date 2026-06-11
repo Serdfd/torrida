@@ -252,7 +252,7 @@ export default function ConfigMediosPago() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <CreditCard size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">Medios de pago</h3>
+          <h3 className="text-md font-bold text-primary">Medios de pago</h3>
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
@@ -272,7 +272,7 @@ export default function ConfigMediosPago() {
             <input
               type="text"
               placeholder="Ej: Nequi, Efectivo, Bold, MercadoPago…"
-              className="input h-9 text-[13px]"
+              className="input h-9 text-base"
               value={newNombre}
               onChange={e => setNewNombre(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAgregar()}
@@ -323,7 +323,7 @@ export default function ConfigMediosPago() {
                     <>
                       <input
                         type="text"
-                        className="input h-8 text-[13px] flex-1"
+                        className="input h-8 text-base flex-1"
                         value={editNombre}
                         onChange={e => setEditNombre(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleGuardarEdicion(medio.id)}
@@ -344,13 +344,13 @@ export default function ConfigMediosPago() {
                         <CreditCard size={13} className="text-accent" />
                       </div>
 
-                      <p className="flex-1 text-[13.5px] font-semibold text-primary">
+                      <p className="flex-1 text-base font-semibold text-primary">
                         {medio.nombre}
                       </p>
 
                       {/* Cantidad de tarifas */}
                       {(tarifas[medio.id]?.length ?? 0) > 0 && !isExpanded && (
-                        <span className="text-[11.5px] text-primary-muted">
+                        <span className="text-xs text-primary-muted">
                           {tarifas[medio.id].length} tarifa{tarifas[medio.id].length !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -360,7 +360,7 @@ export default function ConfigMediosPago() {
                         onClick={() => handleExpandir(medio.id)}
                         className={cn(
                           'flex items-center gap-1 px-2.5 py-1 rounded-lg',
-                          'text-[12px] border transition-colors',
+                          'text-sm border transition-colors',
                           isExpanded
                             ? 'border-accent/30 text-accent bg-accent-light'
                             : 'border-border text-primary-muted hover:border-accent/30 hover:text-accent'
@@ -379,7 +379,7 @@ export default function ConfigMediosPago() {
                       <button
                         onClick={() => handleToggleActivo(medio)}
                         className={cn(
-                          'text-[12px] font-semibold px-2.5 py-1 rounded-lg border transition-colors',
+                          'text-sm font-semibold px-2.5 py-1 rounded-lg border transition-colors',
                           medio.activo
                             ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
                             : 'border-border text-primary-muted hover:border-accent/30'
@@ -414,7 +414,7 @@ export default function ConfigMediosPago() {
                   <div className="border-t border-border px-4 pb-4 pt-3 flex flex-col gap-3">
 
                     <div className="flex items-center justify-between">
-                      <p className="text-[11.5px] font-bold text-primary-muted uppercase tracking-wider">
+                      <p className="text-xs font-bold text-primary-muted uppercase tracking-wider">
                         Tarifas de cobro
                       </p>
                       <button
@@ -434,7 +434,7 @@ export default function ConfigMediosPago() {
                           <input
                             type="text"
                             placeholder="Ej: PSE, Tarjeta crédito, Link de pago…"
-                            className="input h-8 text-[13px]"
+                            className="input h-8 text-base"
                             value={newTarifa.concepto}
                             onChange={e => setNewTarifa(p => ({ ...p, concepto: e.target.value }))}
                             autoFocus
@@ -444,7 +444,7 @@ export default function ConfigMediosPago() {
                           <label className="input-label">% Comisión</label>
                           <input
                             type="number" step="0.01" min="0"
-                            className="input h-8 text-[13px]"
+                            className="input h-8 text-base"
                             value={newTarifa.comision_pct}
                             onChange={e => setNewTarifa(p => ({ ...p, comision_pct: parseFloat(e.target.value) || 0 }))}
                           />
@@ -453,7 +453,7 @@ export default function ConfigMediosPago() {
                           <label className="input-label">Fijo (COP)</label>
                           <input
                             type="number" min="0"
-                            className="input h-8 text-[13px]"
+                            className="input h-8 text-base"
                             value={newTarifa.comision_fija}
                             onChange={e => setNewTarifa(p => ({ ...p, comision_fija: parseFloat(e.target.value) || 0 }))}
                           />
@@ -477,7 +477,7 @@ export default function ConfigMediosPago() {
 
                     {/* Lista tarifas */}
                     {listaTarifas.length === 0 && !addingTarifa ? (
-                      <p className="text-[12.5px] text-primary-muted italic py-1">
+                      <p className="text-sm text-primary-muted italic py-1">
                         Sin tarifas configuradas. Agregá los conceptos de cobro de este procesador.
                       </p>
                     ) : (
@@ -497,20 +497,20 @@ export default function ConfigMediosPago() {
                               <>
                                 <input
                                   type="text"
-                                  className="input h-7 text-[12.5px] flex-1"
+                                  className="input h-7 text-sm flex-1"
                                   value={editTarifa.concepto}
                                   onChange={e => setEditTarifa(p => ({ ...p, concepto: e.target.value }))}
                                   autoFocus
                                 />
                                 <input
                                   type="number" step="0.01" min="0"
-                                  className="input h-7 text-[12.5px] w-20"
+                                  className="input h-7 text-sm w-20"
                                   value={editTarifa.comision_pct}
                                   onChange={e => setEditTarifa(p => ({ ...p, comision_pct: parseFloat(e.target.value) || 0 }))}
                                 />
                                 <input
                                   type="number" min="0"
-                                  className="input h-7 text-[12.5px] w-24"
+                                  className="input h-7 text-sm w-24"
                                   value={editTarifa.comision_fija}
                                   onChange={e => setEditTarifa(p => ({ ...p, comision_fija: parseFloat(e.target.value) || 0 }))}
                                 />
@@ -525,10 +525,10 @@ export default function ConfigMediosPago() {
                               </>
                             ) : (
                               <>
-                                <p className="flex-1 text-[13px] font-medium text-primary">
+                                <p className="flex-1 text-base font-medium text-primary">
                                   {t.concepto}
                                 </p>
-                                <div className="flex items-center gap-1 text-[12px] text-primary-muted">
+                                <div className="flex items-center gap-1 text-sm text-primary-muted">
                                   <Percent size={11} className="text-warning" />
                                   <span className="text-warning font-semibold">{t.comision_pct}%</span>
                                   {t.comision_fija > 0 && (
@@ -544,7 +544,7 @@ export default function ConfigMediosPago() {
                                 <button
                                   onClick={() => handleToggleTarifa(t)}
                                   className={cn(
-                                    'text-[11px] font-semibold px-2 py-0.5 rounded-lg border transition-colors',
+                                    'text-xs font-semibold px-2 py-0.5 rounded-lg border transition-colors',
                                     t.activo
                                       ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
                                       : 'border-border text-primary-muted hover:border-accent/30'

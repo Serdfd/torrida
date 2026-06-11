@@ -1,4 +1,4 @@
-﻿import { useAppStore }               from '@/store/useAppStore'
+import { useAppStore }               from '@/store/useAppStore'
 import { monthYearLabel }            from '@/lib/utils'
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import type { PageId }               from '@/App'
@@ -37,7 +37,7 @@ export default function TopBar({ title, currentPage }: TopBarProps) {
   return (
     <header className="h-14 flex items-center justify-between px-6
                        border-b border-border bg-bg-surface shrink-0">
-      <h1 className="text-[17px] font-bold text-primary tracking-tight">
+      <h1 className="text-lg font-bold text-primary tracking-tight">
         {title}
       </h1>
 
@@ -53,7 +53,7 @@ export default function TopBar({ title, currentPage }: TopBarProps) {
             <ChevronLeft size={15} />
           </button>
 
-          <span className="text-[14px] font-semibold text-primary
+          <span className="text-md font-semibold text-primary
                            min-w-[150px] text-center">
             {monthYearLabel(filtroAnio, filtroMes)}
           </span>

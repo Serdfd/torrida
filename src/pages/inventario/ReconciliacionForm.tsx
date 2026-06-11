@@ -114,21 +114,21 @@ export default function ReconciliacionForm({
       {/* Título */}
       <div className="flex items-center gap-2">
         <ClipboardCheck size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           Reconciliación física
         </h2>
       </div>
 
       {/* Producto */}
       <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-        <p className="text-[12px] text-primary-muted mb-0.5">Producto</p>
-        <p className="text-[15px] font-bold text-primary">
+        <p className="text-sm text-primary-muted mb-0.5">Producto</p>
+        <p className="text-md font-bold text-primary">
           {producto.producto_nombre}
         </p>
       </div>
 
       {/* Instrucción */}
-      <p className="text-[12.5px] text-primary-muted">
+      <p className="text-sm text-primary-muted">
         Ingresá el conteo físico para cada talla. Las diferencias se aplicarán
         como ajuste de reconciliación.
       </p>
@@ -137,16 +137,16 @@ export default function ReconciliacionForm({
       <div className="flex flex-col gap-2">
         {/* Cabecera */}
         <div className="grid grid-cols-[1fr_1fr_1fr_1fr] gap-2 px-2">
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-primary-muted">
+          <span className="text-2xs font-bold uppercase tracking-wider text-primary-muted">
             Talla
           </span>
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-primary-muted text-right">
+          <span className="text-2xs font-bold uppercase tracking-wider text-primary-muted text-right">
             Sistema
           </span>
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-primary-muted text-right">
+          <span className="text-2xs font-bold uppercase tracking-wider text-primary-muted text-right">
             Físico
           </span>
-          <span className="text-[10.5px] font-bold uppercase tracking-wider text-primary-muted text-right">
+          <span className="text-2xs font-bold uppercase tracking-wider text-primary-muted text-right">
             Diferencia
           </span>
         </div>
@@ -169,11 +169,11 @@ export default function ReconciliacionForm({
                   : 'border-border bg-[#0B0B16]'
               )}
             >
-              <span className="text-[13px] font-bold text-primary">
+              <span className="text-base font-bold text-primary">
                 {c.talla_nombre}
               </span>
 
-              <span className="text-[13px] text-primary-muted text-right">
+              <span className="text-base text-primary-muted text-right">
                 {formatNumber(c.stock_actual)}
               </span>
 
@@ -184,7 +184,7 @@ export default function ReconciliacionForm({
                   value={c.stock_fisico}
                   onChange={e => setFisico(c.talla_id, e.target.value)}
                   className={cn(
-                    'w-20 input text-right text-[13px] h-8 py-0',
+                    'w-20 input text-right text-base h-8 py-0',
                     invalid && 'border-danger'
                   )}
                 />
@@ -192,15 +192,15 @@ export default function ReconciliacionForm({
 
               <div className="text-right">
                 {diff === null || c.stock_fisico === '' ? (
-                  <span className="text-[12px] text-primary-muted">—</span>
+                  <span className="text-sm text-primary-muted">—</span>
                 ) : diff === 0 ? (
-                  <span className="flex items-center justify-end gap-1 text-[12px] text-success">
+                  <span className="flex items-center justify-end gap-1 text-sm text-success">
                     <CheckCircle2 size={12} />
                     OK
                   </span>
                 ) : (
                   <span className={cn(
-                    'text-[13px] font-bold',
+                    'text-base font-bold',
                     diff > 0 ? 'text-success' : 'text-danger'
                   )}>
                     {diff > 0 ? '+' : ''}{diff}
@@ -217,7 +217,7 @@ export default function ReconciliacionForm({
         <div className="flex items-start gap-2 p-3 rounded-xl border
                         border-warning/20 bg-warning/5">
           <AlertTriangle size={14} className="text-warning shrink-0 mt-0.5" />
-          <p className="text-[12.5px] text-warning">
+          <p className="text-sm text-warning">
             Se ajustarán <strong>{conCambios.length}</strong> talla
             {conCambios.length > 1 ? 's' : ''} con diferencia
           </p>

@@ -1,4 +1,4 @@
-﻿import { Pencil, PowerOff, Power, Package, DollarSign } from 'lucide-react'
+import { Pencil, PowerOff, Power, Package, DollarSign } from 'lucide-react'
 import { formatCOP } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -68,7 +68,7 @@ export default function ProductoCard({
         {/* Badge estado */}
         <div className="absolute top-2.5 left-2.5">
           <span className={cn(
-            'text-[10.5px] font-bold px-2 py-0.5 rounded-full border',
+            'text-2xs font-bold px-2 py-0.5 rounded-full border',
             estadoCfg.cls
           )}>
             {estadoCfg.label}
@@ -111,20 +111,20 @@ export default function ProductoCard({
 
         {/* Colección */}
         {producto.coleccion_nombre && (
-          <span className="badge badge-muted text-[11px] self-start">
+          <span className="badge badge-muted text-xs self-start">
             {producto.coleccion_nombre}
           </span>
         )}
 
         {/* Nombre */}
-        <p className="text-[14.5px] font-bold text-primary leading-snug
+        <p className="text-md font-bold text-primary leading-snug
                       line-clamp-2">
           {producto.nombre}
         </p>
 
         {/* Referencia */}
         {producto.referencia && (
-          <p className="text-[12px] font-mono text-primary-muted">
+          <p className="text-sm font-mono text-primary-muted">
             REF: {producto.referencia}
           </p>
         )}
@@ -132,8 +132,8 @@ export default function ProductoCard({
         {/* Precio */}
         <div className="mt-auto pt-2 border-t border-border flex items-center
                         justify-between">
-          <span className="text-[12px] text-primary-muted">Precio venta</span>
-          <span className="text-[15px] font-bold text-accent">
+          <span className="text-sm text-primary-muted">Precio venta</span>
+          <span className="text-md font-bold text-accent">
             {formatCOP(producto.precio_venta)}
           </span>
         </div>
@@ -142,7 +142,7 @@ export default function ProductoCard({
         <button
           onClick={onFichaCosto}
           className="flex items-center justify-center gap-1.5 w-full mt-1
-                     text-[12px] text-primary-muted hover:text-accent
+                     text-sm text-primary-muted hover:text-accent
                      border border-border hover:border-accent/40
                      rounded-lg py-1.5 transition-colors"
         >

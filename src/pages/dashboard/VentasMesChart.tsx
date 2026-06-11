@@ -1,4 +1,4 @@
-﻿import {
+import {
   AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
@@ -13,13 +13,13 @@ function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-bg-elevated border border-border rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-[12px] font-bold text-primary-muted uppercase tracking-wide mb-1">
+      <p className="text-sm font-bold text-primary-muted uppercase tracking-wide mb-1">
         {label}
       </p>
-      <p className="text-[15px] font-bold text-accent">
+      <p className="text-md font-bold text-accent">
         {formatCOP(payload[0]?.value ?? 0)}
       </p>
-      <p className="text-[12px] text-primary-muted">
+      <p className="text-sm text-primary-muted">
         {payload[1]?.value ?? 0} ventas
       </p>
     </div>
@@ -29,7 +29,7 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function VentasMesChart({ data }: VentasMesChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[200px] text-primary-muted text-[13.5px]">
+      <div className="flex items-center justify-center h-[200px] text-primary-muted text-base">
         Sin datos para mostrar
       </div>
     )

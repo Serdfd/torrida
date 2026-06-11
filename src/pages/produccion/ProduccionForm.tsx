@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Factory } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -175,7 +175,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
       {/* Título */}
       <div className="flex items-center gap-2 mb-1">
         <Factory size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           Registrar producción
         </h2>
       </div>
@@ -188,7 +188,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
             Producto <span className="text-danger">*</span>
           </label>
           {productos.length === 0 ? (
-            <p className="text-[12.5px] text-warning mt-1">
+            <p className="text-sm text-warning mt-1">
               No hay productos activos.
             </p>
           ) : (
@@ -203,7 +203,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
             </select>
           )}
           {errors.producto_id && (
-            <p className="text-[12px] text-danger mt-1">Selecciona un producto</p>
+            <p className="text-sm text-danger mt-1">Selecciona un producto</p>
           )}
         </div>
 
@@ -216,10 +216,10 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
             {loadingTallas ? (
               <div className="flex items-center gap-2 mt-1">
                 <Spinner size="sm" />
-                <span className="text-[12.5px] text-primary-muted">Cargando tallas…</span>
+                <span className="text-sm text-primary-muted">Cargando tallas…</span>
               </div>
             ) : tallas.length === 0 ? (
-              <p className="text-[12.5px] text-warning mt-1">
+              <p className="text-sm text-warning mt-1">
                 Sin stock registrado para este producto.
               </p>
             ) : (
@@ -245,13 +245,13 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
                         {...register('talla_id', { valueAsNumber: true })}
                       />
                       <span className={cn(
-                        'text-[13px] font-bold',
+                        'text-base font-bold',
                         isSelected ? 'text-accent' : 'text-primary'
                       )}>
                         {talla.talla_nombre}
                       </span>
                       <span className={cn(
-                        'text-[11px]',
+                        'text-xs',
                         talla.stock === 0 ? 'text-danger' : 'text-primary-muted'
                       )}>
                         {talla.stock} ud.
@@ -267,7 +267,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
         {/* Stock preview */}
         {tallaActual && (
           <div className={cn(
-            'flex items-center justify-between px-4 py-2.5 rounded-xl border text-[13px]',
+            'flex items-center justify-between px-4 py-2.5 rounded-xl border text-base',
             tallaActual.stock === 0
               ? 'bg-danger/5 border-danger/20'
               : 'bg-success/5 border-success/20'
@@ -276,7 +276,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
               Stock disponible — {tallaActual.talla_nombre}
             </span>
             <span className={cn(
-              'font-bold text-[15px]',
+              'font-bold text-md',
               tallaActual.stock === 0 ? 'text-danger' : 'text-success'
             )}>
               {formatNumber(tallaActual.stock)} ud.
@@ -302,7 +302,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
               })}
             />
             {errors.cantidad && (
-              <p className="text-[12px] text-danger mt-1">Mínimo 1</p>
+              <p className="text-sm text-danger mt-1">Mínimo 1</p>
             )}
           </div>
           <div>
@@ -318,7 +318,7 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
         {/* Costo estimado */}
         {productoActual?.costo_unitario && Number(watchCantidad) > 0 && (
           <div className="flex items-center justify-between px-4 py-2.5
-                          rounded-xl border border-border bg-[#0B0B16] text-[13px]">
+                          rounded-xl border border-border bg-[#0B0B16] text-base">
             <span className="text-primary-muted">Costo estimado</span>
             <span className="font-bold text-accent">
               {new Intl.NumberFormat('es-CO', {

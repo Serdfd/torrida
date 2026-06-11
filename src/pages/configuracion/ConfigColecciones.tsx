@@ -44,7 +44,7 @@ function ColeccionFormInline({
           <input
             type="text"
             placeholder="Ej: Verano 2025, Básicos…"
-            className="input h-9 text-[13px]"
+            className="input h-9 text-base"
             value={data.nombre}
             onChange={e => onChange({ ...data, nombre: e.target.value })}
             autoFocus
@@ -57,7 +57,7 @@ function ColeccionFormInline({
             min={2000}
             max={2100}
             placeholder={String(ANIO_ACTUAL)}
-            className="input h-9 text-[13px]"
+            className="input h-9 text-base"
             value={data.anio}
             onChange={e => onChange({ ...data, anio: e.target.value })}
           />
@@ -68,7 +68,7 @@ function ColeccionFormInline({
         <input
           type="text"
           placeholder="Breve descripción de la colección…"
-          className="input h-9 text-[13px]"
+          className="input h-9 text-base"
           value={data.descripcion}
           onChange={e => onChange({ ...data, descripcion: e.target.value })}
           onKeyDown={e => e.key === 'Enter' && onSave()}
@@ -243,7 +243,7 @@ export default function ConfigColecciones() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Palette size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Colecciones
           </h3>
         </div>
@@ -261,7 +261,7 @@ export default function ConfigColecciones() {
       {adding && (
         <div className="p-4 rounded-xl border border-accent/30
                         bg-accent-light animate-fade-in">
-          <p className="text-[13px] font-semibold text-accent mb-3">
+          <p className="text-base font-semibold text-accent mb-3">
             Nueva colección
           </p>
           <ColeccionFormInline
@@ -303,7 +303,7 @@ export default function ConfigColecciones() {
             return (
               <div key={anio}>
                 {/* Header año */}
-                <p className="text-[11.5px] font-bold uppercase tracking-widest
+                <p className="text-xs font-bold uppercase tracking-widest
                                text-primary-muted mb-2 px-1">
                   {anio === 0 ? 'Sin año' : anio}
                 </p>
@@ -324,7 +324,7 @@ export default function ConfigColecciones() {
                       >
                         {isEditing ? (
                           <>
-                            <p className="text-[12px] font-semibold
+                            <p className="text-sm font-semibold
                                           text-accent mb-3">
                               Editando: {col.nombre}
                             </p>
@@ -349,18 +349,18 @@ export default function ConfigColecciones() {
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-0.5">
-                                <p className="text-[13.5px] font-bold
+                                <p className="text-base font-bold
                                               text-primary">
                                   {col.nombre}
                                 </p>
                                 {col.anio && (
-                                  <span className="badge badge-muted text-[11px]">
+                                  <span className="badge badge-muted text-xs">
                                     {col.anio}
                                   </span>
                                 )}
                               </div>
                               {col.descripcion && (
-                                <p className="text-[12px] text-primary-muted
+                                <p className="text-sm text-primary-muted
                                               truncate">
                                   {col.descripcion}
                                 </p>
@@ -371,7 +371,7 @@ export default function ConfigColecciones() {
                             <button
                               onClick={() => handleToggleActiva(col)}
                               className={cn(
-                                'text-[12px] font-semibold px-2.5 py-1',
+                                'text-sm font-semibold px-2.5 py-1',
                                 'rounded-lg border transition-colors shrink-0',
                                 col.activa
                                   ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
@@ -424,7 +424,7 @@ export default function ConfigColecciones() {
 
       {/* Tip */}
       <div className="p-3 rounded-xl bg-accent-light border border-accent/20">
-        <p className="text-[12px] text-primary-muted leading-relaxed">
+        <p className="text-sm text-primary-muted leading-relaxed">
           <strong className="text-accent">Tip:</strong> Las colecciones
           te permiten agrupar productos por temporada o línea (ej: Verano 2025,
           Básicos, Edición limitada). Aparecen como filtro en el catálogo de productos.

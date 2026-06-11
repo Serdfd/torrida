@@ -312,8 +312,8 @@ export default function Insumos() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Package size={16} className="text-accent" />
-          <h3 className="text-[14px] font-bold text-primary">Insumos y materiales</h3>
-          <span className="text-[12px] text-primary-muted">({insumos.length})</span>
+          <h3 className="text-md font-bold text-primary">Insumos y materiales</h3>
+          <span className="text-sm text-primary-muted">({insumos.length})</span>
         </div>
         {!adding && (
           <button
@@ -407,24 +407,24 @@ export default function Insumos() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-[13.5px] font-semibold text-primary truncate">
+                        <p className="text-base font-semibold text-primary truncate">
                           {ins.nombre}
                         </p>
                         {ins.categoria_nombre && (
-                          <span className="text-[11px] text-primary-muted shrink-0">
+                          <span className="text-xs text-primary-muted shrink-0">
                             {ins.categoria_nombre}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-[11.5px] text-primary-muted">{ins.unidad}</span>
+                        <span className="text-xs text-primary-muted">{ins.unidad}</span>
                         {ins.ultimo_precio != null && (
-                          <span className="text-[11.5px] text-primary-muted">
+                          <span className="text-xs text-primary-muted">
                             Último precio: {formatCOP(ins.ultimo_precio)}
                           </span>
                         )}
                         {ins.proveedor_nombre && (
-                          <span className="text-[11.5px] text-primary-muted">
+                          <span className="text-xs text-primary-muted">
                             {ins.proveedor_nombre}
                           </span>
                         )}
@@ -434,12 +434,12 @@ export default function Insumos() {
                     {/* Stock */}
                     <div className="text-right shrink-0">
                       <p className={cn(
-                        'text-[14px] font-bold',
+                        'text-md font-bold',
                         stockBajo ? 'text-danger' : 'text-primary'
                       )}>
                         {ins.stock_actual ?? 0}
                       </p>
-                      <p className="text-[10.5px] text-primary-muted">{ins.unidad}(s)</p>
+                      <p className="text-2xs text-primary-muted">{ins.unidad}(s)</p>
                     </div>
 
                     {/* Acciones */}
@@ -485,7 +485,7 @@ export default function Insumos() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <History size={13} className="text-primary-muted" />
-                        <span className="text-[12.5px] font-semibold text-primary-muted">
+                        <span className="text-sm font-semibold text-primary-muted">
                           Lotes de compra
                         </span>
                       </div>
@@ -505,12 +505,12 @@ export default function Insumos() {
                     {/* Formulario nuevo lote */}
                     {isAddingLote && (
                       <div className="bg-sidebar border border-accent/20 rounded-xl p-3 flex flex-col gap-3">
-                        <p className="text-[12px] font-semibold text-accent">Nueva compra</p>
+                        <p className="text-sm font-semibold text-accent">Nueva compra</p>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="input-label">Proveedor</label>
                             <select
-                              className="input text-[13px]"
+                              className="input text-base"
                               value={newLote.proveedor_id}
                               onChange={e => setNewLote(l => ({ ...l, proveedor_id: e.target.value ? Number(e.target.value) : '' }))}
                             >
@@ -524,7 +524,7 @@ export default function Insumos() {
                             <label className="input-label">Fecha de compra</label>
                             <input
                               type="date"
-                              className="input h-8 text-[13px]"
+                              className="input h-8 text-base"
                               value={newLote.fecha_compra}
                               onChange={e => setNewLote(l => ({ ...l, fecha_compra: e.target.value }))}
                             />
@@ -535,7 +535,7 @@ export default function Insumos() {
                               type="number"
                               min="0.01"
                               step="0.01"
-                              className="input h-8 text-[13px]"
+                              className="input h-8 text-base"
                               value={newLote.cantidad}
                               onChange={e => setNewLote(l => ({ ...l, cantidad: Number(e.target.value) }))}
                             />
@@ -546,7 +546,7 @@ export default function Insumos() {
                               type="number"
                               min="0"
                               step="1"
-                              className="input h-8 text-[13px]"
+                              className="input h-8 text-base"
                               value={newLote.precio_unitario}
                               onChange={e => setNewLote(l => ({ ...l, precio_unitario: Number(e.target.value) }))}
                             />
@@ -554,7 +554,7 @@ export default function Insumos() {
                           <div className="col-span-2">
                             <label className="input-label">Notas</label>
                             <input
-                              className="input h-8 text-[13px]"
+                              className="input h-8 text-base"
                               placeholder="Ej: Factura #1234"
                               value={newLote.notas}
                               onChange={e => setNewLote(l => ({ ...l, notas: e.target.value }))}
@@ -562,7 +562,7 @@ export default function Insumos() {
                           </div>
                         </div>
                         {newLote.cantidad > 0 && newLote.precio_unitario > 0 && (
-                          <p className="text-[12px] text-accent font-semibold">
+                          <p className="text-sm text-accent font-semibold">
                             Total: {formatCOP(newLote.cantidad * newLote.precio_unitario)}
                           </p>
                         )}
@@ -588,12 +588,12 @@ export default function Insumos() {
                     {loadingLotes === ins.id ? (
                       <div className="flex justify-center py-4"><Spinner size="sm" /></div>
                     ) : insLotes.length === 0 ? (
-                      <p className="text-[12.5px] text-primary-muted text-center py-3">
+                      <p className="text-sm text-primary-muted text-center py-3">
                         Sin compras registradas aún
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-[12.5px]">
+                        <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-border">
                               <th className="text-left py-1.5 px-2 text-primary-muted font-semibold">Fecha</th>
@@ -645,12 +645,12 @@ interface InsumoFormProps {
 function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave, onCancel, saving, titulo }: InsumoFormProps) {
   return (
     <div className="bg-sidebar border border-accent/30 rounded-xl p-4 flex flex-col gap-3">
-      <p className="text-[12.5px] font-semibold text-accent">{titulo}</p>
+      <p className="text-sm font-semibold text-accent">{titulo}</p>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="input-label">Nombre *</label>
           <input
-            className="input h-8 text-[13px]"
+            className="input h-8 text-base"
             placeholder="Ej: Marquilla tejida"
             value={data.nombre}
             onChange={e => onChange({ nombre: e.target.value })}
@@ -660,7 +660,7 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
         <div>
           <label className="input-label">Unidad</label>
           <select
-            className="input text-[13px]"
+            className="input text-base"
             value={data.unidad}
             onChange={e => onChange({ unidad: e.target.value })}
           >
@@ -670,7 +670,7 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
         <div>
           <label className="input-label">Categoría</label>
           <select
-            className="input text-[13px]"
+            className="input text-base"
             value={data.categoria_id}
             onChange={e => onChange({ categoria_id: e.target.value ? Number(e.target.value) : '' })}
           >
@@ -681,7 +681,7 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
         <div>
           <label className="input-label">Proveedor habitual</label>
           <select
-            className="input text-[13px]"
+            className="input text-base"
             value={data.proveedor_id}
             onChange={e => onChange({ proveedor_id: e.target.value ? Number(e.target.value) : '' })}
           >
@@ -695,7 +695,7 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
             type="number"
             min="0"
             step="1"
-            className="input h-8 text-[13px]"
+            className="input h-8 text-base"
             value={data.stock_minimo}
             onChange={e => onChange({ stock_minimo: Number(e.target.value) })}
           />
@@ -703,7 +703,7 @@ function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave,
         <div>
           <label className="input-label">Descripción</label>
           <input
-            className="input h-8 text-[13px]"
+            className="input h-8 text-base"
             placeholder="Opcional"
             value={data.descripcion}
             onChange={e => onChange({ descripcion: e.target.value })}

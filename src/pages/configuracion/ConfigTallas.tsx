@@ -202,7 +202,7 @@ export default function ConfigTallas() {
       <div className="flex items-center justify-between pb-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Ruler size={16} className="text-accent" />
-          <h3 className="text-[15px] font-bold text-primary">
+          <h3 className="text-md font-bold text-primary">
             Tallas
           </h3>
         </div>
@@ -219,7 +219,7 @@ export default function ConfigTallas() {
       {/* Sugeridas rápidas */}
       {tallas.length < 3 && (
         <div>
-          <p className="text-[12px] text-primary-muted mb-2">
+          <p className="text-sm text-primary-muted mb-2">
             Agregar tallas estándar rápidamente:
           </p>
           <div className="flex flex-wrap gap-2">
@@ -233,7 +233,7 @@ export default function ConfigTallas() {
                   onClick={() => handleAgregarSugerida(s)}
                   disabled={existe}
                   className={cn(
-                    'px-3 py-1.5 rounded-xl border text-[12.5px] font-bold',
+                    'px-3 py-1.5 rounded-xl border text-sm font-bold',
                     'transition-colors',
                     existe
                       ? 'border-border text-primary-muted opacity-40 cursor-not-allowed'
@@ -258,7 +258,7 @@ export default function ConfigTallas() {
             <input
               type="text"
               placeholder="Ej: S, M, L, Única, 36, 38…"
-              className="input h-9 text-[13px] uppercase"
+              className="input h-9 text-base uppercase"
               value={newData.nombre}
               onChange={e => setNewData(p => ({
                 ...p, nombre: e.target.value.toUpperCase()
@@ -272,7 +272,7 @@ export default function ConfigTallas() {
             <input
               type="number"
               min={0}
-              className="input h-9 text-[13px]"
+              className="input h-9 text-base"
               value={newData.orden}
               onChange={e => setNewData(p => ({
                 ...p, orden: parseInt(e.target.value) || 0
@@ -360,7 +360,7 @@ export default function ConfigTallas() {
                   <>
                     <input
                       type="text"
-                      className="input h-8 text-[13px] flex-1 uppercase"
+                      className="input h-8 text-base flex-1 uppercase"
                       value={editData.nombre}
                       onChange={e => setEditData(p => ({
                         ...p, nombre: e.target.value.toUpperCase()
@@ -371,7 +371,7 @@ export default function ConfigTallas() {
                     <input
                       type="number"
                       min={0}
-                      className="input h-8 text-[13px] w-20"
+                      className="input h-8 text-base w-20"
                       value={editData.orden}
                       onChange={e => setEditData(p => ({
                         ...p, orden: parseInt(e.target.value) || 0
@@ -402,13 +402,13 @@ export default function ConfigTallas() {
                       <span className="inline-flex items-center justify-center
                                        w-12 h-8 rounded-lg bg-accent-light
                                        border border-accent/20
-                                       text-[13px] font-bold text-accent">
+                                       text-base font-bold text-accent">
                         {talla.nombre}
                       </span>
                     </div>
 
                     {/* Orden */}
-                    <span className="text-[12px] text-primary-muted w-16 text-center">
+                    <span className="text-sm text-primary-muted w-16 text-center">
                       #{talla.orden}
                     </span>
 
@@ -416,7 +416,7 @@ export default function ConfigTallas() {
                     <button
                       onClick={() => handleToggleActivo(talla)}
                       className={cn(
-                        'text-[12px] font-semibold px-2.5 py-1 rounded-lg',
+                        'text-sm font-semibold px-2.5 py-1 rounded-lg',
                         'border transition-colors',
                         talla.activo
                           ? 'border-success/30 text-success bg-success/10 hover:bg-success/20'
@@ -461,7 +461,7 @@ export default function ConfigTallas() {
 
       {/* Info orden */}
       <div className="p-3 rounded-xl bg-accent-light border border-accent/20">
-        <p className="text-[12px] text-primary-muted leading-relaxed">
+        <p className="text-sm text-primary-muted leading-relaxed">
           <strong className="text-accent">Tip:</strong> Usa las flechas
           ▲▼ para ordenar cómo aparecen las tallas en el formulario de ventas.
           El orden afecta la visualización en toda la app.

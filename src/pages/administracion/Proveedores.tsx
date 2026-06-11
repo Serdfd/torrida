@@ -159,8 +159,8 @@ export default function Proveedores() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Truck size={16} className="text-accent" />
-          <h3 className="text-[14px] font-bold text-primary">Proveedores</h3>
-          <span className="text-[12px] text-primary-muted">
+          <h3 className="text-md font-bold text-primary">Proveedores</h3>
+          <span className="text-sm text-primary-muted">
             ({proveedores.filter(p => p.activo).length})
           </span>
         </div>
@@ -177,12 +177,12 @@ export default function Proveedores() {
       {/* Formulario nuevo */}
       {adding && (
         <div className="bg-sidebar border border-accent/30 rounded-xl p-4 flex flex-col gap-3">
-          <p className="text-[12.5px] font-semibold text-accent">Nuevo proveedor</p>
+          <p className="text-sm font-semibold text-accent">Nuevo proveedor</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="input-label">Nombre *</label>
               <input
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 placeholder="Ej: Confecciones Pérez"
                 value={newData.nombre}
                 onChange={e => setNewData(d => ({ ...d, nombre: e.target.value }))}
@@ -192,7 +192,7 @@ export default function Proveedores() {
             <div>
               <label className="input-label">Contacto</label>
               <input
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 placeholder="Nombre de la persona"
                 value={newData.contacto}
                 onChange={e => setNewData(d => ({ ...d, contacto: e.target.value }))}
@@ -201,7 +201,7 @@ export default function Proveedores() {
             <div>
               <label className="input-label">Teléfono</label>
               <input
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 placeholder="Ej: 300 123 4567"
                 value={newData.telefono}
                 onChange={e => setNewData(d => ({ ...d, telefono: e.target.value }))}
@@ -210,7 +210,7 @@ export default function Proveedores() {
             <div>
               <label className="input-label">Email</label>
               <input
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 placeholder="Ej: proveedor@mail.com"
                 value={newData.email}
                 onChange={e => setNewData(d => ({ ...d, email: e.target.value }))}
@@ -219,7 +219,7 @@ export default function Proveedores() {
             <div className="col-span-2">
               <label className="input-label">Notas</label>
               <input
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 placeholder="Notas adicionales (opcional)"
                 value={newData.notas}
                 onChange={e => setNewData(d => ({ ...d, notas: e.target.value }))}
@@ -257,7 +257,7 @@ export default function Proveedores() {
                     <div>
                       <label className="input-label">Nombre *</label>
                       <input
-                        className="input h-8 text-[13px]"
+                        className="input h-8 text-base"
                         value={editData.nombre}
                         onChange={e => setEditData(d => ({ ...d, nombre: e.target.value }))}
                         autoFocus
@@ -266,7 +266,7 @@ export default function Proveedores() {
                     <div>
                       <label className="input-label">Contacto</label>
                       <input
-                        className="input h-8 text-[13px]"
+                        className="input h-8 text-base"
                         value={editData.contacto}
                         onChange={e => setEditData(d => ({ ...d, contacto: e.target.value }))}
                       />
@@ -274,7 +274,7 @@ export default function Proveedores() {
                     <div>
                       <label className="input-label">Teléfono</label>
                       <input
-                        className="input h-8 text-[13px]"
+                        className="input h-8 text-base"
                         value={editData.telefono}
                         onChange={e => setEditData(d => ({ ...d, telefono: e.target.value }))}
                       />
@@ -282,7 +282,7 @@ export default function Proveedores() {
                     <div>
                       <label className="input-label">Email</label>
                       <input
-                        className="input h-8 text-[13px]"
+                        className="input h-8 text-base"
                         value={editData.email}
                         onChange={e => setEditData(d => ({ ...d, email: e.target.value }))}
                       />
@@ -290,7 +290,7 @@ export default function Proveedores() {
                     <div className="col-span-2">
                       <label className="input-label">Notas</label>
                       <input
-                        className="input h-8 text-[13px]"
+                        className="input h-8 text-base"
                         value={editData.notas}
                         onChange={e => setEditData(d => ({ ...d, notas: e.target.value }))}
                       />
@@ -317,18 +317,18 @@ export default function Proveedores() {
                     <Truck size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13.5px] font-semibold text-primary truncate">{p.nombre}</p>
+                    <p className="text-base font-semibold text-primary truncate">{p.nombre}</p>
                     <div className="flex items-center gap-3 mt-0.5">
                       {p.contacto && (
-                        <span className="text-[11.5px] text-primary-muted truncate">{p.contacto}</span>
+                        <span className="text-xs text-primary-muted truncate">{p.contacto}</span>
                       )}
                       {p.telefono && (
-                        <span className="flex items-center gap-1 text-[11.5px] text-primary-muted">
+                        <span className="flex items-center gap-1 text-xs text-primary-muted">
                           <Phone size={10} />{p.telefono}
                         </span>
                       )}
                       {p.email && (
-                        <span className="flex items-center gap-1 text-[11.5px] text-primary-muted">
+                        <span className="flex items-center gap-1 text-xs text-primary-muted">
                           <Mail size={10} />{p.email}
                         </span>
                       )}

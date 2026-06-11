@@ -29,7 +29,7 @@ function SeccionTitulo({
   return (
     <div className="flex items-center gap-2 mb-3">
       <Icon size={16} className="text-accent" />
-      <h3 className="text-[14px] font-bold text-primary">
+      <h3 className="text-md font-bold text-primary">
         {titulo}
       </h3>
     </div>
@@ -139,8 +139,8 @@ export default function Administracion() {
           <Settings size={20} />
         </div>
         <div>
-          <h2 className="text-[17px] font-bold text-primary">Administración</h2>
-          <p className="text-[12.5px] text-primary-muted">Catálogos y configuración del sistema</p>
+          <h2 className="text-lg font-bold text-primary">Administración</h2>
+          <p className="text-sm text-primary-muted">Catálogos y configuración del sistema</p>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ export default function Administracion() {
             key={id}
             onClick={() => setTab(id)}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold',
+              'flex items-center gap-2 px-4 py-2.5 text-base font-semibold',
               'border-b-2 -mb-px transition-colors',
               tab === id
                 ? 'border-accent text-accent'
@@ -177,30 +177,30 @@ export default function Administracion() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Productos activos</p>
-              <p className="text-[24px] font-bold text-accent">
+              <p className="text-2xl font-bold text-accent">
                 {formatNumber(stats.productos)}
               </p>
             </div>
             <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Ventas registradas</p>
-              <p className="text-[24px] font-bold text-success">
+              <p className="text-2xl font-bold text-success">
                 {formatNumber(stats.ventas)}
               </p>
             </div>
             <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Gastos registrados</p>
-              <p className="text-[24px] font-bold text-danger">
+              <p className="text-2xl font-bold text-danger">
                 {formatNumber(stats.gastos)}
               </p>
             </div>
             <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider
+              <p className="text-xs font-bold uppercase tracking-wider
                             text-primary-muted mb-1">Categorías activas</p>
-              <p className="text-[24px] font-bold text-primary">
+              <p className="text-2xl font-bold text-primary">
                 {formatNumber(stats.categorias)}
               </p>
             </div>
@@ -227,7 +227,7 @@ export default function Administracion() {
             Ver logs del sistema
           </button>
         </div>
-        <p className="text-[12px] text-primary-muted mt-3">
+        <p className="text-sm text-primary-muted mt-3">
           Se recomienda exportar un backup regularmente para evitar pérdida de datos.
         </p>
       </div>
@@ -252,7 +252,7 @@ export default function Administracion() {
             Limpiar datos de prueba
           </button>
         </div>
-        <p className="text-[12px] text-primary-muted mt-3">
+        <p className="text-sm text-primary-muted mt-3">
           Usa estas herramientas solo si sabes lo que estás haciendo.
           Los cambios pueden ser irreversibles.
         </p>

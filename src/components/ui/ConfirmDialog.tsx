@@ -1,4 +1,4 @@
-﻿import { AlertTriangle, Trash2, Info } from 'lucide-react'
+import { AlertTriangle, Trash2, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ConfirmDialogProps {
@@ -55,11 +55,11 @@ export default function ConfirmDialog({
         </div>
 
         <div className="flex flex-col gap-1 pt-0.5">
-          <p className="text-[15px] font-bold text-primary">
+          <p className="text-md font-bold text-primary">
             {title}
           </p>
           {description && (
-            <p className="text-[13.5px] text-primary-muted leading-relaxed">
+            <p className="text-base text-primary-muted leading-relaxed">
               {description}
             </p>
           )}

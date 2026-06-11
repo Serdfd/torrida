@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import {
   Settings, Store, Tag, CreditCard,
   Ruler, Package, Palette, ChevronRight, Layers, Scale
@@ -102,7 +102,7 @@ export default function Configuracion() {
 
       {/* Sidebar de tabs */}
       <aside className="w-[220px] shrink-0 flex flex-col gap-1">
-        <p className="text-[11px] font-bold uppercase tracking-widest
+        <p className="text-xs font-bold uppercase tracking-widest
                       text-primary-muted px-3 mb-2">
           Configuración
         </p>
@@ -132,12 +132,12 @@ export default function Configuracion() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className={cn(
-                  'text-[13px] font-semibold leading-none mb-0.5',
+                  'text-base font-semibold leading-none mb-0.5',
                   isActive ? 'text-accent' : 'text-primary'
                 )}>
                   {tab.label}
                 </p>
-                <p className="text-[11px] text-primary-muted leading-tight truncate">
+                <p className="text-xs text-primary-muted leading-tight truncate">
                   {tab.description}
                 </p>
               </div>

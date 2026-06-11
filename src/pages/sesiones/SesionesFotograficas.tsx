@@ -78,7 +78,7 @@ function SesionForm({
       onSubmit={e => { e.preventDefault(); if (form.fecha) onSave(form) }}
       className="card flex flex-col gap-4"
     >
-      <p className="text-[14px] font-semibold text-primary">
+      <p className="text-md font-semibold text-primary">
         {initial ? 'Editar sesión' : 'Nueva sesión fotográfica'}
       </p>
 
@@ -109,10 +109,10 @@ function SesionForm({
       <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-sidebar border border-border">
         <Receipt size={15} className="text-accent shrink-0" />
         <div className="flex-1">
-          <p className="text-[12px] font-bold uppercase tracking-wider text-primary-muted">
+          <p className="text-sm font-bold uppercase tracking-wider text-primary-muted">
             Costo total
           </p>
-          <p className="text-[12.5px] text-primary-muted mt-0.5">
+          <p className="text-sm text-primary-muted mt-0.5">
             Se calcula automáticamente sumando los gastos de la sesión
           </p>
         </div>
@@ -324,24 +324,24 @@ function SesionDetalle({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Receipt size={13} className="text-accent" />
-            <p className="text-[12.5px] font-bold uppercase tracking-wider text-primary-muted">
+            <p className="text-sm font-bold uppercase tracking-wider text-primary-muted">
               Gastos de la sesión
             </p>
           </div>
-          <span className="text-[13px] font-bold text-warning">
+          <span className="text-base font-bold text-warning">
             {formatCOP(sesion.costo_total)}
           </span>
         </div>
 
         <div className="flex flex-col gap-1">
           {gastos.length === 0 && !showGastoForm && (
-            <p className="text-[12px] text-primary-muted py-1">Sin gastos registrados.</p>
+            <p className="text-sm text-primary-muted py-1">Sin gastos registrados.</p>
           )}
           {gastos.map(g => (
             <div key={g.id}
               className="flex items-center gap-2 py-1.5 border-b border-border/40 last:border-0">
-              <span className="flex-1 text-[13px] text-primary">{g.descripcion}</span>
-              <span className="text-[13px] font-semibold text-warning shrink-0">
+              <span className="flex-1 text-base text-primary">{g.descripcion}</span>
+              <span className="text-base font-semibold text-warning shrink-0">
                 {formatCOP(g.monto)}
               </span>
               <button
@@ -364,7 +364,7 @@ function SesionDetalle({
                 value={gDesc}
                 onChange={e => setGDesc(e.target.value)}
                 placeholder="Fotógrafo, estudio, modelo…"
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
                 autoFocus
               />
             </div>
@@ -377,7 +377,7 @@ function SesionDetalle({
                 value={gMonto}
                 onChange={e => setGMonto(e.target.value)}
                 placeholder="0"
-                className="input h-8 text-[13px]"
+                className="input h-8 text-base"
               />
             </div>
             <div className="flex gap-2 justify-end">
@@ -393,7 +393,7 @@ function SesionDetalle({
           </form>
         ) : (
           <button onClick={() => setShowGastoForm(true)}
-            className="flex items-center gap-1.5 text-[12.5px] text-accent
+            className="flex items-center gap-1.5 text-sm text-accent
                        hover:text-accent/80 transition-colors self-start">
             <Plus size={13} /> Agregar gasto
           </button>
@@ -405,12 +405,12 @@ function SesionDetalle({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Package size={13} className="text-accent" />
-            <p className="text-[12.5px] font-bold uppercase tracking-wider text-primary-muted">
+            <p className="text-sm font-bold uppercase tracking-wider text-primary-muted">
               Productos fotografiados
             </p>
           </div>
           {totalUnidades > 0 && (
-            <span className="text-[11.5px] text-primary-muted">
+            <span className="text-xs text-primary-muted">
               {formatCOP(Math.round(costoPorUnidad))}/ud · {totalUnidades} uds
             </span>
           )}
@@ -418,22 +418,22 @@ function SesionDetalle({
 
         <div className="flex flex-col gap-1">
           {prods.length === 0 && !showProdForm && (
-            <p className="text-[12px] text-primary-muted py-1">Sin productos asignados.</p>
+            <p className="text-sm text-primary-muted py-1">Sin productos asignados.</p>
           )}
           {prods.map(p => (
             <div key={p.id}
               className="flex items-center gap-2 py-1.5 border-b border-border/40 last:border-0">
-              <span className="flex-1 text-[13px] text-primary truncate">{p.producto_nombre}</span>
+              <span className="flex-1 text-base text-primary truncate">{p.producto_nombre}</span>
               <input
                 type="number"
                 min="1"
                 step="1"
                 value={p.cantidad_unidades}
                 onChange={e => handleUpdateUnidades(p.id, parseFloat(e.target.value) || 1)}
-                className="input h-7 text-[12px] text-center w-20 shrink-0"
+                className="input h-7 text-sm text-center w-20 shrink-0"
                 title="Unidades fotografiadas"
               />
-              <span className="text-[12px] font-semibold text-accent shrink-0 w-24 text-right">
+              <span className="text-sm font-semibold text-accent shrink-0 w-24 text-right">
                 {formatCOP(p.costo_foto_calculado)}
               </span>
               <button
@@ -459,7 +459,7 @@ function SesionDetalle({
                     if (prod) setPUnidades(String(Math.max(1, Math.round(prod.stock_total))))
                   }
                 }}
-                className="input text-[13px]"
+                className="input text-base"
                 autoFocus
               >
                 <option value="">— Seleccionar —</option>
@@ -480,9 +480,9 @@ function SesionDetalle({
                 value={pUnidades}
                 onChange={e => setPUnidades(e.target.value)}
                 placeholder="1"
-                className="input text-[13px]"
+                className="input text-base"
               />
-              <p className="text-[11px] text-primary-muted mt-1">
+              <p className="text-xs text-primary-muted mt-1">
                 Pre-cargado desde stock actual. Editable.
               </p>
             </div>
@@ -499,7 +499,7 @@ function SesionDetalle({
           </form>
         ) : (
           <button onClick={() => setShowProdForm(true)}
-            className="flex items-center gap-1.5 text-[12.5px] text-accent
+            className="flex items-center gap-1.5 text-sm text-accent
                        hover:text-accent/80 transition-colors self-start">
             <Plus size={13} /> Agregar producto
           </button>
@@ -537,15 +537,15 @@ function SesionFila({
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
 
-        <span className="text-[13px] font-semibold text-primary w-24 shrink-0">
+        <span className="text-base font-semibold text-primary w-24 shrink-0">
           {fmtFecha(sesion.fecha)}
         </span>
 
-        <span className="text-[13px] text-primary-muted flex-1 truncate">
+        <span className="text-base text-primary-muted flex-1 truncate">
           {sesion.fotografo || '—'}
         </span>
 
-        <span className="text-[13px] font-semibold text-warning w-32 text-right shrink-0">
+        <span className="text-base font-semibold text-warning w-32 text-right shrink-0">
           {formatCOP(costoLocal)}
         </span>
 
@@ -568,7 +568,7 @@ function SesionFila({
       </div>
 
       {sesion.notas && (
-        <div className="px-4 pb-2 pt-1.5 text-[12px] text-primary-muted
+        <div className="px-4 pb-2 pt-1.5 text-sm text-primary-muted
                         border-t border-border/30 bg-card">
           {sesion.notas}
         </div>
@@ -700,8 +700,8 @@ export default function SesionesFotograficas() {
           <Camera size={20} />
         </div>
         <div className="flex-1">
-          <h2 className="text-[17px] font-bold text-primary">Sesiones Fotográficas</h2>
-          <p className="text-[12.5px] text-primary-muted">
+          <h2 className="text-lg font-bold text-primary">Sesiones Fotográficas</h2>
+          <p className="text-sm text-primary-muted">
             Registra gastos y distribución de costos entre productos
           </p>
         </div>
@@ -719,16 +719,16 @@ export default function SesionesFotograficas() {
       {!loading && sesiones.length > 0 && (
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-sidebar border border-border rounded-xl px-4 py-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">
               Total sesiones
             </p>
-            <p className="text-[22px] font-bold text-accent">{sesiones.length}</p>
+            <p className="text-2xl font-bold text-accent">{sesiones.length}</p>
           </div>
           <div className="bg-sidebar border border-border rounded-xl px-4 py-3">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary-muted mb-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">
               Inversión total
             </p>
-            <p className="text-[22px] font-bold text-warning">{formatCOP(totalCosto)}</p>
+            <p className="text-2xl font-bold text-warning">{formatCOP(totalCosto)}</p>
           </div>
         </div>
       )}
@@ -748,15 +748,15 @@ export default function SesionesFotograficas() {
       ) : sesiones.length === 0 ? (
         <div className="card text-center py-12">
           <Camera size={40} className="mx-auto text-primary-muted/30 mb-3" />
-          <p className="text-[14px] text-primary-muted">No hay sesiones registradas.</p>
-          <p className="text-[12px] text-primary-muted/60 mt-1">
+          <p className="text-md text-primary-muted">No hay sesiones registradas.</p>
+          <p className="text-sm text-primary-muted/60 mt-1">
             Registrá tu primera sesión fotográfica para llevar el control de costos.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 px-4
-                          text-[11px] font-bold uppercase tracking-wider text-primary-muted">
+                          text-xs font-bold uppercase tracking-wider text-primary-muted">
             <span className="w-4 shrink-0" />
             <span className="w-24 shrink-0">Fecha</span>
             <span className="flex-1">Fotógrafo / Estudio</span>

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ArrowUpCircle, ArrowDownCircle, SlidersHorizontal } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -145,15 +145,15 @@ export default function AjusteStockForm({
       {/* Título */}
       <div className="flex items-center gap-2">
         <SlidersHorizontal size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           Ajuste de stock
         </h2>
       </div>
 
       {/* Producto info */}
       <div className="bg-[#0B0B16] border border-border rounded-xl px-4 py-3">
-        <p className="text-[12px] text-primary-muted mb-0.5">Producto</p>
-        <p className="text-[15px] font-bold text-primary">
+        <p className="text-sm text-primary-muted mb-0.5">Producto</p>
+        <p className="text-md font-bold text-primary">
           {producto.producto_nombre}
         </p>
       </div>
@@ -189,7 +189,7 @@ export default function AjusteStockForm({
                     className={isSelected ? tipo.color : 'text-primary-muted'}
                   />
                   <span className={cn(
-                    'text-[11.5px] font-semibold leading-tight',
+                    'text-xs font-semibold leading-tight',
                     isSelected ? 'text-accent' : 'text-primary-muted'
                   )}>
                     {tipo.label}
@@ -225,13 +225,13 @@ export default function AjusteStockForm({
                     {...register('talla_id', { valueAsNumber: true })}
                   />
                   <span className={cn(
-                    'text-[13px] font-bold',
+                    'text-base font-bold',
                     isSelected ? 'text-accent' : 'text-primary'
                   )}>
                     {talla.talla_nombre}
                   </span>
                   <span className={cn(
-                    'text-[11px]',
+                    'text-xs',
                     talla.stock === 0
                       ? 'text-danger'
                       : 'text-primary-muted'
@@ -248,7 +248,7 @@ export default function AjusteStockForm({
         {tallaActual && (
           <div className={cn(
             'flex items-center justify-between px-4 py-2.5 rounded-xl border',
-            'text-[13px]',
+            'text-base',
             tallaActual.stock === 0
               ? 'bg-danger/5 border-danger/20'
               : 'bg-success/5 border-success/20'
@@ -257,7 +257,7 @@ export default function AjusteStockForm({
               Stock actual — talla {tallaActual.talla_nombre}
             </span>
             <span className={cn(
-              'font-bold text-[15px]',
+              'font-bold text-md',
               tallaActual.stock === 0 ? 'text-danger' : 'text-success'
             )}>
               {formatNumber(tallaActual.stock)} ud.
@@ -283,7 +283,7 @@ export default function AjusteStockForm({
             })}
           />
           {errors.cantidad && (
-            <p className="text-[12px] text-danger mt-1">
+            <p className="text-sm text-danger mt-1">
               Cantidad mínima: 1
             </p>
           )}

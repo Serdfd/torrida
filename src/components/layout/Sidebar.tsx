@@ -1,4 +1,4 @@
-﻿import {
+import {
   LayoutDashboard,
   ShoppingBag,
   Package,
@@ -79,7 +79,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
           className="w-8 h-8 rounded-lg object-cover shrink-0"
         />
         {!collapsed && (
-          <span className="font-bold text-[16px] text-primary tracking-tight">
+          <span className="font-bold text-lg text-primary tracking-tight">
             Tórrida
           </span>
         )}
@@ -90,7 +90,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi}>
             {group.label && !collapsed && (
-              <p className="px-2.5 mb-1 text-[11px] font-bold uppercase tracking-widest text-primary-muted select-none">
+              <p className="px-2.5 mb-1 text-xs font-bold uppercase tracking-widest text-primary-muted select-none">
                 {group.label}
               </p>
             )}
@@ -125,7 +125,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         >
           {collapsed
             ? <ChevronRight size={16} />
-            : <><ChevronLeft size={16} /><span className="text-[13px]">Colapsar</span></>
+            : <><ChevronLeft size={16} /><span className="text-base">Colapsar</span></>
           }
         </button>
       </div>

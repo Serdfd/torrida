@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Package, ImagePlus } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
@@ -208,7 +208,7 @@ export default function ProductoForm({
       {/* Título */}
       <div className="flex items-center gap-2 mb-1">
         <Package size={18} className="text-accent" />
-        <h2 className="text-[16px] font-bold text-primary">
+        <h2 className="text-lg font-bold text-primary">
           {isEditing ? 'Editar producto' : 'Nuevo producto'}
         </h2>
       </div>
@@ -228,7 +228,7 @@ export default function ProductoForm({
               {...register('nombre', { required: true })}
             />
             {errors.nombre && (
-              <p className="text-[12px] text-danger mt-1">Campo requerido</p>
+              <p className="text-sm text-danger mt-1">Campo requerido</p>
             )}
           </div>
           <div>
@@ -330,14 +330,14 @@ export default function ProductoForm({
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
             {tallas.map(talla => (
               <div key={talla.id} className="flex flex-col items-center gap-1">
-                <span className="text-[12px] font-bold text-primary-muted uppercase">
+                <span className="text-sm font-bold text-primary-muted uppercase">
                   {talla.nombre}
                 </span>
                 <input
                   type="number"
                   min={0}
                   defaultValue={0}
-                  className="input h-9 text-center text-[13px] px-2"
+                  className="input h-9 text-center text-base px-2"
                   {...register(`stock.${talla.id}`, { valueAsNumber: true })}
                 />
               </div>

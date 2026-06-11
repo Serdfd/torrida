@@ -291,14 +291,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
                           bg-accent-light border border-accent/20 mb-4">
             <Store size={18} className="text-accent" />
-            <span className="text-[15px] font-bold text-accent tracking-wide uppercase">
+            <span className="text-md font-bold text-accent tracking-wide uppercase">
               Torrida
             </span>
           </div>
-          <h1 className="text-[24px] font-bold text-primary">
+          <h1 className="text-2xl font-bold text-primary">
             Configuración inicial
           </h1>
-          <p className="text-[13.5px] text-primary-muted mt-1">
+          <p className="text-base text-primary-muted mt-1">
             Configuremos tu app en 4 pasos rápidos
           </p>
         </div>
@@ -310,7 +310,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <div className="flex flex-col items-center gap-1">
                 <div className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center',
-                  'text-[13px] font-bold border-2 transition-all',
+                  'text-base font-bold border-2 transition-all',
                   step > s.id
                     ? 'bg-success border-success text-white'
                     : step === s.id
@@ -320,7 +320,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   {step > s.id ? <CheckCircle2 size={16} /> : s.id}
                 </div>
                 <span className={cn(
-                  'text-[11px] font-semibold whitespace-nowrap',
+                  'text-xs font-semibold whitespace-nowrap',
                   step === s.id ? 'text-accent' : 'text-primary-muted'
                 )}>
                   {s.label}
@@ -344,7 +344,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-1">
                 <Store size={16} className="text-accent" />
-                <h2 className="text-[16px] font-bold text-primary">Tu negocio</h2>
+                <h2 className="text-lg font-bold text-primary">Tu negocio</h2>
               </div>
 
               <div>
@@ -426,7 +426,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   value={negocio.prefijo_factura}
                   onChange={e => setNegocio(p => ({ ...p, prefijo_factura: e.target.value }))}
                 />
-                <p className="text-[11px] text-primary-muted mt-0.5">
+                <p className="text-xs text-primary-muted mt-0.5">
                   Ej: V- genera V-202506-0001
                 </p>
               </div>
@@ -438,13 +438,13 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-1">
                 <Globe size={16} className="text-accent" />
-                <h2 className="text-[16px] font-bold text-primary">Tienda Nube</h2>
-                <span className="ml-auto text-[11.5px] text-primary-muted bg-card
+                <h2 className="text-lg font-bold text-primary">Tienda Nube</h2>
+                <span className="ml-auto text-xs text-primary-muted bg-card
                                  border border-border px-2 py-0.5 rounded-lg">
                   Opcional
                 </span>
               </div>
-              <p className="text-[12.5px] text-primary-muted -mt-2">
+              <p className="text-sm text-primary-muted -mt-2">
                 Si tenés tienda online en Tienda Nube, conectala para importar
                 productos y sincronizar stock. Podés saltear este paso.
               </p>
@@ -453,7 +453,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <label className="input-label">Store ID</label>
                 <input
                   type="text" placeholder="Ej: 123456"
-                  className="input font-mono text-[13px]"
+                  className="input font-mono text-base"
                   value={tn.storeId}
                   onChange={e => { setTn(p => ({ ...p, storeId: e.target.value })); setTnConectado(false) }}
                 />
@@ -462,7 +462,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <label className="input-label">Access Token</label>
                 <input
                   type="password" placeholder="Pegá el token de tu app"
-                  className="input font-mono text-[13px]"
+                  className="input font-mono text-base"
                   value={tn.token}
                   onChange={e => { setTn(p => ({ ...p, token: e.target.value })); setTnConectado(false) }}
                 />
@@ -486,7 +486,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                                 bg-success/5 border border-success/20">
                   <div className="flex items-center gap-2">
                     <Wifi size={14} className="text-success" />
-                    <span className="text-[13px] font-semibold text-success">
+                    <span className="text-base font-semibold text-success">
                       Conectado: {tnNombre}
                     </span>
                   </div>
@@ -502,7 +502,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       }
                     </button>
                   ) : (
-                    <div className="flex items-center gap-2 text-[13px] text-success font-semibold">
+                    <div className="flex items-center gap-2 text-base text-success font-semibold">
                       <CheckCircle2 size={14} />
                       Productos importados correctamente
                     </div>
@@ -517,15 +517,15 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             <div className="flex flex-col gap-5">
               <div className="flex items-center gap-2 mb-1">
                 <Hash size={16} className="text-accent" />
-                <h2 className="text-[16px] font-bold text-primary">Canales y medios de pago</h2>
+                <h2 className="text-lg font-bold text-primary">Canales y medios de pago</h2>
               </div>
-              <p className="text-[12.5px] text-primary-muted -mt-3">
+              <p className="text-sm text-primary-muted -mt-3">
                 Editá los defaults o agregá los tuyos. Todo es editable después.
               </p>
 
               {/* Canales */}
               <div>
-                <p className="text-[12px] font-bold text-primary-muted uppercase
+                <p className="text-sm font-bold text-primary-muted uppercase
                                tracking-wider mb-2">Canales de venta</p>
                 <div className="flex flex-col gap-2">
                   {canales.map((c, i) => (
@@ -536,7 +536,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         onChange={e => setCanales(prev => prev.map((x, j) =>
                           j === i ? { ...x, nombre: e.target.value } : x
                         ))}
-                        className="input h-8 text-[13px] flex-1"
+                        className="input h-8 text-base flex-1"
                         placeholder="Nombre del canal"
                       />
                       <div className="flex items-center gap-1 shrink-0">
@@ -546,10 +546,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                           onChange={e => setCanales(prev => prev.map((x, j) =>
                             j === i ? { ...x, comision_pct: Number(e.target.value) } : x
                           ))}
-                          className="input h-8 text-[13px] w-[72px]"
+                          className="input h-8 text-base w-[72px]"
                           title="Comisión %"
                         />
-                        <span className="text-[12px] text-primary-muted">%</span>
+                        <span className="text-sm text-primary-muted">%</span>
                       </div>
                       <button
                         onClick={() => setCanales(prev => prev.filter((_, j) => j !== i))}
@@ -572,7 +572,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                           setNuevoCanal('')
                         }
                       }}
-                      className="input h-8 text-[13px] flex-1"
+                      className="input h-8 text-base flex-1"
                       placeholder="Agregar canal…"
                     />
                     <button
@@ -591,7 +591,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               {/* Medios de pago */}
               <div>
-                <p className="text-[12px] font-bold text-primary-muted uppercase
+                <p className="text-sm font-bold text-primary-muted uppercase
                                tracking-wider mb-2">Medios de pago</p>
                 <div className="flex flex-col gap-2">
                   {medios.map((m, i) => (
@@ -602,7 +602,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         onChange={e => setMedios(prev => prev.map((x, j) =>
                           j === i ? { nombre: e.target.value } : x
                         ))}
-                        className="input h-8 text-[13px] flex-1"
+                        className="input h-8 text-base flex-1"
                         placeholder="Nombre del medio de pago"
                       />
                       <button
@@ -626,7 +626,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                           setNuevoMedio('')
                         }
                       }}
-                      className="input h-8 text-[13px] flex-1"
+                      className="input h-8 text-base flex-1"
                       placeholder="Agregar medio de pago…"
                     />
                     <button
@@ -652,10 +652,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                               justify-center">
                 <Sparkles size={32} className="text-success" />
               </div>
-              <h2 className="text-[20px] font-bold text-primary">
+              <h2 className="text-xl font-bold text-primary">
                 ¡Todo listo!
               </h2>
-              <p className="text-[13.5px] text-primary-muted max-w-sm leading-relaxed">
+              <p className="text-base text-primary-muted max-w-sm leading-relaxed">
                 Tu app está configurada. Podés empezar a registrar ventas,
                 productos e inventario. Todo lo configurado se puede editar
                 en cualquier momento desde los módulos correspondientes.
@@ -744,7 +744,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
 function ResumenItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between text-[12.5px]">
+    <div className="flex items-center justify-between text-sm">
       <span className="text-primary-muted">{label}</span>
       <span className="font-semibold text-primary text-right max-w-[220px] truncate">
         {value}
