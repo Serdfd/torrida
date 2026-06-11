@@ -198,8 +198,8 @@ export default function App() {
           onNavigate={navigate}
         />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-5 md:px-7 md:py-6">
-          <div className="max-w-[1400px] mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6">
+          <div className="w-full">
             {renderPage()}
           </div>
         </main>
