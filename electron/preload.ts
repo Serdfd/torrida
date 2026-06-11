@@ -93,5 +93,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     generarNumero(prefijo: string): Promise<string> {
       return ipcRenderer.invoke('venta:generarNumero', prefijo)
     }
+  },
+
+  // ── Tienda Nube ────────────────────────────────────────────────────────
+  tn: {
+    fetch(opts: {
+      storeId:  string
+      token:    string
+      method?:  string
+      endpoint: string
+      body?:    unknown
+    }): Promise<{ ok: boolean; status: number; data: unknown; error?: string }> {
+      return ipcRenderer.invoke('tn:fetch', opts)
+    }
   }
 })

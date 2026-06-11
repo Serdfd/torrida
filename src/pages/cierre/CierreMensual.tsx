@@ -3,7 +3,7 @@ import { useAppStore, useToast, useModal } from '@/store/useAppStore'
 import {
   LockKeyhole, UnlockKeyhole, TrendingUp,
   TrendingDown, DollarSign, ReceiptText,
-  ShoppingBag, RotateCcw, AlertTriangle
+  ShoppingBag, RotateCcw, AlertTriangle, Users
 } from 'lucide-react'
 import {
   getDashboardKpis,
@@ -18,18 +18,22 @@ import HistorialCierres from './HistorialCierres'
 import { cn } from '@/lib/utils'
 
 interface CierreData {
-  id:               number
-  anio:             number
-  mes:              number
-  ingresos:         number
-  gastos:           number
-  utilidad_bruta:   number
-  utilidad_neta:    number
-  unidades:         number
-  devoluciones:     number
-  cerrado:          number
-  cerrado_en:       string | null
-  notas:            string | null
+  id:                number
+  anio:              number
+  mes:               number
+  ingresos:          number
+  gastos:            number
+  utilidad_bruta:    number
+  utilidad_neta:     number
+  unidades:          number
+  devoluciones:      number
+  cerrado:           number
+  cerrado_en:        string | null
+  notas:             string | null
+  pct_reinversion:   number | null
+  monto_reinversion: number | null
+  retiro_socia_a:    number | null
+  retiro_socia_b:    number | null
 }
 
 export default function CierreMensual() {
@@ -37,34 +41,60 @@ export default function CierreMensual() {
   const toast  = useToast()
   const { openModal, closeModal } = useModal()
 
-  const [loading,   setLoading]   = useState(true)
-  const [cierre,    setCierre]    = useState<CierreData | null>(null)
-  const [resumen,   setResumen]   = useState<{
-    ingresos:    number
-    gastos:      number
-    utilidad:    number
-    unidades:    number
-    devoluciones: number
+  const [loading,         setLoading]         = useState(true)
+  const [cierre,          setCierre]          = useState<CierreData | null>(null)
+  const [resumen, setResumen] = useState<{
+    ingresos:          number
+    gastos:            number
+    utilidad:          number
+    unidades:          number
+    devoluciones:      number
+    comision_pasarela: number
   } | null>(null)
+
+  // Distribución
+  const [nombreSociaA,   setNombreSociaA]   = useState('Socia A')
+  const [nombreSociaB,   setNombreSociaB]   = useState('Socia B')
+  const [pctReinversion, setPctReinversion] = useState(0)
+  const [retiroA,        setRetiroA]        = useState(0)
+  const [retiroB,        setRetiroB]        = useState(0)
+  const [savingDist,     setSavingDist]     = useState(false)
 
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [kpis, totalGastos, cierreExist] = await Promise.all([
+      const [kpis, totalGastos, cierreExist, configRows] = await Promise.all([
         getDashboardKpis(filtroAnio, filtroMes),
         getTotalGastos(filtroAnio, filtroMes),
-        getCierreMensual(filtroAnio, filtroMes)
+        getCierreMensual(filtroAnio, filtroMes),
+        window.electronAPI.db.query<{ clave: string; valor: string }>(
+          `SELECT clave, valor FROM configuracion_app
+           WHERE clave IN ('nombre_socia_a','nombre_socia_b')`
+        )
       ])
+
+      const configMap = Object.fromEntries(configRows.map(r => [r.clave, r.valor]))
+      setNombreSociaA(configMap['nombre_socia_a'] ?? 'Socia A')
+      setNombreSociaB(configMap['nombre_socia_b'] ?? 'Socia B')
 
       const utilidad = kpis.ingresos_mes - totalGastos
       setResumen({
-        ingresos:     kpis.ingresos_mes,
-        gastos:       totalGastos,
+        ingresos:          kpis.ingresos_mes,
+        gastos:            totalGastos,
         utilidad,
-        unidades:     kpis.unidades_vendidas,
-        devoluciones: kpis.devoluciones
+        unidades:          kpis.unidades_vendidas,
+        devoluciones:      kpis.devoluciones,
+        comision_pasarela: kpis.comision_pasarela,
       })
-      setCierre(cierreExist as CierreData | null)
+      const c = cierreExist as CierreData | null
+      setCierre(c)
+      if (c) {
+        setPctReinversion(c.pct_reinversion   ?? 0)
+        setRetiroA(       c.retiro_socia_a    ?? 0)
+        setRetiroB(       c.retiro_socia_b    ?? 0)
+      } else {
+        setPctReinversion(0); setRetiroA(0); setRetiroB(0)
+      }
     } catch {
       toast.error('Error al cargar datos del cierre')
     } finally {
@@ -176,6 +206,31 @@ export default function CierreMensual() {
 
   if (loading) return <FullPageSpinner />
 
+  // ── Guardar distribución ───────────────────────────────
+  async function handleGuardarDistribucion() {
+    if (!cierre?.id) return
+    const montoReinversion = (resumen?.utilidad ?? 0) * (pctReinversion / 100)
+    setSavingDist(true)
+    try {
+      await window.electronAPI.db.run(
+        `UPDATE cierres_mensuales SET
+           pct_reinversion   = ?,
+           monto_reinversion = ?,
+           retiro_socia_a    = ?,
+           retiro_socia_b    = ?,
+           updated_at        = datetime('now')
+         WHERE id = ?`,
+        [pctReinversion, montoReinversion, retiroA, retiroB, cierre.id]
+      )
+      toast.success('Distribución guardada')
+      loadData()
+    } catch {
+      toast.error('Error al guardar distribución')
+    } finally {
+      setSavingDist(false)
+    }
+  }
+
   const margenPct = resumen && resumen.ingresos > 0
     ? (resumen.utilidad / resumen.ingresos) * 100
     : 0
@@ -284,6 +339,14 @@ export default function CierreMensual() {
             color="text-danger"
             sign="-"
           />
+          {(resumen?.comision_pasarela ?? 0) > 0 && (
+            <FinancialRow
+              label="Comisiones pasarela"
+              value={resumen?.comision_pasarela ?? 0}
+              color="text-warning"
+              sign="-"
+            />
+          )}
           <div className="border-t border-border pt-3 mt-1">
             <FinancialRow
               label="Utilidad neta"
@@ -319,6 +382,116 @@ export default function CierreMensual() {
             Ciérralo cuando hayas registrado todas las ventas y gastos del mes
             para congelar los datos y generar el historial.
           </p>
+        </div>
+      )}
+
+      {/* Distribución de utilidad — solo cuando existe cierre */}
+      {cierre?.id && (
+        <div className="card">
+          <div className="flex items-center gap-2 mb-5">
+            <Users size={15} className="text-primary-muted" />
+            <p className="text-[13px] font-bold text-primary-muted uppercase tracking-wider">
+              Distribución de utilidad
+            </p>
+          </div>
+
+          {(resumen?.utilidad ?? 0) <= 0 ? (
+            <p className="text-[13px] text-primary-muted">
+              No hay utilidad positiva para distribuir en este período.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-4">
+
+              {/* Reinversión */}
+              <div className="flex flex-col gap-1.5">
+                <label className="input-label">
+                  % Reinversión al negocio
+                  <span className="ml-2 text-accent font-bold">
+                    {formatCOP((resumen?.utilidad ?? 0) * (pctReinversion / 100))}
+                  </span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range" min={0} max={100} step={5}
+                    value={pctReinversion}
+                    onChange={e => {
+                      const pct = Number(e.target.value)
+                      setPctReinversion(pct)
+                      const disponible = (resumen?.utilidad ?? 0) * (1 - pct / 100)
+                      setRetiroA(Math.round(disponible / 2))
+                      setRetiroB(Math.round(disponible / 2))
+                    }}
+                    className="flex-1 accent-accent"
+                  />
+                  <span className="text-[14px] font-bold text-accent w-10 text-right">
+                    {pctReinversion}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Retiros */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="input-label">Retiro {nombreSociaA}</label>
+                  <input
+                    type="number" min={0} className="input"
+                    value={retiroA}
+                    onChange={e => setRetiroA(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="input-label">Retiro {nombreSociaB}</label>
+                  <input
+                    type="number" min={0} className="input"
+                    value={retiroB}
+                    onChange={e => setRetiroB(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              {/* Resumen distribución */}
+              <div className="bg-[#0B0B16] border border-border rounded-xl p-4
+                              flex flex-col gap-1.5 text-[13px]">
+                {[
+                  { label: 'Utilidad neta',        val: resumen?.utilidad ?? 0,       color: 'text-success' },
+                  { label: `Reinversión (${pctReinversion}%)`, val: -(resumen?.utilidad ?? 0) * (pctReinversion / 100), color: 'text-warning' },
+                  { label: `Retiro ${nombreSociaA}`, val: -retiroA, color: 'text-primary-muted' },
+                  { label: `Retiro ${nombreSociaB}`, val: -retiroB, color: 'text-primary-muted' },
+                ].map(({ label, val, color }) => (
+                  <div key={label} className="flex justify-between">
+                    <span className="text-primary-muted">{label}</span>
+                    <span className={cn('font-semibold', color)}>
+                      {val >= 0 ? '' : '-'}{formatCOP(Math.abs(val))}
+                    </span>
+                  </div>
+                ))}
+                {(() => {
+                  const saldo = (resumen?.utilidad ?? 0)
+                    - (resumen?.utilidad ?? 0) * (pctReinversion / 100)
+                    - retiroA - retiroB
+                  return (
+                    <div className={cn(
+                      'border-t border-border mt-1 pt-1.5 flex justify-between font-bold',
+                      Math.abs(saldo) < 1 ? 'text-success' : 'text-danger'
+                    )}>
+                      <span>Saldo sin asignar</span>
+                      <span>{formatCOP(saldo)}</span>
+                    </div>
+                  )
+                })()}
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleGuardarDistribucion}
+                  disabled={savingDist}
+                  className="btn-primary text-[13px]"
+                >
+                  {savingDist ? 'Guardando…' : 'Guardar distribución'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

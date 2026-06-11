@@ -29,13 +29,15 @@ function initDatabase(): Database.Database {
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
 
-  // Ejecutar schema inicial si la DB es nueva
-  if (fs.existsSync(SCHEMA_PATH)) {
+  // Ejecutar schema inicial SOLO si la DB es nueva (no tiene tablas aún)
+  const tableCount = (db.prepare(
+    `SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`
+  ).get() as { n: number }).n
+
+  if (tableCount === 0 && fs.existsSync(SCHEMA_PATH)) {
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8')
     db.exec(schema)
-    console.log('[db] ✅ Schema aplicado')
-  } else {
-    console.warn('[db] ⚠️ schema.sql no encontrado en:', SCHEMA_PATH)
+    console.log('[db] ✅ Schema aplicado (DB nueva)')
   }
 
   // Ejecutar migraciones

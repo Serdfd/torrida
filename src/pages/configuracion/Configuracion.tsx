@@ -1,15 +1,17 @@
 ﻿import { useState } from 'react'
 import {
   Settings, Store, Tag, CreditCard,
-  Ruler, Package, Palette, ChevronRight
+  Ruler, Package, Palette, ChevronRight, Layers, Scale
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import ConfigNegocio      from './ConfigNegocio'
-import ConfigCanales      from './ConfigCanales'
-import ConfigMediosPago   from './ConfigMediosPago'
-import ConfigTallas       from './ConfigTallas'
-import ConfigCategorias   from './ConfigCategorias'
-import ConfigColecciones  from './ConfigColecciones'
+import ConfigNegocio           from './ConfigNegocio'
+import ConfigCanales           from './ConfigCanales'
+import ConfigMediosPago        from './ConfigMediosPago'
+import ConfigTallas            from './ConfigTallas'
+import ConfigCategorias        from './ConfigCategorias'
+import ConfigColecciones       from './ConfigColecciones'
+import ConfigCategoriasInsumo  from './ConfigCategoriasInsumo'
+import ConfigUnidades          from './ConfigUnidades'
 
 type TabId =
   | 'negocio'
@@ -18,6 +20,8 @@ type TabId =
   | 'tallas'
   | 'categorias'
   | 'colecciones'
+  | 'cat_insumos'
+  | 'unidades'
 
 interface Tab {
   id:          TabId
@@ -62,6 +66,18 @@ const TABS: Tab[] = [
     label:       'Colecciones',
     description: 'Agrupa productos por temporada',
     icon:        Palette
+  },
+  {
+    id:          'cat_insumos',
+    label:       'Categorías de insumos',
+    description: 'Telas, cierres, botones…',
+    icon:        Layers
+  },
+  {
+    id:          'unidades',
+    label:       'Unidades de medida',
+    description: 'Metro, kg, rollo, unidad…',
+    icon:        Scale
   }
 ]
 
@@ -71,7 +87,9 @@ const TAB_COMPONENTS: Record<TabId, React.ComponentType> = {
   medios_pago:  ConfigMediosPago,
   tallas:       ConfigTallas,
   categorias:   ConfigCategorias,
-  colecciones:  ConfigColecciones
+  colecciones:  ConfigColecciones,
+  cat_insumos:  ConfigCategoriasInsumo,
+  unidades:     ConfigUnidades
 }
 
 export default function Configuracion() {

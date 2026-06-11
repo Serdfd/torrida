@@ -22,6 +22,7 @@ export interface DashboardKpis {
   gastos_mes:        number
   ticket_promedio:   number
   ventas_count:      number
+  comision_pasarela: number
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -45,11 +46,12 @@ export async function getDashboardKpis(
   const { desde, hasta } = rangoMes(anio, mes)
 
   const [ventasRow] = await window.electronAPI.db.query<{
-    ingresos:      number
-    unidades:      number
-    devoluciones:  number
-    ticket:        number
-    count:         number
+    ingresos:           number
+    unidades:           number
+    devoluciones:       number
+    ticket:             number
+    count:              number
+    comision_pasarela:  number
   }>(
     `SELECT
        COALESCE(SUM(v.total), 0)                            AS ingresos,
@@ -58,7 +60,9 @@ export async function getDashboardKpis(
                     THEN 1 ELSE 0 END), 0)                  AS devoluciones,
        COALESCE(AVG(CASE WHEN v.estado != 'cancelado'
                     THEN v.total END), 0)                   AS ticket,
-       COUNT(CASE WHEN v.estado != 'cancelado' THEN 1 END)  AS count
+       COUNT(CASE WHEN v.estado != 'cancelado' THEN 1 END)  AS count,
+       COALESCE(SUM(CASE WHEN v.estado != 'cancelado'
+                    THEN v.comision_medio_pago ELSE 0 END), 0) AS comision_pasarela
      FROM ventas v
      LEFT JOIN venta_items vi ON vi.venta_id = v.id
      WHERE v.fecha BETWEEN ? AND ?`,
@@ -78,7 +82,8 @@ export async function getDashboardKpis(
     devoluciones:      ventasRow?.devoluciones  ?? 0,
     gastos_mes:        gastosRow?.total         ?? 0,
     ticket_promedio:   ventasRow?.ticket        ?? 0,
-    ventas_count:      ventasRow?.count         ?? 0
+    ventas_count:      ventasRow?.count         ?? 0,
+    comision_pasarela: ventasRow?.comision_pasarela ?? 0,
   }
 }
 
@@ -237,10 +242,11 @@ export async function getStockCompleto(): Promise<StockItem[]> {
        ip.talla_id,
        t.nombre   AS talla_nombre,
        ip.stock,
-       p.costo_unitario
+       COALESCE(fc.costo_total, p.costo_unitario, 0) AS costo_unitario
      FROM inventario_productos ip
      JOIN productos p ON p.id = ip.producto_id
      JOIN tallas    t ON t.id = ip.talla_id
+     LEFT JOIN fichas_costo fc ON fc.producto_id = p.id AND fc.vigente = 1
      WHERE p.activo = 1
      ORDER BY p.nombre ASC, t.orden ASC`
   )
@@ -254,10 +260,11 @@ export async function getStockBajoMinimo(minimo = 3): Promise<StockItem[]> {
        ip.talla_id,
        t.nombre   AS talla_nombre,
        ip.stock,
-       p.costo_unitario
+       COALESCE(fc.costo_total, p.costo_unitario, 0) AS costo_unitario
      FROM inventario_productos ip
      JOIN productos p ON p.id = ip.producto_id
      JOIN tallas    t ON t.id = ip.talla_id
+     LEFT JOIN fichas_costo fc ON fc.producto_id = p.id AND fc.vigente = 1
      WHERE ip.stock <= ?
        AND p.activo = 1
      ORDER BY ip.stock ASC, p.nombre ASC`,
@@ -331,6 +338,14 @@ export async function getCierresHistorial() {
      ORDER BY anio DESC, mes DESC
      LIMIT 24`
   )
+}
+
+export async function isMesCerrado(anio: number, mes: number): Promise<boolean> {
+  const [row] = await window.electronAPI.db.query<{ cerrado: number }>(
+    `SELECT cerrado FROM cierres_mensuales WHERE anio = ? AND mes = ? LIMIT 1`,
+    [anio, mes]
+  )
+  return Boolean(row?.cerrado)
 }
 
 // ── Reportes comparativos ──────────────────────────────────────────────────

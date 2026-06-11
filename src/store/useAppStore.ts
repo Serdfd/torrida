@@ -14,6 +14,7 @@ import type { ToastType } from '@/types'
 interface ModalState {
   open:    boolean
   content: React.ReactNode | null
+  size?:   'sm' | 'md' | 'lg' | 'xl'
 }
 
 interface ToastState {
@@ -36,7 +37,7 @@ interface AppStore {
 
   // Modal
   modal:      ModalState
-  openModal:  (content: React.ReactNode) => void
+  openModal:  (content: React.ReactNode, size?: 'sm' | 'md' | 'lg' | 'xl') => void
   closeModal: () => void
 
   // Toast
@@ -76,8 +77,8 @@ export const useAppStore = create<AppStore>()(
 
       // ── Modal ────────────────────────────────────────────────────────────
       modal: { open: false, content: null },
-      openModal(content) {
-        set({ modal: { open: true, content } })
+      openModal(content, size) {
+        set({ modal: { open: true, content, size } })
       },
       closeModal() {
         set({ modal: { open: false, content: null } })

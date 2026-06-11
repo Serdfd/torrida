@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowUpCircle, ArrowDownCircle,
-  SlidersHorizontal, History, RefreshCw
+  SlidersHorizontal, History
 } from 'lucide-react'
 import { formatDate, formatNumber } from '@/lib/utils'
 import { useToast } from '@/store/useAppStore'
@@ -10,19 +10,19 @@ import { FullPageSpinner } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 
 interface Movimiento {
-  id:           number
-  tipo:         string
-  cantidad:     number
-  notas:        string | null
-  fecha:        string
-  created_at:   string
-  talla_nombre: string
+  id:         number
+  tipo:       string
+  cantidad:   number
+  motivo:     string | null
+  fecha:      string
+  created_at: string
 }
 
-interface MovimientosPanelProps {
-  productoId:      number
-  productoNombre:  string
-  onClose:         () => void
+interface InsumoMovimientosPanelProps {
+  insumoId:     number
+  insumoNombre: string
+  unidad:       string
+  onClose:      () => void
 }
 
 const TIPO_CONFIG: Record<string, {
@@ -30,94 +30,77 @@ const TIPO_CONFIG: Record<string, {
   icon:   React.ElementType
   color:  string
   bg:     string
+  signo:  1 | -1
 }> = {
-  entrada_produccion: {
-    label: 'Entrada producción',
+  entrada_compra: {
+    label: 'Entrada compra',
     icon:  ArrowUpCircle,
     color: 'text-success',
-    bg:    'bg-success/10'
+    bg:    'bg-success/10',
+    signo: 1
   },
-  salida_venta: {
-    label: 'Salida venta',
+  salida_produccion: {
+    label: 'Salida producción',
     icon:  ArrowDownCircle,
     color: 'text-danger',
-    bg:    'bg-danger/10'
-  },
-  devolucion: {
-    label: 'Devolución',
-    icon:  ArrowUpCircle,
-    color: 'text-warning',
-    bg:    'bg-warning/10'
+    bg:    'bg-danger/10',
+    signo: -1
   },
   ajuste_manual: {
     label: 'Ajuste manual',
     icon:  SlidersHorizontal,
     color: 'text-accent',
-    bg:    'bg-accent-light'
+    bg:    'bg-accent-light',
+    signo: 1
   },
   ajuste_reconciliacion: {
     label: 'Reconciliación',
-    icon:  RefreshCw,
+    icon:  SlidersHorizontal,
     color: 'text-accent2',
-    bg:    'bg-accent2/10'
-  },
-  entrada_compra: {
-    label: 'Entrada manual',
-    icon:  ArrowUpCircle,
-    color: 'text-success',
-    bg:    'bg-success/10'
-  },
-  salida_produccion: {
-    label: 'Salida manual',
-    icon:  ArrowDownCircle,
-    color: 'text-danger',
-    bg:    'bg-danger/10'
+    bg:    'bg-accent2/10',
+    signo: 1
   }
 }
 
-export default function MovimientosPanel({
-  productoId,
-  productoNombre,
+export default function InsumoMovimientosPanel({
+  insumoId,
+  insumoNombre,
+  unidad,
   onClose
-}: MovimientosPanelProps) {
+}: InsumoMovimientosPanelProps) {
   const toast = useToast()
 
-  const [loading,      setLoading]      = useState(true)
-  const [movimientos,  setMovimientos]  = useState<Movimiento[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [movimientos, setMovimientos] = useState<Movimiento[]>([])
 
-  async function load() {
-    setLoading(true)
-    try {
-      const data = await window.electronAPI.db.query<Movimiento>(
-        `SELECT
-           mi.id, mi.tipo, mi.cantidad, mi.notas,
-           mi.fecha, mi.created_at,
-           t.nombre AS talla_nombre
-         FROM movimientos_inventario mi
-         JOIN tallas t ON t.id = mi.talla_id
-         WHERE mi.producto_id = ?
-         ORDER BY mi.created_at DESC
-         LIMIT 200`,
-        [productoId]
-      )
-      setMovimientos(data)
-    } catch {
-      toast.error('Error al cargar movimientos')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await window.electronAPI.db.query<Movimiento>(
+          `SELECT id, tipo, cantidad, motivo, fecha, created_at
+           FROM movimientos_insumos
+           WHERE insumo_id = ?
+           ORDER BY created_at DESC
+           LIMIT 200`,
+          [insumoId]
+        )
+        setMovimientos(data)
+      } catch {
+        toast.error('Error al cargar movimientos')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    load()
+  }, [insumoId])
 
-  useEffect(() => { load() }, [productoId])
-
-  // Resumen: positivos = entradas, negativos = salidas
   const totalEntradas = movimientos
-    .filter(m => m.cantidad > 0)
+    .filter(m => m.tipo === 'entrada_compra' || m.tipo === 'ajuste_manual' || m.tipo === 'ajuste_reconciliacion')
     .reduce((s, m) => s + m.cantidad, 0)
 
   const totalSalidas = movimientos
-    .filter(m => m.cantidad < 0)
-    .reduce((s, m) => s + Math.abs(m.cantidad), 0)
+    .filter(m => m.tipo === 'salida_produccion')
+    .reduce((s, m) => s + m.cantidad, 0)
 
   return (
     <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
@@ -133,7 +116,7 @@ export default function MovimientosPanel({
             Historial de movimientos
           </h2>
           <p className="text-[12.5px] text-primary-muted">
-            {productoNombre}
+            {insumoNombre}
           </p>
         </div>
       </div>
@@ -147,6 +130,7 @@ export default function MovimientosPanel({
           </p>
           <p className="text-[20px] font-bold text-success">
             +{formatNumber(totalEntradas)}
+            <span className="text-[12px] font-normal ml-1 opacity-70">{unidad}</span>
           </p>
         </div>
         <div className="bg-danger/5 border border-danger/20 rounded-xl px-4 py-3">
@@ -156,18 +140,19 @@ export default function MovimientosPanel({
           </p>
           <p className="text-[20px] font-bold text-danger">
             -{formatNumber(totalSalidas)}
+            <span className="text-[12px] font-normal ml-1 opacity-70">{unidad}</span>
           </p>
         </div>
       </div>
 
-      {/* Lista movimientos */}
+      {/* Lista */}
       {loading ? (
         <FullPageSpinner />
       ) : movimientos.length === 0 ? (
         <EmptyState
           icon={History}
-          title="Sin movimientos registrados"
-          description="Los ajustes manuales y reconciliaciones aparecerán aquí."
+          title="Sin movimientos"
+          description="Las entradas y salidas de este insumo aparecerán aquí."
         />
       ) : (
         <div className="flex flex-col gap-2">
@@ -176,10 +161,11 @@ export default function MovimientosPanel({
               label: mov.tipo,
               icon:  SlidersHorizontal,
               color: 'text-primary-muted',
-              bg:    'bg-card'
+              bg:    'bg-card',
+              signo: 1 as const
             }
             const Icon     = config.icon
-            const esSalida = mov.cantidad < 0
+            const esSalida = mov.tipo === 'salida_produccion'
 
             return (
               <div
@@ -187,7 +173,6 @@ export default function MovimientosPanel({
                 className="flex items-start gap-3 p-3 rounded-xl border
                            border-border bg-[#0B0B16]"
               >
-                {/* Icono */}
                 <div className={cn(
                   'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
                   config.bg
@@ -195,32 +180,30 @@ export default function MovimientosPanel({
                   <Icon size={15} className={config.color} />
                 </div>
 
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className={cn('text-[12.5px] font-semibold', config.color)}>
                       {config.label}
                     </span>
                     <span className="text-[11.5px] text-primary-muted">
-                      · Talla {mov.talla_nombre} · {formatDate(mov.fecha)}
+                      · {formatDate(mov.fecha)}
                     </span>
                   </div>
-                  {mov.notas && (
+                  {mov.motivo && (
                     <p className="text-[12.5px] text-primary-muted truncate leading-snug">
-                      {mov.notas}
+                      {mov.motivo}
                     </p>
                   )}
                 </div>
 
-                {/* Cantidad */}
                 <div className="text-right shrink-0">
                   <p className={cn(
                     'text-[15px] font-bold',
                     esSalida ? 'text-danger' : 'text-success'
                   )}>
-                    {esSalida ? '' : '+'}{formatNumber(mov.cantidad)}
+                    {esSalida ? '-' : '+'}{formatNumber(mov.cantidad)}
                   </p>
-                  <p className="text-[11px] text-primary-muted">ud.</p>
+                  <p className="text-[11px] text-primary-muted">{unidad}</p>
                 </div>
               </div>
             )

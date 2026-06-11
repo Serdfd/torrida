@@ -1,11 +1,29 @@
 ﻿import { useEffect, useState, useCallback } from 'react'
-import { Plus, Search, Package, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, Search, Package } from 'lucide-react'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getProductos } from '@/lib/queries'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import ProductoCard from './ProductoCard'
 import ProductoForm from './ProductoForm'
+import FichaCostoPanel from './FichaCostoPanel'
+
+type ProductoEstado = 'borrador' | 'en_produccion' | 'activo' | 'descontinuado'
+
+const ESTADO_BADGE: Record<ProductoEstado, { label: string; color: string }> = {
+  borrador:      { label: 'Borrador',       color: 'text-primary-muted border-border' },
+  en_produccion: { label: 'En producción', color: 'text-warning border-warning/40'    },
+  activo:        { label: 'Activo',          color: 'text-success border-success/40'   },
+  descontinuado: { label: 'Descontinuado',   color: 'text-danger border-danger/40'     },
+}
+
+const FILTROS_ESTADO: { value: string; label: string }[] = [
+  { value: '',              label: 'Todos'          },
+  { value: 'borrador',      label: 'Borrador'       },
+  { value: 'en_produccion', label: 'En producción'  },
+  { value: 'activo',        label: 'Activos'        },
+  { value: 'descontinuado', label: 'Descontinuados' },
+]
 
 interface Producto {
   id:               number
@@ -13,6 +31,7 @@ interface Producto {
   referencia:       string
   precio_venta:     number
   activo:           number
+  estado:           ProductoEstado
   coleccion_nombre: string | null
   imagen_url:       string | null
 }
@@ -24,23 +43,24 @@ export default function Productos() {
   const [loading,      setLoading]      = useState(true)
   const [productos,    setProductos]    = useState<Producto[]>([])
   const [busqueda,     setBusqueda]     = useState('')
-  const [soloActivos,  setSoloActivos]  = useState(true)
+  const [filtroEstado, setFiltroEstado] = useState('')
 
   const loadProductos = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await getProductos(soloActivos) as Producto[]
+      const data = await getProductos(false) as Producto[]
       setProductos(data)
     } catch {
       toast.error('Error al cargar productos')
     } finally {
       setLoading(false)
     }
-  }, [soloActivos])
+  }, [])
 
   useEffect(() => { loadProductos() }, [loadProductos])
 
   const productosFiltrados = productos.filter(p => {
+    if (filtroEstado && p.estado !== filtroEstado) return false
     if (!busqueda) return true
     const q = busqueda.toLowerCase()
     return (
@@ -70,20 +90,35 @@ export default function Productos() {
   }
 
   async function handleToggleActivo(producto: Producto) {
+    // Cambiar entre activo <-> descontinuado
+    const nuevoEstado = producto.estado === 'activo' ? 'descontinuado' : 'activo'
+    const nuevoActivo = nuevoEstado === 'activo' ? 1 : 0
     try {
       await window.electronAPI.db.run(
-        `UPDATE productos SET activo = ?, updated_at = datetime('now') WHERE id = ?`,
-        [producto.activo ? 0 : 1, producto.id]
+        `UPDATE productos SET estado = ?, activo = ?, updated_at = datetime('now') WHERE id = ?`,
+        [nuevoEstado, nuevoActivo, producto.id]
       )
       toast.success(
-        producto.activo
-          ? `"${producto.nombre}" desactivado`
-          : `"${producto.nombre}" activado`
+        nuevoEstado === 'activo'
+          ? `"${producto.nombre}" activado`
+          : `"${producto.nombre}" descontinuado`
       )
       loadProductos()
     } catch {
       toast.error('Error al actualizar producto')
     }
+  }
+
+  function handleFichaCosto(producto: Producto) {
+    openModal(
+      <FichaCostoPanel
+        productoId={producto.id}
+        productoNombre={producto.nombre}
+        precioVenta={producto.precio_venta}
+        onClose={closeModal}
+      />,
+      'lg'
+    )
   }
 
   return (
@@ -107,23 +142,33 @@ export default function Productos() {
           />
         </div>
 
-        {/* Toggle activos */}
-        <button
-          onClick={() => setSoloActivos(!soloActivos)}
-          className="flex items-center gap-2 btn-ghost h-9 text-[13px]"
-        >
-          {soloActivos
-            ? <ToggleRight size={16} className="text-accent" />
-            : <ToggleLeft  size={16} className="text-primary-muted" />
-          }
-          {soloActivos ? 'Solo activos' : 'Todos'}
-        </button>
-
         {/* Nuevo producto */}
         <button onClick={handleNuevoProducto} className="btn-primary h-9 text-[13px]">
           <Plus size={14} />
           Nuevo producto
         </button>
+      </div>
+
+      {/* Filtro por estado */}
+      <div className="flex gap-2 flex-wrap -mt-2">
+        {FILTROS_ESTADO.map(f => (
+          <button
+            key={f.value}
+            onClick={() => setFiltroEstado(f.value)}
+            className={`px-3 py-1 rounded-xl border text-[12px] font-semibold transition-all
+              ${filtroEstado === f.value
+                ? 'bg-accent-light border-accent/40 text-accent'
+                : 'border-border text-primary-muted hover:border-accent/30'
+              }`}
+          >
+            {f.label}
+            {f.value !== '' && (
+              <span className="ml-1.5 opacity-60">
+                {productos.filter(p => p.estado === f.value).length}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       {/* Contador */}
@@ -159,6 +204,7 @@ export default function Productos() {
               producto={producto}
               onEditar={() => handleEditarProducto(producto)}
               onToggleActivo={() => handleToggleActivo(producto)}
+              onFichaCosto={() => handleFichaCosto(producto)}
             />
           ))}
         </div>

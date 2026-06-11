@@ -5,6 +5,15 @@ import { useToast } from '@/store/useAppStore'
 import { getColecciones, getTallas } from '@/lib/queries'
 import Spinner from '@/components/ui/Spinner'
 
+type ProductoEstado = 'borrador' | 'en_produccion' | 'activo' | 'descontinuado'
+
+const ESTADO_LABELS: Record<ProductoEstado, string> = {
+  borrador:       'Borrador (idea / diseño)',
+  en_produccion:  'En producción',
+  activo:         'Activo (disponible)',
+  descontinuado:  'Descontinuado',
+}
+
 interface ProductoFormData {
   nombre:        string
   referencia:    string
@@ -12,7 +21,7 @@ interface ProductoFormData {
   precio_venta:  number
   coleccion_id:  number
   imagen_url:    string
-  activo:        boolean
+  estado:        ProductoEstado
   // Stock inicial por talla
   stock:         Record<string, number>
 }
@@ -51,7 +60,7 @@ export default function ProductoForm({
       precio_venta: producto?.precio_venta ?? 0,
       coleccion_id: producto?.coleccion_id ?? 0,
       imagen_url:   producto?.imagen_url   ?? '',
-      activo:       producto?.activo !== undefined ? Boolean(producto.activo) : true,
+      estado:       (producto?.estado as ProductoEstado) ?? 'activo',
       stock:        {}
     }
   })
@@ -112,6 +121,7 @@ export default function ProductoForm({
              precio_venta = ?,
              coleccion_id = ?,
              imagen_url   = ?,
+             estado       = ?,
              activo       = ?,
              updated_at   = datetime('now')
            WHERE id = ?`,
@@ -119,10 +129,11 @@ export default function ProductoForm({
             data.nombre.trim(),
             data.referencia.trim() || null,
             data.descripcion.trim() || null,
-            data.precio_venta,
+            data.precio_venta || 0,
             data.coleccion_id || null,
             data.imagen_url.trim() || null,
-            data.activo ? 1 : 0,
+            data.estado,
+            data.estado === 'activo' ? 1 : 0,
             producto.id
           ]
         )
@@ -145,16 +156,17 @@ export default function ProductoForm({
         const result = await window.electronAPI.db.run(
           `INSERT INTO productos
              (nombre, referencia, descripcion, precio_venta,
-              coleccion_id, imagen_url, activo, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+              coleccion_id, imagen_url, estado, activo, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
           [
             data.nombre.trim(),
             data.referencia.trim() || null,
             data.descripcion.trim() || null,
-            data.precio_venta,
+            data.precio_venta || 0,
             data.coleccion_id || null,
             data.imagen_url.trim() || null,
-            data.activo ? 1 : 0
+            data.estado,
+            data.estado === 'activo' ? 1 : 0
           ]
         )
         const nuevoId = result.lastInsertRowid
@@ -230,25 +242,34 @@ export default function ProductoForm({
           </div>
         </div>
 
-        {/* Fila 2: Precio + Colección + Activo */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Fila 2: Estado + Precio + Colección */}
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="input-label">
-              Precio venta <span className="text-danger">*</span>
-            </label>
+            <label className="input-label">Estado del producto</label>
+            <div className="relative">
+              <select className="input appearance-none pr-8" {...register('estado')}>
+                {(Object.keys(ESTADO_LABELS) as ProductoEstado[]).map(e => (
+                  <option key={e} value={e}>{ESTADO_LABELS[e]}</option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2
+                              text-primary-muted" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5"
+                      strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <label className="input-label">Precio venta</label>
             <input
               type="number"
               min={0}
-              placeholder="0"
+              placeholder="A definir"
               className="input"
-              {...register('precio_venta', {
-                required: true,
-                min: 0,
-                valueAsNumber: true
-              })}
+              {...register('precio_venta', { min: 0, valueAsNumber: true })}
             />
           </div>
-          <div>
+          <div className="col-span-2">
             <label className="input-label">Colección</label>
             <select className="input" {...register('coleccion_id')}>
               <option value="">— Sin colección —</option>
@@ -258,17 +279,6 @@ export default function ProductoForm({
                 </option>
               ))}
             </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="input-label">Estado</label>
-            <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                className="w-4 h-4 accent-accent-DEFAULT"
-                {...register('activo')}
-              />
-              <span className="text-[13.5px] text-primary">Activo</span>
-            </label>
           </div>
         </div>
 

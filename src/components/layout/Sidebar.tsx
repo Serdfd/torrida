@@ -11,7 +11,8 @@
   BarChart2,
   Camera,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  SlidersHorizontal
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { id: 'cierre',         label: 'Cierre Mensual',       icon: CalendarCheck   },
   { id: 'tiendanube',     label: 'Tienda Nube',          icon: Store           },
   { id: 'administracion', label: 'Administración',       icon: Settings        },
+  { id: 'configuracion',  label: 'Configuración',         icon: SlidersHorizontal },
 ]
 
 interface SidebarProps {

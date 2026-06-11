@@ -11,6 +11,9 @@ interface NegocioFormData {
   telefono:         string
   email:            string
   instagram:        string
+  facebook:         string
+  tiktok:           string
+  sitio_web:        string
   logo_url:         string
   moneda:           string
   prefijo_factura:  string
@@ -54,6 +57,22 @@ const CAMPOS: {
     placeholder: '@torrida_brand'
   },
   {
+    key:         'facebook',
+    label:       'Facebook',
+    placeholder: '/torrida.brand'
+  },
+  {
+    key:         'tiktok',
+    label:       'TikTok',
+    placeholder: '@torrida'
+  },
+  {
+    key:         'sitio_web',
+    label:       'Sitio web',
+    placeholder: 'https://torrida.co',
+    type:        'url'
+  },
+  {
     key:         'prefijo_factura',
     label:       'Prefijo de facturas',
     placeholder: 'Ej: V-  (genera V-202501-0001)'
@@ -81,6 +100,9 @@ export default function ConfigNegocio() {
       telefono:        '',
       email:           '',
       instagram:       '',
+      facebook:        '',
+      tiktok:          '',
+      sitio_web:       '',
       logo_url:        '',
       moneda:          'COP',
       prefijo_factura: 'V-'
@@ -106,6 +128,9 @@ export default function ConfigNegocio() {
           telefono:        map['telefono']         ?? '',
           email:           map['email']            ?? '',
           instagram:       map['instagram']        ?? '',
+          facebook:        map['facebook']         ?? '',
+          tiktok:          map['tiktok']           ?? '',
+          sitio_web:       map['sitio_web']        ?? '',
           logo_url:        map['logo_url']         ?? '',
           moneda:          map['moneda']           ?? 'COP',
           prefijo_factura: map['prefijo_factura']  ?? 'V-'

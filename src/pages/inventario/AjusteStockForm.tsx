@@ -102,16 +102,16 @@ export default function AjusteStockForm({
 
     setSaving(true)
     try {
-      // Registrar movimiento
+      // Registrar movimiento en historial
       await window.electronAPI.db.run(
-        `INSERT INTO movimientos_insumos
-           (insumo_id, tipo, cantidad, motivo, fecha, created_at)
-         VALUES (?, ?, ?, ?, date('now'), datetime('now'))`,
+        `INSERT INTO movimientos_inventario
+           (producto_id, talla_id, tipo, cantidad, notas, fecha, created_at)
+         VALUES (?, ?, ?, ?, ?, date('now'), datetime('now'))`,
         [
-          // Usamos producto_id como referencia (tabla de movimientos unificada)
           producto.producto_id,
+          data.talla_id,
           data.tipo,
-          data.cantidad,
+          esSalida ? -data.cantidad : data.cantidad,
           data.motivo.trim() || null
         ]
       )

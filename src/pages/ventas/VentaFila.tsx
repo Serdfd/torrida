@@ -1,240 +1,91 @@
-﻿import { useEffect, useState }  from 'react'
-import {
-  ShoppingBag, Calendar, User, CreditCard,
-  Store, Truck, FileText, RotateCcw
-} from 'lucide-react'
-import { formatCOP, formatDate, cn } from '@/lib/utils'
-import { useToast, useModal }        from '@/store/useAppStore'
-import { getVentaById }              from '@/lib/queries'
-import Spinner                       from '@/components/ui/Spinner'
-import ConfirmDialog                 from '@/components/ui/ConfirmDialog'
+import { formatCOP, formatDate } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
-interface VentaDetalleProps {
+interface VentaFilaProps {
   venta:    any
-  onClose:  () => void
+  onClick:  () => void
   onUpdate: () => void
+  onEditar: () => void
 }
 
-const ESTADO_BADGE: Record<string, string> = {
-  pendiente:  'badge-warning',
-  completada: 'badge-success',
-  cancelado:  'badge-danger'
+const ESTADO_STYLE: Record<string, string> = {
+  completada: 'bg-success/10 border-success/20 text-success',
+  pendiente:  'bg-warning/10 border-warning/20 text-warning',
+  cancelado:  'bg-danger/10  border-danger/20  text-danger'
 }
 
-export default function VentaDetalle({ venta: ventaBase, onClose, onUpdate }: VentaDetalleProps) {
-  const toast                     = useToast()
-  const { openModal, closeModal } = useModal()
-
-  const [venta,   setVenta]   = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getVentaById(ventaBase.id)
-        setVenta(data)
-      } catch {
-        toast.error('Error al cargar detalle')
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [ventaBase.id])
-
-  async function handleCancelar() {
-    openModal(
-      <ConfirmDialog
-        title="¿Cancelar esta venta?"
-        description={`Se cancelará la venta ${ventaBase.numero_venta}.`}
-        confirmLabel="Sí, cancelar"
-        variant="danger"
-        onCancel={closeModal}
-        onConfirm={async () => {
-          closeModal()
-          try {
-            await window.electronAPI.db.run(
-              `UPDATE ventas SET estado = 'cancelado',
-               updated_at = datetime('now') WHERE id = ?`,
-              [ventaBase.id]
-            )
-            toast.success('Venta cancelada')
-            onUpdate()
-            onClose()
-          } catch (err) {
-            console.error(err)
-            toast.error('Error al cancelar la venta')
-          }
-        }}
-      />
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-14">
-        <Spinner size="lg" />
-      </div>
-    )
-  }
-
-  if (!venta) {
-    return <p className="text-center text-primary-muted py-8">No se encontró la venta.</p>
-  }
-
-  const items = venta.items ?? []
+export default function VentaFila({ venta, onClick, onEditar }: VentaFilaProps) {
+  const estadoStyle = ESTADO_STYLE[venta.estado] ?? 'bg-card border-border text-primary-muted'
 
   return (
-    <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
+    <tr
+      className="cursor-pointer hover:bg-white/[0.02] transition-colors"
+      onClick={onClick}
+    >
+      {/* N�mero */}
+      <td className="font-mono text-[12.5px] text-primary-muted whitespace-nowrap">
+        {venta.numero_venta}
+      </td>
 
-      {/* Encabezado */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
-                          justify-center text-accent">
-            <ShoppingBag size={18} />
-          </div>
-          <div>
-            <p className="text-[17px] font-bold text-primary font-mono">
-              {venta.numero_venta}
-            </p>
-            <p className="text-[12.5px] text-primary-muted">
-              Registrada el {formatDate(venta.created_at ?? venta.fecha)}
-            </p>
-          </div>
-        </div>
-        <span className={cn('badge text-[12px]', ESTADO_BADGE[venta.estado] ?? 'badge-muted')}>
+      {/* Fecha */}
+      <td className="text-[13px] whitespace-nowrap">
+        {formatDate(venta.fecha)}
+      </td>
+
+      {/* Cliente */}
+      <td className="text-[13px] text-primary-muted max-w-[140px] truncate">
+        {venta.cliente_nombre ?? '�'}
+      </td>
+
+      {/* Canal */}
+      <td>
+        <span className="text-[12.5px] font-semibold text-primary-muted">
+          {venta.canal_nombre ?? '�'}
+        </span>
+      </td>
+
+      {/* Medio pago */}
+      <td className="text-[12.5px] text-primary-muted whitespace-nowrap">
+        {venta.medio_pago_nombre ?? '�'}
+      </td>
+
+      {/* Total */}
+      <td className="text-right font-bold text-[14px] whitespace-nowrap">
+        {formatCOP(venta.total)}
+      </td>
+
+      {/* Comisi�n */}
+      <td className="text-right text-[13px] whitespace-nowrap">
+        {venta.comision_canal > 0
+          ? <span className="text-warning">{formatCOP(venta.comision_canal)}</span>
+          : <span className="text-primary-muted">�</span>
+        }
+      </td>
+
+      {/* Estado */}
+      <td>
+        <span className={cn(
+          'inline-flex px-2 py-0.5 rounded-full text-[11.5px] font-semibold border',
+          estadoStyle
+        )}>
           {venta.estado}
         </span>
-      </div>
-
-      {/* Info general */}
-      <div className="grid grid-cols-2 gap-3">
-        <InfoRow icon={Calendar} label="Fecha"        value={formatDate(venta.fecha)} />
-        <InfoRow icon={Store}    label="Canal"         value={venta.canal_nombre ?? '—'} />
-        <InfoRow icon={User}     label="Cliente"
-          value={venta.cliente_nombre || 'Sin nombre'}
-          sub={venta.cliente_telefono} />
-        <InfoRow icon={CreditCard} label="Medio de pago" value={venta.medio_pago_nombre ?? '—'} />
-        {venta.costo_envio > 0 && (
-          <InfoRow icon={Truck} label="Costo de envío" value={formatCOP(venta.costo_envio)} />
-        )}
-        {venta.notas && (
-          <InfoRow icon={FileText} label="Notas" value={venta.notas} className="col-span-2" />
-        )}
-      </div>
-
-      {/* Ítems */}
-      <div>
-        <p className="input-label mb-2">Productos</p>
-        <div className="rounded-xl border border-border overflow-hidden">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Talla</th>
-                <th className="text-right">Cant.</th>
-                <th className="text-right">Precio</th>
-                <th className="text-right">Desc.</th>
-                <th className="text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item: any, idx: number) => (
-                <tr key={idx}>
-                  <td className="font-medium text-[13.5px]">{item.producto_nombre}</td>
-                  <td><span className="badge badge-muted">{item.talla_nombre ?? '—'}</span></td>
-                  <td className="text-right text-[13px]">{item.cantidad}</td>
-                  <td className="text-right text-[13px]">{formatCOP(item.precio_unitario)}</td>
-                  <td className="text-right text-[13px] text-danger">
-                    {item.descuento_item > 0 ? `-${formatCOP(item.descuento_item)}` : '—'}
-                  </td>
-                  <td className="text-right font-semibold text-[13.5px]">
-                    {formatCOP(item.subtotal_item)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Resumen financiero */}
-      <div className="bg-[#0B0B16] border border-border rounded-xl p-4 flex flex-col gap-1.5">
-        <FinRow label="Subtotal" value={formatCOP(venta.subtotal)} />
-        {venta.descuento > 0 && (
-          <FinRow label="Descuento" value={`-${formatCOP(venta.descuento)}`} className="text-danger" />
-        )}
-        {venta.costo_envio > 0 && (
-          <FinRow label="Envío" value={formatCOP(venta.costo_envio)} />
-        )}
-        {venta.comision_canal > 0 && (
-          <FinRow label="Comisión canal"
-            value={`-${formatCOP(venta.comision_canal)}`}
-            className="text-warning" />
-        )}
-        <div className="border-t border-border mt-1 pt-2 flex justify-between">
-          <span className="text-[14px] font-bold text-primary">Total</span>
-          <span className="text-[18px] font-bold text-accent">
-            {formatCOP(venta.total)}
-          </span>
-        </div>
-      </div>
+      </td>
 
       {/* Acciones */}
-      <div className="flex items-center justify-between pt-1 border-t border-border">
-        {venta.estado !== 'cancelado' && (
-          <button onClick={handleCancelar} className="btn-danger text-[13px]">
-            <RotateCcw size={13} /> Cancelar venta
-          </button>
-        )}
-        <div className="ml-auto">
-          <button onClick={onClose} className="btn-ghost text-[13px]">Cerrar</button>
-        </div>
-      </div>
-
-    </div>
+      <td>
+        <button
+          onClick={e => { e.stopPropagation(); onEditar() }}
+          className="px-2.5 py-1 rounded-lg text-[12px] font-semibold
+                     bg-card border border-border text-primary-muted
+                     hover:text-primary hover:border-accent/40 transition-colors"
+          title="Editar venta"
+        >
+          Editar
+        </button>
+      </td>
+    </tr>
   )
 }
 
-// ── Sub-componentes ────────────────────────────────────────────────────────
 
-function InfoRow({ icon: Icon, label, value, sub, className }: {
-  icon: React.ElementType
-  label: string
-  value: string
-  sub?: string | null
-  className?: string
-}) {
-  return (
-    <div className={cn(
-      'flex items-start gap-3 p-3 bg-[#0B0B16] rounded-xl border border-border',
-      className
-    )}>
-      <div className="w-7 h-7 rounded-lg bg-accent-light flex items-center
-                      justify-center text-accent shrink-0 mt-0.5">
-        <Icon size={13} />
-      </div>
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-primary-muted mb-0.5">
-          {label}
-        </p>
-        <p className="text-[13.5px] font-medium text-primary">{value}</p>
-        {sub && <p className="text-[12px] text-primary-muted mt-0.5">{sub}</p>}
-      </div>
-    </div>
-  )
-}
-
-function FinRow({ label, value, className }: {
-  label: string
-  value: string
-  className?: string
-}) {
-  return (
-    <div className={cn('flex justify-between text-[13px] text-primary-muted', className)}>
-      <span>{label}</span>
-      <span className="font-medium">{value}</span>
-    </div>
-  )
-}

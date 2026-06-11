@@ -1,6 +1,15 @@
-﻿import { Pencil, PowerOff, Power, Package } from 'lucide-react'
+﻿import { Pencil, PowerOff, Power, Package, DollarSign } from 'lucide-react'
 import { formatCOP } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+
+type ProductoEstado = 'borrador' | 'en_produccion' | 'activo' | 'descontinuado'
+
+const ESTADO_BADGE: Record<ProductoEstado, { label: string; cls: string }> = {
+  borrador:      { label: 'Borrador',       cls: 'bg-border/60 text-primary-muted border-border' },
+  en_produccion: { label: 'En producción', cls: 'bg-warning/10 text-warning border-warning/40'   },
+  activo:        { label: 'Activo',          cls: 'bg-success/10 text-success border-success/40'  },
+  descontinuado: { label: 'Descontinuado',   cls: 'bg-danger/10  text-danger  border-danger/40'   },
+}
 
 interface Producto {
   id:               number
@@ -8,6 +17,7 @@ interface Producto {
   referencia:       string
   precio_venta:     number
   activo:           number
+  estado:           ProductoEstado
   coleccion_nombre: string | null
   imagen_url:       string | null
 }
@@ -16,14 +26,18 @@ interface ProductoCardProps {
   producto:        Producto
   onEditar:        () => void
   onToggleActivo:  () => void
+  onFichaCosto:    () => void
 }
 
 export default function ProductoCard({
   producto,
   onEditar,
-  onToggleActivo
+  onToggleActivo,
+  onFichaCosto,
 }: ProductoCardProps) {
-  const isActivo = Boolean(producto.activo)
+  const estado   = producto.estado ?? (producto.activo ? 'activo' : 'descontinuado')
+  const estadoCfg = ESTADO_BADGE[estado as ProductoEstado] ?? ESTADO_BADGE.activo
+  const isActivo  = estado === 'activo'
 
   return (
     <div
@@ -51,19 +65,18 @@ export default function ProductoCard({
           />
         )}
 
-        {/* Badge activo/inactivo */}
+        {/* Badge estado */}
         <div className="absolute top-2.5 left-2.5">
           <span className={cn(
-            'badge text-[11px]',
-            isActivo ? 'badge-success' : 'badge-muted'
+            'text-[10.5px] font-bold px-2 py-0.5 rounded-full border',
+            estadoCfg.cls
           )}>
-            {isActivo ? 'Activo' : 'Inactivo'}
+            {estadoCfg.label}
           </span>
         </div>
 
-        {/* Acciones hover */}
-        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {/* Acciones */}
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
           <button
             onClick={onEditar}
             className="w-7 h-7 rounded-lg bg-card/90 border border-border
@@ -77,11 +90,11 @@ export default function ProductoCard({
           <button
             onClick={onToggleActivo}
             className={cn(
-              'w-7 h-7 rounded-lg bg-card/90 border border-border',
+              'w-7 h-7 rounded-lg border',
               'flex items-center justify-center transition-colors shadow',
               isActivo
-                ? 'text-danger hover:bg-danger/10'
-                : 'text-success hover:bg-success/10'
+                ? 'bg-danger border-danger text-white hover:bg-danger/80'
+                : 'bg-success border-success text-white hover:bg-success/80'
             )}
             title={isActivo ? 'Desactivar' : 'Activar'}
           >
@@ -124,6 +137,18 @@ export default function ProductoCard({
             {formatCOP(producto.precio_venta)}
           </span>
         </div>
+
+        {/* Ficha de costo */}
+        <button
+          onClick={onFichaCosto}
+          className="flex items-center justify-center gap-1.5 w-full mt-1
+                     text-[12px] text-primary-muted hover:text-accent
+                     border border-border hover:border-accent/40
+                     rounded-lg py-1.5 transition-colors"
+        >
+          <DollarSign size={13} />
+          Ficha de costo
+        </button>
       </div>
     </div>
   )

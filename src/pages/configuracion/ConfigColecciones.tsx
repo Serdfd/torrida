@@ -22,6 +22,81 @@ interface ColeccionFormData {
 
 const ANIO_ACTUAL = new Date().getFullYear()
 
+// ── Formulario inline ──────────────────────────────────
+function ColeccionFormInline({
+  data,
+  onChange,
+  onSave,
+  onCancel,
+  saving
+}: {
+  data:      ColeccionFormData
+  onChange:  (d: ColeccionFormData) => void
+  onSave:    () => void
+  onCancel:  () => void
+  saving:    boolean
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="input-label">Nombre colección</label>
+          <input
+            type="text"
+            placeholder="Ej: Verano 2025, Básicos…"
+            className="input h-9 text-[13px]"
+            value={data.nombre}
+            onChange={e => onChange({ ...data, nombre: e.target.value })}
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="input-label">Año</label>
+          <input
+            type="number"
+            min={2000}
+            max={2100}
+            placeholder={String(ANIO_ACTUAL)}
+            className="input h-9 text-[13px]"
+            value={data.anio}
+            onChange={e => onChange({ ...data, anio: e.target.value })}
+          />
+        </div>
+      </div>
+      <div>
+        <label className="input-label">Descripción (opcional)</label>
+        <input
+          type="text"
+          placeholder="Breve descripción de la colección…"
+          className="input h-9 text-[13px]"
+          value={data.descripcion}
+          onChange={e => onChange({ ...data, descripcion: e.target.value })}
+          onKeyDown={e => e.key === 'Enter' && onSave()}
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="btn-ghost h-9 text-[13px]"
+          disabled={saving}
+        >
+          <X size={13} /> Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="btn-primary h-9 text-[13px]"
+        >
+          {saving ? <Spinner size="sm" /> : <Check size={13} />}
+          Guardar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function ConfigColecciones() {
   const toast = useToast()
   const { openModal, closeModal } = useModal()
@@ -153,81 +228,6 @@ export default function ConfigColecciones() {
           }
         }}
       />
-    )
-  }
-
-  // ── Formulario inline ──────────────────────────────────
-  function ColeccionFormInline({
-    data,
-    onChange,
-    onSave,
-    onCancel,
-    saving
-  }: {
-    data:      ColeccionFormData
-    onChange:  (d: ColeccionFormData) => void
-    onSave:    () => void
-    onCancel:  () => void
-    saving:    boolean
-  }) {
-    return (
-      <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="input-label">Nombre colección</label>
-            <input
-              type="text"
-              placeholder="Ej: Verano 2025, Básicos…"
-              className="input h-9 text-[13px]"
-              value={data.nombre}
-              onChange={e => onChange({ ...data, nombre: e.target.value })}
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="input-label">Año</label>
-            <input
-              type="number"
-              min={2000}
-              max={2100}
-              placeholder={String(ANIO_ACTUAL)}
-              className="input h-9 text-[13px]"
-              value={data.anio}
-              onChange={e => onChange({ ...data, anio: e.target.value })}
-            />
-          </div>
-        </div>
-        <div>
-          <label className="input-label">Descripción (opcional)</label>
-          <input
-            type="text"
-            placeholder="Breve descripción de la colección…"
-            className="input h-9 text-[13px]"
-            value={data.descripcion}
-            onChange={e => onChange({ ...data, descripcion: e.target.value })}
-            onKeyDown={e => e.key === 'Enter' && onSave()}
-          />
-        </div>
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="btn-ghost h-9 text-[13px]"
-            disabled={saving}
-          >
-            <X size={13} /> Cancelar
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={saving}
-            className="btn-primary h-9 text-[13px]"
-          >
-            {saving ? <Spinner size="sm" /> : <Check size={13} />}
-            Guardar
-          </button>
-        </div>
-      </div>
     )
   }
 

@@ -2,6 +2,7 @@
 import { useForm } from 'react-hook-form'
 import { Receipt } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
+import { isMesCerrado } from '@/lib/queries'
 import Spinner from '@/components/ui/Spinner'
 
 interface GastoFormData {
@@ -76,6 +77,14 @@ export default function GastoForm({
     }
     if (data.monto <= 0) {
       toast.warning('El monto debe ser mayor a 0')
+      return
+    }
+
+    // ── Verificar que el período no esté cerrado ───────────────────────
+    const gastoAnio = new Date(data.fecha).getFullYear()
+    const gastoMes  = new Date(data.fecha).getMonth() + 1
+    if (await isMesCerrado(gastoAnio, gastoMes)) {
+      toast.error('Este período está cerrado. Reabre el mes para poder guardar.')
       return
     }
 

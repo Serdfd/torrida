@@ -281,5 +281,41 @@ export function registerHandlers(db: Database): void {
     }
   })
 
+  // ── Tienda Nube: proxy HTTP (evita CORS, protege credenciales) ───────────
+  ipcMain.handle(
+    'tn:fetch',
+    async (
+      _event,
+      opts: {
+        storeId:  string
+        token:    string
+        method?:  string
+        endpoint: string
+        body?:    unknown
+      }
+    ) => {
+      const { storeId, token, method = 'GET', endpoint, body } = opts
+      const url = `https://api.tiendanube.com/v1/${storeId}/${endpoint}`
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Authentication': `bearer ${token}`,
+            'User-Agent':     'Torrida/1.0 (admin@torrida.co)',
+            'Content-Type':   'application/json',
+          },
+          body: body !== undefined ? JSON.stringify(body) : undefined,
+        })
+        let data: unknown = null
+        const text = await res.text()
+        try { data = JSON.parse(text) } catch { data = text }
+        return { ok: res.ok, status: res.status, data }
+      } catch (err) {
+        console.error('[tn:fetch] Error:', err)
+        return { ok: false, status: 0, data: null, error: String(err) }
+      }
+    }
+  )
+
   console.log('[handlers] ✅ IPC handlers registrados')
 }

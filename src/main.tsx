@@ -22,6 +22,13 @@ async function initDatabase() {
   }
 }
 
+// ── UX: seleccionar contenido al enfocar inputs numéricos ─────────────────
+document.addEventListener('focusin', e => {
+  if (e.target instanceof HTMLInputElement && e.target.type === 'number') {
+    e.target.select()
+  }
+})
+
 // ── Bootstrap ──────────────────────────────────────────────────────────────
 
 async function bootstrap() {

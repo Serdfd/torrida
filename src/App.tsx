@@ -19,6 +19,7 @@ import TiendaNube       from '@/pages/tiendanube/TiendaNube'
 import Administracion   from '@/pages/administracion/Administracion'
 import Configuracion    from '@/pages/configuracion/Configuracion'
 import SesionesFotograficas from '@/pages/sesiones/SesionesFotograficas'
+import SetupWizard        from '@/pages/configuracion/SetupWizard'
 
 // ── Tipos de rutas ─────────────────────────────────────────────────────────
 export type PageId =
@@ -61,6 +62,16 @@ export default function App() {
 
   const [currentPage,    setCurrentPage]    = useState<PageId>('dashboard')
   const [editingVentaId, setEditingVentaId] = useState<number | null>(null)
+  const [setupDone,      setSetupDone]      = useState<boolean | null>(null) // null = cargando
+
+  // Verificar si el setup fue completado alguna vez
+  useEffect(() => {
+    window.electronAPI.db.query<{ valor: string }>(
+      `SELECT valor FROM configuracion_app WHERE clave = 'setup_completado' LIMIT 1`
+    ).then(rows => {
+      setSetupDone(rows[0]?.valor === '1')
+    }).catch(() => setSetupDone(true)) // si falla la DB, no bloquear
+  }, [])
 
   // ── Navegación ────────────────────────────────────────────────────────────
   function navigate(page: string, params?: { ventaId?: number }) {
@@ -159,6 +170,16 @@ export default function App() {
     }
   }
 
+  // Mientras se verifica si el setup está hecho, no renderizar nada
+  if (setupDone === null) return null
+
+  // Wizard de primer arranque
+  if (!setupDone) {
+    return (
+      <SetupWizard onComplete={() => setSetupDone(true)} />
+    )
+  }
+
   return (
     <div className="flex h-screen bg-bg overflow-hidden">
 
@@ -188,6 +209,7 @@ export default function App() {
       <ModalContainer
         open={modal.open}
         onClose={() => useAppStore.getState().closeModal()}
+        size={modal.size}
       >
         {modal.content}
       </ModalContainer>

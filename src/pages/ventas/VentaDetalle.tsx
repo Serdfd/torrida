@@ -1,9 +1,8 @@
 ﻿import { useEffect, useState } from 'react'
 import {
   ShoppingBag, Calendar, User, CreditCard,
-  Store, Truck, Tag, FileText, RotateCcw
+  Store, Truck, FileText, RotateCcw, Package
 } from 'lucide-react'
-import { Venta, VentaItem } from '@/types'
 import { formatCOP, formatDate } from '@/lib/utils'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getVentaById } from '@/lib/queries'
@@ -12,16 +11,20 @@ import Spinner from '@/components/ui/Spinner'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 interface VentaDetalleProps {
-  venta:    Venta
+  venta:    any
   onClose:  () => void
   onUpdate: () => void
 }
 
 const ESTADO_BADGE: Record<string, string> = {
-  pendiente: 'badge-warning',
-  enviado:   'badge-accent',
-  entregado: 'badge-success',
-  cancelado: 'badge-danger'
+  completada: 'bg-success/10 border-success/20 text-success',
+  pendiente:  'bg-warning/10 border-warning/20 text-warning',
+  cancelado:  'bg-danger/10  border-danger/20  text-danger'
+}
+
+const TIPO_ENVIO_LABEL: Record<string, string> = {
+  standard: 'Estándar',
+  express:  'Express'
 }
 
 export default function VentaDetalle({
@@ -29,16 +32,16 @@ export default function VentaDetalle({
   onClose,
   onUpdate
 }: VentaDetalleProps) {
-  const toast              = useToast()
+  const toast = useToast()
   const { openModal, closeModal } = useModal()
 
-  const [venta,   setVenta]   = useState<Venta | null>(null)
+  const [venta,   setVenta]   = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await getVentaById(ventaBase.id) as Venta
+        const data = await getVentaById(ventaBase.id)
         setVenta(data)
       } catch {
         toast.error('Error al cargar detalle')
@@ -53,31 +56,33 @@ export default function VentaDetalle({
     openModal(
       <ConfirmDialog
         title="¿Cancelar esta venta?"
-        description={`Se revertirá el stock de los productos de la venta ${ventaBase.numero}.`}
+        description={`Se cancelará ${ventaBase.numero_venta}. El stock se revertirá automáticamente.`}
         confirmLabel="Sí, cancelar"
         variant="danger"
         onCancel={closeModal}
         onConfirm={async () => {
           closeModal()
           try {
-            // Revertir stock
+            // Registrar devolución en movimientos_inventario (trigger revierte el stock)
             if (venta?.items) {
               for (const item of venta.items) {
-                await window.electronAPI.db.run(
-                  `UPDATE inventario_productos
-                   SET stock = stock + ?, updated_at = datetime('now')
-                   WHERE producto_id = ? AND talla_id = ?`,
-                  [item.cantidad, item.producto_id, item.talla_id]
-                )
+                if (item.talla_id) {
+                  await window.electronAPI.db.run(
+                    `INSERT INTO movimientos_inventario
+                       (producto_id, talla_id, tipo, cantidad, venta_id, notas, fecha, created_at)
+                     VALUES (?, ?, 'devolucion', ?, ?, ?, date('now'), datetime('now'))`,
+                    [item.producto_id, item.talla_id, item.cantidad,
+                     ventaBase.id, `Cancelación ${ventaBase.numero_venta}`]
+                  )
+                }
               }
             }
-            // Cancelar venta
+            // Trigger SQL revierte el stock automáticamente al cambiar estado
             await window.electronAPI.db.run(
-              `UPDATE ventas SET estado = 'cancelado',
-               updated_at = datetime('now') WHERE id = ?`,
+              `UPDATE ventas SET estado = 'cancelado', updated_at = datetime('now') WHERE id = ?`,
               [ventaBase.id]
             )
-            toast.success('Venta cancelada y stock revertido')
+            toast.success('Venta cancelada')
             onUpdate()
             onClose()
           } catch (err) {
@@ -105,7 +110,9 @@ export default function VentaDetalle({
     )
   }
 
-  const items = (venta.items ?? []) as VentaItem[]
+  const items = venta.items ?? []
+  const utilidadTotal = items.reduce((s: number, it: any) =>
+    s + (it.utilidad_item ?? 0), 0)
 
   return (
     <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
@@ -119,39 +126,42 @@ export default function VentaDetalle({
           </div>
           <div>
             <p className="text-[17px] font-bold text-primary font-mono">
-              {venta.numero}
+              {venta.numero_venta}
             </p>
             <p className="text-[12.5px] text-primary-muted">
               Registrada el {formatDate(venta.created_at ?? venta.fecha)}
             </p>
           </div>
         </div>
-        <span className={cn('badge text-[12px]', ESTADO_BADGE[venta.estado] ?? 'badge-muted')}>
+        <span className={cn(
+          'inline-flex px-2.5 py-1 rounded-full text-[12px] font-semibold border',
+          ESTADO_BADGE[venta.estado] ?? 'bg-card border-border text-primary-muted'
+        )}>
           {venta.estado}
         </span>
       </div>
 
       {/* Info general */}
       <div className="grid grid-cols-2 gap-3">
-        <InfoRow icon={Calendar} label="Fecha" value={formatDate(venta.fecha)} />
-        <InfoRow icon={Store}    label="Canal"  value={venta.canal_nombre ?? '—'} />
+        <InfoRow icon={Calendar} label="Fecha"        value={formatDate(venta.fecha)} />
+        <InfoRow icon={Store}    label="Canal"         value={venta.canal_nombre ?? '—'} />
         <InfoRow
           icon={User}
           label="Cliente"
           value={venta.cliente_nombre || 'Sin nombre'}
-          sub={venta.cliente_contacto}
+          sub={venta.cliente_telefono}
         />
         <InfoRow
           icon={CreditCard}
           label="Medio de pago"
           value={venta.medio_pago_nombre ?? '—'}
         />
-        {venta.costo_envio_cobrado > 0 && (
+        {(venta.costo_envio > 0 || venta.tipo_envio) && (
           <InfoRow
             icon={Truck}
-            label="Envío cobrado"
-            value={formatCOP(venta.costo_envio_cobrado)}
-            sub={venta.costo_envio_real
+            label={`Envío ${TIPO_ENVIO_LABEL[venta.tipo_envio] ?? ''}`}
+            value={venta.costo_envio > 0 ? formatCOP(venta.costo_envio) : 'Marca asume'}
+            sub={venta.costo_envio_real > 0
               ? `Costo real: ${formatCOP(venta.costo_envio_real)}`
               : undefined}
           />
@@ -170,32 +180,39 @@ export default function VentaDetalle({
       <div>
         <p className="input-label mb-2">Productos</p>
         <div className="rounded-xl border border-border overflow-hidden">
-          <table className="tbl">
+          <table className="table w-full">
             <thead>
               <tr>
                 <th>Producto</th>
                 <th>Talla</th>
                 <th className="text-right">Cant.</th>
                 <th className="text-right">Precio</th>
-                <th className="text-right">Desc.</th>
+                <th className="text-right">Comisión</th>
+                <th className="text-right">Utilidad</th>
                 <th className="text-right">Subtotal</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item, idx) => (
+              {items.map((item: any, idx: number) => (
                 <tr key={idx}>
                   <td className="font-medium text-[13.5px]">
                     {item.producto_nombre}
                   </td>
                   <td>
-                    <span className="badge badge-muted">{item.talla_nombre}</span>
+                    <span className="badge badge-muted">{item.talla_nombre ?? '—'}</span>
                   </td>
                   <td className="text-right text-[13px]">{item.cantidad}</td>
                   <td className="text-right text-[13px]">
-                    {formatCOP(item.precio_unit)}
+                    {formatCOP(item.precio_unitario)}
                   </td>
-                  <td className="text-right text-[13px] text-danger">
-                    {item.descuento_item > 0 ? `-${formatCOP(item.descuento_item)}` : '—'}
+                  <td className="text-right text-[13px] text-warning">
+                    {item.comision_item > 0 ? `-${formatCOP(item.comision_item)}` : '—'}
+                  </td>
+                  <td className={cn(
+                    'text-right text-[13px] font-semibold',
+                    (item.utilidad_item ?? 0) >= 0 ? 'text-success' : 'text-danger'
+                  )}>
+                    {formatCOP(item.utilidad_item ?? 0)}
                   </td>
                   <td className="text-right font-semibold text-[13.5px]">
                     {formatCOP(item.subtotal_item)}
@@ -208,23 +225,29 @@ export default function VentaDetalle({
       </div>
 
       {/* Resumen financiero */}
-      <div className="bg-[#0B0B16] border border-border rounded-xl p-4
-                      flex flex-col gap-1.5">
-        <FinRow label="Subtotal"      value={formatCOP(venta.subtotal)} />
+      <div className="bg-[#0B0B16] border border-border rounded-xl p-4 flex flex-col gap-1.5">
+        <FinRow label="Subtotal productos" value={formatCOP(venta.subtotal)} />
         {venta.descuento > 0 && (
           <FinRow
-            label="Descuento"
+            label="Descuento global"
             value={`-${formatCOP(venta.descuento)}`}
             className="text-danger"
           />
         )}
-        {venta.costo_envio_cobrado > 0 && (
-          <FinRow label="Envío" value={formatCOP(venta.costo_envio_cobrado)} />
+        {venta.costo_envio > 0 && (
+          <FinRow label="Envío cobrado" value={formatCOP(venta.costo_envio)} />
         )}
         {venta.comision_canal > 0 && (
           <FinRow
             label="Comisión canal"
             value={`-${formatCOP(venta.comision_canal)}`}
+            className="text-warning"
+          />
+        )}
+        {(venta.comision_medio_pago ?? 0) > 0 && (
+          <FinRow
+            label={`Comisión pasarela${venta.medio_pago_tarifa_concepto ? ` (${venta.medio_pago_tarifa_concepto})` : ''}`}
+            value={`-${formatCOP(venta.comision_medio_pago)}`}
             className="text-warning"
           />
         )}
@@ -234,15 +257,21 @@ export default function VentaDetalle({
             {formatCOP(venta.total)}
           </span>
         </div>
+        {utilidadTotal !== 0 && (
+          <div className={cn(
+            'flex justify-between text-[13px] font-semibold mt-0.5',
+            utilidadTotal >= 0 ? 'text-success' : 'text-danger'
+          )}>
+            <span>Utilidad estimada</span>
+            <span>{formatCOP(utilidadTotal)}</span>
+          </div>
+        )}
       </div>
 
       {/* Acciones */}
       <div className="flex items-center justify-between pt-1 border-t border-border">
         {venta.estado !== 'cancelado' && (
-          <button
-            onClick={handleCancelar}
-            className="btn-danger text-[13px]"
-          >
+          <button onClick={handleCancelar} className="btn-danger text-[13px]">
             <RotateCcw size={13} />
             Cancelar venta
           </button>
@@ -257,17 +286,15 @@ export default function VentaDetalle({
   )
 }
 
-// ── Sub-componentes ────────────────────────────────────────
+// ── Sub-componentes ──────────────────────────────────────────────────────
 
-interface InfoRowProps {
-  icon:      React.ElementType
-  label:     string
-  value:     string
-  sub?:      string
+function InfoRow({ icon: Icon, label, value, sub, className }: {
+  icon:       React.ElementType
+  label:      string
+  value:      string
+  sub?:       string
   className?: string
-}
-
-function InfoRow({ icon: Icon, label, value, sub, className }: InfoRowProps) {
+}) {
   return (
     <div className={cn(
       'flex items-start gap-3 p-3 bg-[#0B0B16] rounded-xl border border-border',
@@ -282,31 +309,21 @@ function InfoRow({ icon: Icon, label, value, sub, className }: InfoRowProps) {
                       text-primary-muted mb-0.5">
           {label}
         </p>
-        <p className="text-[13.5px] font-medium text-primary">
-          {value}
-        </p>
-        {sub && (
-          <p className="text-[12px] text-primary-muted mt-0.5">{sub}</p>
-        )}
+        <p className="text-[13.5px] font-medium text-primary">{value}</p>
+        {sub && <p className="text-[12px] text-primary-muted mt-0.5">{sub}</p>}
       </div>
     </div>
   )
 }
 
-interface FinRowProps {
-  label:     string
-  value:     string
-  className?: string
-}
-
-function FinRow({ label, value, className }: FinRowProps) {
+function FinRow({ label, value, className }: {
+  label: string; value: string; className?: string
+}) {
   return (
-    <div className={cn(
-      'flex justify-between text-[13px] text-primary-muted',
-      className
-    )}>
+    <div className={cn('flex justify-between text-[13px] text-primary-muted', className)}>
       <span>{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   )
 }
+

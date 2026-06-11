@@ -47,6 +47,7 @@ interface Lote {
 }
 
 interface Proveedor { id: number; nombre: string }
+interface Unidad    { id: number; nombre: string }
 
 // ── Constantes ─────────────────────────────────────────────────────────────
 
@@ -79,6 +80,7 @@ export default function Insumos() {
   const [insumos,      setInsumos]      = useState<Insumo[]>([])
   const [categorias,   setCategorias]   = useState<CategoriaInsumo[]>([])
   const [proveedores,  setProveedores]  = useState<Proveedor[]>([])
+  const [unidades,     setUnidades]     = useState<Unidad[]>([])
   const [expanded,     setExpanded]     = useState<number | null>(null)
   const [lotes,        setLotes]        = useState<Record<number, Lote[]>>({})
   const [loadingLotes, setLoadingLotes] = useState<number | null>(null)
@@ -100,7 +102,7 @@ export default function Insumos() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [ins, cats, provs] = await Promise.all([
+      const [ins, cats, provs, unis] = await Promise.all([
         window.electronAPI.db.query<Insumo>(`
           SELECT
             i.*,
@@ -132,11 +134,15 @@ export default function Insumos() {
         ),
         window.electronAPI.db.query<Proveedor>(
           `SELECT id, nombre FROM proveedores WHERE activo = 1 ORDER BY nombre`
+        ),
+        window.electronAPI.db.query<Unidad>(
+          `SELECT id, nombre FROM unidades WHERE activa = 1 ORDER BY nombre`
         )
       ])
       setInsumos(ins)
       setCategorias(cats)
       setProveedores(provs)
+      setUnidades(unis)
     } catch {
       toast.error('Error al cargar insumos')
     } finally {
@@ -325,6 +331,7 @@ export default function Insumos() {
           data={newInsumo}
           categorias={categorias}
           proveedores={proveedores}
+          unidades={unidades}
           onChange={v => setNewInsumo(prev => ({ ...prev, ...v }))}
           onSave={handleAgregarInsumo}
           onCancel={() => { setAdding(false); setNewInsumo({ ...EMPTY_INSUMO }) }}
@@ -358,6 +365,7 @@ export default function Insumos() {
                     data={editData}
                     categorias={categorias}
                     proveedores={proveedores}
+                    unidades={unidades}
                     onChange={v => setEditData(prev => ({ ...prev, ...v }))}
                     onSave={handleGuardarEdicion}
                     onCancel={() => setEditId(null)}
@@ -502,7 +510,7 @@ export default function Insumos() {
                           <div>
                             <label className="input-label">Proveedor</label>
                             <select
-                              className="input h-8 text-[13px]"
+                              className="input text-[13px]"
                               value={newLote.proveedor_id}
                               onChange={e => setNewLote(l => ({ ...l, proveedor_id: e.target.value ? Number(e.target.value) : '' }))}
                             >
@@ -626,6 +634,7 @@ interface InsumoFormProps {
   data:        typeof EMPTY_INSUMO
   categorias:  CategoriaInsumo[]
   proveedores: Proveedor[]
+  unidades:    Unidad[]
   onChange:    (v: Partial<typeof EMPTY_INSUMO>) => void
   onSave:      () => void
   onCancel:    () => void
@@ -633,7 +642,7 @@ interface InsumoFormProps {
   titulo:      string
 }
 
-function InsumoForm({ data, categorias, proveedores, onChange, onSave, onCancel, saving, titulo }: InsumoFormProps) {
+function InsumoForm({ data, categorias, proveedores, unidades, onChange, onSave, onCancel, saving, titulo }: InsumoFormProps) {
   return (
     <div className="bg-sidebar border border-accent/30 rounded-xl p-4 flex flex-col gap-3">
       <p className="text-[12.5px] font-semibold text-accent">{titulo}</p>
@@ -651,17 +660,17 @@ function InsumoForm({ data, categorias, proveedores, onChange, onSave, onCancel,
         <div>
           <label className="input-label">Unidad</label>
           <select
-            className="input h-8 text-[13px]"
+            className="input text-[13px]"
             value={data.unidad}
             onChange={e => onChange({ unidad: e.target.value })}
           >
-            {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
+            {unidades.map(u => <option key={u.id} value={u.nombre}>{u.nombre}</option>)}
           </select>
         </div>
         <div>
           <label className="input-label">Categoría</label>
           <select
-            className="input h-8 text-[13px]"
+            className="input text-[13px]"
             value={data.categoria_id}
             onChange={e => onChange({ categoria_id: e.target.value ? Number(e.target.value) : '' })}
           >
@@ -672,7 +681,7 @@ function InsumoForm({ data, categorias, proveedores, onChange, onSave, onCancel,
         <div>
           <label className="input-label">Proveedor habitual</label>
           <select
-            className="input h-8 text-[13px]"
+            className="input text-[13px]"
             value={data.proveedor_id}
             onChange={e => onChange({ proveedor_id: e.target.value ? Number(e.target.value) : '' })}
           >

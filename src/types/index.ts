@@ -224,6 +224,7 @@ export interface DashboardKpis {
   gastos_mes:        number
   ticket_promedio:   number
   ventas_count:      number
+  comision_pasarela: number
 }
 
 export interface DashboardData extends DashboardKpis {
@@ -328,5 +329,14 @@ export interface ElectronAPI {
   }
   venta: {
     generarNumero: (prefijo: string) => Promise<string>
+  }
+  tn: {
+    fetch: (opts: {
+      storeId:  string
+      token:    string
+      method?:  string
+      endpoint: string
+      body?:    unknown
+    }) => Promise<{ ok: boolean; status: number; data: unknown; error?: string }>
   }
 }
