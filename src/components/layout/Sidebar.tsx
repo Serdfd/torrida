@@ -65,7 +65,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       className={cn(
         'flex flex-col h-screen bg-sidebar border-r border-sidebar-border',
         'transition-all duration-200 ease-in-out shrink-0',
-        collapsed ? 'w-[64px]' : 'w-[220px]'
+        collapsed ? 'w-[64px]' : 'w-[240px]'
       )}
     >
       {/* Logo */}
@@ -105,7 +105,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
                 )}
                 title={collapsed ? label : undefined}
               >
-                <Icon size={18} className="shrink-0" />
+                <Icon size={20} className="shrink-0" />
                 {!collapsed && <span>{label}</span>}
               </button>
             ))}

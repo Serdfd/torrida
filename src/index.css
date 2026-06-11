@@ -119,8 +119,8 @@
 
   /* ── Nav items (sidebar) ────────────────────────────────────────────────── */
   .nav-item {
-    @apply flex items-center gap-2.5
-           px-2.5 py-2 rounded-lg
+    @apply flex items-center gap-3
+           px-3.5 py-2 rounded-lg
            text-base font-medium text-sidebar-text
            opacity-55 transition-all duration-150
            hover:opacity-100 hover:bg-accent/10
