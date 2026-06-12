@@ -5,6 +5,8 @@ import { useToast } from '@/store/useAppStore'
 import { getCanalesVenta, getMediosPago, getProductos, isMesCerrado } from '@/lib/queries'
 import { formatCOP } from '@/lib/utils'
 import Spinner from '@/components/ui/Spinner'
+import ComboSelect from '@/components/ui/ComboSelect'
+import { DEPARTAMENTOS, getCiudades, toOptions } from '@/lib/colombia'
 
 interface ItemForm {
   producto_id:         number
@@ -103,12 +105,14 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
 
-  const watchItems     = watch('items')
-  const watchDescuento = watch('descuento')
-  const watchEnvio     = watch('costo_envio')
-  const watchCanalId   = watch('canal_id')
-  const watchMedioId   = watch('medio_pago_id')
-  const watchTipoEnvio = watch('tipo_envio')
+  const watchItems      = watch('items')
+  const watchDescuento  = watch('descuento')
+  const watchEnvio      = watch('costo_envio')
+  const watchCanalId    = watch('canal_id')
+  const watchMedioId    = watch('medio_pago_id')
+  const watchTipoEnvio  = watch('tipo_envio')
+  const watchEnvioDep   = watch('envio_departamento')
+  const watchEnvioCiud  = watch('envio_ciudad')
 
   const canalSelec  = canales.find(c => c.id === Number(watchCanalId))
   const pctComision = canalSelec?.comision_pct ?? 0
@@ -644,13 +648,22 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="input-label">Departamento</label>
-              <input type="text" placeholder="Ej: Antioquia" className="input"
-                {...register('envio_departamento')} />
+              <ComboSelect
+                value={watchEnvioDep}
+                onChange={v => { setValue('envio_departamento', v); setValue('envio_ciudad', '') }}
+                options={toOptions(DEPARTAMENTOS)}
+                placeholder="— Departamento —"
+              />
             </div>
             <div>
               <label className="input-label">Ciudad</label>
-              <input type="text" placeholder="Ej: Medellín" className="input"
-                {...register('envio_ciudad')} />
+              <ComboSelect
+                value={watchEnvioCiud}
+                onChange={v => setValue('envio_ciudad', v)}
+                options={toOptions(getCiudades(watchEnvioDep))}
+                placeholder={watchEnvioDep ? '— Ciudad —' : '— Primero el depto —'}
+                disabled={!watchEnvioDep}
+              />
             </div>
             <div>
               <label className="input-label">Dirección</label>

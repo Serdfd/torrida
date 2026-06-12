@@ -3,28 +3,33 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { formatCOP, formatPct } from '@/lib/utils'
-import type { VentasPorCanal }  from './Dashboard'
 
-interface VentasCanalChartProps {
-  data: VentasPorCanal[]
+export interface GastoCategoria {
+  categoria: string
+  total:     number
 }
 
-const COLORS = ['#7C6AF7', '#34D399', '#FBBF24', '#F87171', '#60A5FA']
+interface Props {
+  data: GastoCategoria[]
+}
+
+const COLORS = [
+  '#F87171', '#FBBF24', '#A78BFA', '#60A5FA',
+  '#34D399', '#E07A5F', '#F2CC8F', '#7C6AF7',
+]
 
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
-  const item = payload[0].payload as VentasPorCanal
-  const total = item.total ?? 0
+  const item = payload[0].payload as GastoCategoria
   return (
     <div className="bg-bg-elevated border border-border rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-base font-bold text-primary mb-1">{item.canal}</p>
-      <p className="text-md font-bold text-accent">{formatCOP(total)}</p>
-      <p className="text-sm text-primary-muted">{item.cantidad} ventas</p>
+      <p className="text-base font-bold text-primary mb-1">{item.categoria}</p>
+      <p className="text-md font-bold text-accent">{formatCOP(item.total)}</p>
     </div>
   )
 }
 
-export default function VentasCanalChart({ data }: VentasCanalChartProps) {
+export default function GastosCategoriaChart({ data }: Props) {
   const totalGeneral = data.reduce((s, d) => s + d.total, 0)
 
   if (data.length === 0) {
@@ -32,7 +37,7 @@ export default function VentasCanalChart({ data }: VentasCanalChartProps) {
       <div className="flex flex-col gap-3">
         <div className="h-[36px]" />
         <div className="flex items-center justify-center h-[200px] text-primary-muted text-base">
-          Sin datos para mostrar
+          Sin gastos registrados
         </div>
       </div>
     )
@@ -40,19 +45,19 @@ export default function VentasCanalChart({ data }: VentasCanalChartProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Spacer para alinear dona con VentasGeoChart que tiene toggle */}
+      {/* Spacer para alinear con otras donas que tienen toggle */}
       <div className="h-[36px]" />
 
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
             data={data}
-            cx="50%" cy="50%"
-            innerRadius={55} outerRadius={90}
-            paddingAngle={2}
             dataKey="total"
-            nameKey="canal"
-            strokeWidth={0}
+            nameKey="categoria"
+            cx="50%" cy="50%"
+            innerRadius={55}
+            outerRadius={90}
+            paddingAngle={2}
           >
             {data.map((_, i) => (
               <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -72,11 +77,12 @@ export default function VentasCanalChart({ data }: VentasCanalChartProps) {
                   className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: COLORS[i % COLORS.length] }}
                 />
-                <span className="text-sm text-primary-muted truncate">{item.canal}</span>
+                <span className="text-sm text-primary-muted truncate">{item.categoria}</span>
               </div>
-              <span className="text-sm font-semibold text-primary shrink-0">
-                {formatPct(pct)}
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-primary-muted">{formatCOP(item.total)}</span>
+                <span className="text-sm font-semibold text-primary">{formatPct(pct)}</span>
+              </div>
             </li>
           )
         })}

@@ -47,25 +47,27 @@ export async function getDashboardKpis(
 
   const [ventasRow] = await window.electronAPI.db.query<{
     ingresos:           number
-    unidades:           number
     devoluciones:       number
     ticket:             number
     count:              number
     comision_pasarela:  number
   }>(
     `SELECT
-       COALESCE(SUM(v.total), 0)                            AS ingresos,
-       COALESCE(SUM(vi.cantidad), 0)                        AS unidades,
-       COALESCE(SUM(CASE WHEN v.estado='cancelado'
-                    THEN 1 ELSE 0 END), 0)                  AS devoluciones,
-       COALESCE(AVG(CASE WHEN v.estado != 'cancelado'
-                    THEN v.total END), 0)                   AS ticket,
-       COUNT(CASE WHEN v.estado != 'cancelado' THEN 1 END)  AS count,
-       COALESCE(SUM(CASE WHEN v.estado != 'cancelado'
-                    THEN v.comision_medio_pago ELSE 0 END), 0) AS comision_pasarela
-     FROM ventas v
-     LEFT JOIN venta_items vi ON vi.venta_id = v.id
-     WHERE v.fecha BETWEEN ? AND ?`,
+       COALESCE(SUM(CASE WHEN estado != 'cancelado' THEN total ELSE 0 END), 0)              AS ingresos,
+       COALESCE(SUM(CASE WHEN estado  = 'cancelado' THEN 1    ELSE 0 END), 0)               AS devoluciones,
+       COALESCE(AVG(CASE WHEN estado != 'cancelado' THEN total END), 0)                     AS ticket,
+       COUNT(CASE WHEN estado != 'cancelado' THEN 1 END)                                    AS count,
+       COALESCE(SUM(CASE WHEN estado != 'cancelado' THEN comision_medio_pago ELSE 0 END),0) AS comision_pasarela
+     FROM ventas
+     WHERE fecha BETWEEN ? AND ?`,
+    [desde, hasta]
+  )
+
+  const [unidadesRow] = await window.electronAPI.db.query<{ unidades: number }>(
+    `SELECT COALESCE(SUM(vi.cantidad), 0) AS unidades
+     FROM venta_items vi
+     JOIN ventas v ON v.id = vi.venta_id
+     WHERE v.fecha BETWEEN ? AND ? AND v.estado != 'cancelado'`,
     [desde, hasta]
   )
 
@@ -78,7 +80,7 @@ export async function getDashboardKpis(
 
   return {
     ingresos_mes:      ventasRow?.ingresos      ?? 0,
-    unidades_vendidas: ventasRow?.unidades      ?? 0,
+    unidades_vendidas: unidadesRow?.unidades    ?? 0,
     devoluciones:      ventasRow?.devoluciones  ?? 0,
     gastos_mes:        gastosRow?.total         ?? 0,
     ticket_promedio:   ventasRow?.ticket        ?? 0,
@@ -155,6 +157,137 @@ export async function getVentasPorCanal(anio: number, mes: number) {
   )
 }
 
+export async function getVentasPorDepartamento(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       envio_departamento                AS zona,
+       COUNT(id)                         AS cantidad,
+       COALESCE(SUM(total), 0)           AS total
+     FROM ventas
+     WHERE fecha BETWEEN ? AND ?
+       AND estado != 'cancelado'
+       AND envio_departamento IS NOT NULL
+       AND TRIM(envio_departamento) != ''
+     GROUP BY envio_departamento
+     ORDER BY total DESC`,
+    [desde, hasta]
+  )
+}
+
+export async function getVentasPorCiudad(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       envio_ciudad                      AS zona,
+       COUNT(id)                         AS cantidad,
+       COALESCE(SUM(total), 0)           AS total
+     FROM ventas
+     WHERE fecha BETWEEN ? AND ?
+       AND estado != 'cancelado'
+       AND envio_ciudad IS NOT NULL
+       AND TRIM(envio_ciudad) != ''
+     GROUP BY envio_ciudad
+     ORDER BY total DESC`,
+    [desde, hasta]
+  )
+}
+
+export async function getTopProductos(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       p.nombre                          AS producto_nombre,
+       COALESCE(SUM(vi.cantidad), 0)     AS unidades,
+       COALESCE(SUM(vi.precio_unitario * vi.cantidad - vi.descuento_item), 0) AS total
+     FROM venta_items vi
+     JOIN ventas v   ON v.id = vi.venta_id
+     JOIN productos p ON p.id = vi.producto_id
+     WHERE v.fecha BETWEEN ? AND ?
+       AND v.estado != 'cancelado'
+     GROUP BY vi.producto_id
+     ORDER BY unidades DESC
+     LIMIT 5`,
+    [desde, hasta]
+  )
+}
+
+export async function getTallasMasVendidas(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       t.nombre                          AS talla,
+       COALESCE(SUM(vi.cantidad), 0)     AS unidades
+     FROM venta_items vi
+     JOIN ventas v ON v.id = vi.venta_id
+     JOIN tallas t ON t.id = vi.talla_id
+     WHERE v.fecha BETWEEN ? AND ?
+       AND v.estado != 'cancelado'
+     GROUP BY vi.talla_id
+     ORDER BY unidades DESC`,
+    [desde, hasta]
+  )
+}
+
+export async function getGastosPorCategoria(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       COALESCE(cg.nombre, 'Sin categoría') AS categoria,
+       COALESCE(SUM(g.monto), 0)            AS total
+     FROM gastos g
+     LEFT JOIN categorias_gasto cg ON cg.id = g.categoria_id
+     WHERE g.fecha BETWEEN ? AND ?
+     GROUP BY g.categoria_id
+     ORDER BY total DESC`,
+    [desde, hasta]
+  )
+}
+
+export async function getEnviosPendientes(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT COUNT(*) AS total
+     FROM ventas
+     WHERE fecha BETWEEN ? AND ?
+       AND estado != 'cancelado'
+       AND envio_pendiente = 1`,
+    [desde, hasta]
+  )
+}
+
+export async function getUnidadesPorMes() {
+  return window.electronAPI.db.query(
+    `SELECT
+       strftime('%Y-%m', v.fecha)        AS mes,
+       COALESCE(SUM(vi.cantidad), 0)     AS unidades,
+       COUNT(DISTINCT v.id)              AS ventas
+     FROM venta_items vi
+     JOIN ventas v ON v.id = vi.venta_id
+     WHERE v.fecha >= date('now','-6 months')
+       AND v.estado != 'cancelado'
+     GROUP BY mes
+     ORDER BY mes ASC`
+  )
+}
+
+export async function getVentasPorMedioPago(anio: number, mes: number) {
+  const { desde, hasta } = rangoMes(anio, mes)
+  return window.electronAPI.db.query(
+    `SELECT
+       COALESCE(mp.nombre, 'Sin especificar') AS nombre,
+       COUNT(v.id)                            AS cantidad,
+       COALESCE(SUM(v.total), 0)              AS total
+     FROM ventas v
+     LEFT JOIN medios_pago mp ON mp.id = v.medio_pago_id
+     WHERE v.fecha BETWEEN ? AND ?
+       AND v.estado != 'cancelado'
+     GROUP BY v.medio_pago_id
+     ORDER BY total DESC`,
+    [desde, hasta]
+  )
+}
+
 export async function getVentasDiarias(anio: number, mes: number) {
   const { desde, hasta } = rangoMes(anio, mes)
   return window.electronAPI.db.query(
@@ -171,22 +304,49 @@ export async function getVentasDiarias(anio: number, mes: number) {
   )
 }
 
-export async function getTopProductos(anio: number, mes: number, limite = 5) {
-  const { desde, hasta } = rangoMes(anio, mes)
+export async function getHeatmapPorMes(anio: number) {
   return window.electronAPI.db.query(
     `SELECT
-       p.nombre                             AS producto,
-       SUM(vi.cantidad)                     AS unidades,
-       SUM(vi.subtotal_item)                AS ingresos
-     FROM venta_items vi
-     JOIN ventas    v ON v.id = vi.venta_id
-     JOIN productos p ON p.id = vi.producto_id
-     WHERE v.fecha BETWEEN ? AND ?
-       AND v.estado != 'cancelado'
-     GROUP BY vi.producto_id
-     ORDER BY unidades DESC
-     LIMIT ?`,
-    [desde, hasta, limite]
+       CAST(strftime('%m', fecha) AS INTEGER) AS mes,
+       COUNT(id)                              AS ventas,
+       COALESCE(SUM(total), 0)               AS total
+     FROM ventas
+     WHERE strftime('%Y', fecha) = ?
+       AND estado != 'cancelado'
+     GROUP BY mes
+     ORDER BY mes ASC`,
+    [String(anio)]
+  )
+}
+
+export async function getHeatmapPorDiaMes(anio: number) {
+  return window.electronAPI.db.query(
+    `SELECT
+       CAST(strftime('%d', fecha) AS INTEGER) AS dia,
+       COUNT(id)                              AS ventas,
+       COALESCE(SUM(total), 0)               AS total
+     FROM ventas
+     WHERE strftime('%Y', fecha) = ?
+       AND estado != 'cancelado'
+     GROUP BY dia
+     ORDER BY dia ASC`,
+    [String(anio)]
+  )
+}
+
+export async function getHeatmapPorDiaSemana(anio: number) {
+  // SQLite: strftime('%w') → 0=Dom, 1=Lun … 6=Sáb
+  return window.electronAPI.db.query(
+    `SELECT
+       CAST(strftime('%w', fecha) AS INTEGER) AS dow,
+       COUNT(id)                              AS ventas,
+       COALESCE(SUM(total), 0)               AS total
+     FROM ventas
+     WHERE strftime('%Y', fecha) = ?
+       AND estado != 'cancelado'
+     GROUP BY dow
+     ORDER BY dow ASC`,
+    [String(anio)]
   )
 }
 
@@ -216,23 +376,6 @@ export async function getTotalGastos(anio: number, mes: number): Promise<number>
     [desde, hasta]
   )
   return row?.total ?? 0
-}
-
-export async function getGastosPorCategoria(anio: number, mes: number) {
-  const { desde, hasta } = rangoMes(anio, mes)
-  return window.electronAPI.db.query(
-    `SELECT
-       cg.nombre                    AS categoria,
-       cg.color,
-       COALESCE(SUM(g.monto), 0)    AS total,
-       COUNT(g.id)                  AS cantidad
-     FROM gastos g
-     LEFT JOIN categorias_gasto cg ON cg.id = g.categoria_id
-     WHERE g.fecha BETWEEN ? AND ?
-     GROUP BY g.categoria_id
-     ORDER BY total DESC`,
-    [desde, hasta]
-  )
 }
 
 // ── Inventario ─────────────────────────────────────────────────────────────
@@ -358,10 +501,10 @@ export async function isMesCerrado(anio: number, mes: number): Promise<boolean> 
 export async function getComparativaMeses(anio: number) {
   return window.electronAPI.db.query(
     `SELECT
-       strftime('%m', fecha)            AS mes,
-       COUNT(id)                        AS ventas,
-       COALESCE(SUM(total), 0)          AS ingresos,
-       COALESCE(SUM(comision_canal), 0) AS comisiones
+       strftime('%m', fecha)                                          AS mes,
+       COUNT(id)                                                      AS ventas,
+       COALESCE(SUM(total), 0)                                       AS ingresos,
+       COALESCE(SUM(comision_canal + COALESCE(comision_medio_pago,0)), 0) AS comisiones
      FROM ventas
      WHERE strftime('%Y', fecha) = ?
        AND estado != 'cancelado'
