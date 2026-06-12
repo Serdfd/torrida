@@ -57,7 +57,7 @@ export async function getDashboardKpis(
        COALESCE(SUM(CASE WHEN estado  = 'cancelado' THEN 1    ELSE 0 END), 0)               AS devoluciones,
        COALESCE(AVG(CASE WHEN estado != 'cancelado' THEN total END), 0)                     AS ticket,
        COUNT(CASE WHEN estado != 'cancelado' THEN 1 END)                                    AS count,
-       COALESCE(SUM(CASE WHEN estado != 'cancelado' THEN comision_medio_pago ELSE 0 END),0) AS comision_pasarela
+       COALESCE(SUM(CASE WHEN estado != 'cancelado' THEN COALESCE(comision_canal,0) + COALESCE(comision_medio_pago,0) ELSE 0 END),0) AS comision_pasarela
      FROM ventas
      WHERE fecha BETWEEN ? AND ?`,
     [desde, hasta]
@@ -501,13 +501,19 @@ export async function isMesCerrado(anio: number, mes: number): Promise<boolean> 
 export async function getComparativaMeses(anio: number) {
   return window.electronAPI.db.query(
     `SELECT
-       strftime('%m', fecha)                                          AS mes,
-       COUNT(id)                                                      AS ventas,
-       COALESCE(SUM(total), 0)                                       AS ingresos,
-       COALESCE(SUM(comision_canal + COALESCE(comision_medio_pago,0)), 0) AS comisiones
-     FROM ventas
-     WHERE strftime('%Y', fecha) = ?
-       AND estado != 'cancelado'
+       strftime('%m', v.fecha)                                            AS mes,
+       COUNT(v.id)                                                        AS ventas,
+       COALESCE(SUM(v.total), 0)                                         AS ingresos,
+       COALESCE(SUM(v.comision_canal + COALESCE(v.comision_medio_pago,0)), 0) AS comisiones,
+       COALESCE(SUM(CASE WHEN v.costo_envio_real > 0 THEN v.costo_envio_real ELSE v.costo_envio END), 0) AS envios,
+       COALESCE(SUM(vi_sum.total_utilidad), 0)                           AS utilidad_bruta
+     FROM ventas v
+     LEFT JOIN (
+       SELECT venta_id, SUM(utilidad_item) AS total_utilidad
+       FROM venta_items GROUP BY venta_id
+     ) vi_sum ON vi_sum.venta_id = v.id
+     WHERE strftime('%Y', v.fecha) = ?
+       AND v.estado != 'cancelado'
      GROUP BY mes
      ORDER BY mes ASC`,
     [String(anio)]

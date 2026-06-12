@@ -30,12 +30,14 @@ const MESES = [
 ]
 
 interface FilaMes {
-  mes:         string
-  ventas:      number
-  ingresos:    number
-  comisiones:  number
-  gastos:      number
-  margen:      number
+  mes:            string
+  ventas:         number
+  ingresos:       number
+  comisiones:     number
+  envios:         number
+  utilidad_bruta: number
+  gastos:         number
+  margen:         number
 }
 
 interface TopProducto {
@@ -86,12 +88,14 @@ export default function Reportes() {
       const filas: FilaMes[] = MESES.map((_, i) => {
         const mesStr     = String(i + 1).padStart(2, '0')
         const vRow       = (ventasMeses as any[]).find(v => v.mes === mesStr)
-        const ingresos   = vRow?.ingresos   ?? 0
-        const comisiones = vRow?.comisiones ?? 0
-        const ventas     = vRow?.ventas     ?? 0
-        const gastos     = gastosPorMes.get(mesStr) ?? 0
-        const margen     = ingresos - comisiones - gastos
-        return { mes: MESES[i], ventas, ingresos, comisiones, gastos, margen }
+        const ingresos       = vRow?.ingresos       ?? 0
+        const comisiones     = vRow?.comisiones     ?? 0
+        const envios         = vRow?.envios         ?? 0
+        const utilidad_bruta = vRow?.utilidad_bruta ?? 0
+        const ventas         = vRow?.ventas         ?? 0
+        const gastos         = gastosPorMes.get(mesStr) ?? 0
+        const margen         = utilidad_bruta - gastos
+        return { mes: MESES[i], ventas, ingresos, comisiones, envios, utilidad_bruta, gastos, margen }
       })
 
       setFilasMeses(filas)
@@ -109,10 +113,12 @@ export default function Reportes() {
 
   useEffect(() => { loadReportes() }, [loadReportes])
 
-  const totalIngresos   = filasMeses.reduce((s, f) => s + f.ingresos, 0)
-  const totalGastos     = filasMeses.reduce((s, f) => s + f.gastos, 0)
-  const totalComisiones = filasMeses.reduce((s, f) => s + f.comisiones, 0)
-  const margenNeto      = totalIngresos - totalComisiones - totalGastos
+  const totalIngresos      = filasMeses.reduce((s, f) => s + f.ingresos, 0)
+  const totalGastos        = filasMeses.reduce((s, f) => s + f.gastos, 0)
+  const totalComisiones    = filasMeses.reduce((s, f) => s + f.comisiones, 0)
+  const totalEnvios        = filasMeses.reduce((s, f) => s + f.envios, 0)
+  const totalUtilidadBruta = filasMeses.reduce((s, f) => s + f.utilidad_bruta, 0)
+  const margenNeto         = totalUtilidadBruta - totalGastos
   const mejorMes        = filasMeses.reduce(
     (best, f) => f.ingresos > best.ingresos ? f : best,
     { mes: '—', ingresos: 0 } as FilaMes
@@ -124,8 +130,10 @@ export default function Reportes() {
       return
     }
     const data = filasMeses.map(f => ({
-      Mes: f.mes, Ventas: f.ventas, Ingresos: f.ingresos,
-      Comisiones: f.comisiones, Gastos: f.gastos, Margen: f.margen
+      Mes: f.mes, Ventas: f.ventas, 'Ingresos brutos': f.ingresos,
+      Comisiones: f.comisiones, 'Envíos (real)': f.envios,
+      'Utilidad bruta': f.utilidad_bruta,
+      Gastos: f.gastos, 'Utilidad neta': f.margen
     }))
     const csv  = objectsToCSV(data)
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -189,10 +197,14 @@ export default function Reportes() {
           {/* Tab: Anual */}
           {tab === 'anual' && (
             <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div className="card py-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">Ingresos {anio}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">Ingresos brutos {anio}</p>
                   <p className="text-xl font-bold text-success">{formatCOP(totalIngresos)}</p>
+                </div>
+                <div className="card py-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">Utilidad bruta {anio}</p>
+                  <p className="text-xl font-bold text-success">{formatCOP(totalUtilidadBruta)}</p>
                 </div>
                 <div className="card py-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">Gastos {anio}</p>
@@ -218,10 +230,12 @@ export default function Reportes() {
                       <tr>
                         <th>Mes</th>
                         <th className="text-right">Ventas</th>
-                        <th className="text-right">Ingresos</th>
+                        <th className="text-right">Ingresos brutos</th>
                         <th className="text-right">Comisiones</th>
-                        <th className="text-right">Gastos</th>
-                        <th className="text-right">Margen</th>
+                        <th className="text-right">Envíos (real)</th>
+                        <th className="text-right">Utilidad bruta</th>
+                        <th className="text-right">Gastos operat.</th>
+                        <th className="text-right">Utilidad neta</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -229,8 +243,10 @@ export default function Reportes() {
                         <tr key={f.mes} className={f.ingresos === 0 && f.gastos === 0 ? 'opacity-35' : ''}>
                           <td className="font-medium text-base text-primary">{f.mes}</td>
                           <td className="text-right text-base text-primary-muted">{f.ventas > 0 ? formatNumber(f.ventas) : '—'}</td>
-                          <td className="text-right font-semibold text-base text-success">{f.ingresos > 0 ? formatCOP(f.ingresos) : '—'}</td>
-                          <td className="text-right text-base text-warning">{f.comisiones > 0 ? formatCOP(f.comisiones) : '—'}</td>
+                          <td className="text-right font-semibold text-base text-primary">{f.ingresos > 0 ? formatCOP(f.ingresos) : '—'}</td>
+                          <td className="text-right text-base text-primary">{f.comisiones > 0 ? formatCOP(f.comisiones) : '—'}</td>
+                          <td className="text-right text-base text-primary">{f.envios > 0 ? formatCOP(f.envios) : '—'}</td>
+                          <td className="text-right font-semibold text-base text-success">{f.utilidad_bruta > 0 ? formatCOP(f.utilidad_bruta) : '—'}</td>
                           <td className="text-right text-base text-danger">{f.gastos > 0 ? formatCOP(f.gastos) : '—'}</td>
                           <td className={`text-right font-bold text-base ${f.margen > 0 ? 'text-success' : f.margen < 0 ? 'text-danger' : 'text-primary-muted'}`}>
                             {f.ingresos > 0 || f.gastos > 0 ? formatCOP(f.margen) : '—'}
@@ -242,8 +258,10 @@ export default function Reportes() {
                       <tr className="border-t border-border bg-[#0B0B16]">
                         <td className="px-4 py-3 text-base font-bold text-primary-muted">Total</td>
                         <td className="px-4 py-3 text-right font-bold text-base text-primary">{formatNumber(filasMeses.reduce((s, f) => s + f.ventas, 0))}</td>
-                        <td className="px-4 py-3 text-right font-bold text-base text-success">{formatCOP(totalIngresos)}</td>
-                        <td className="px-4 py-3 text-right font-bold text-base text-warning">{formatCOP(totalComisiones)}</td>
+                        <td className="px-4 py-3 text-right font-bold text-base text-primary">{formatCOP(totalIngresos)}</td>
+                        <td className="px-4 py-3 text-right font-bold text-base text-primary">{formatCOP(totalComisiones)}</td>
+                        <td className="px-4 py-3 text-right font-bold text-base text-primary">{formatCOP(totalEnvios)}</td>
+                        <td className="px-4 py-3 text-right font-bold text-base text-success">{formatCOP(totalUtilidadBruta)}</td>
                         <td className="px-4 py-3 text-right font-bold text-base text-danger">{formatCOP(totalGastos)}</td>
                         <td className={`px-4 py-3 text-right font-bold text-md ${margenNeto >= 0 ? 'text-success' : 'text-danger'}`}>{formatCOP(margenNeto)}</td>
                       </tr>

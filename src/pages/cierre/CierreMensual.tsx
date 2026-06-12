@@ -77,14 +77,15 @@ export default function CierreMensual() {
       setNombreSociaA(configMap['nombre_socia_a'] ?? 'Socia A')
       setNombreSociaB(configMap['nombre_socia_b'] ?? 'Socia B')
 
-      const utilidad = kpis.ingresos_mes - totalGastos
+      const comisiones = kpis.comision_pasarela
+      const utilidad = kpis.ingresos_mes - totalGastos - comisiones
       setResumen({
         ingresos:          kpis.ingresos_mes,
         gastos:            totalGastos,
         utilidad,
         unidades:          kpis.unidades_vendidas,
         devoluciones:      kpis.devoluciones,
-        comision_pasarela: kpis.comision_pasarela,
+        comision_pasarela: comisiones,
       })
       const c = cierreExist as CierreData | null
       setCierre(c)
@@ -135,7 +136,7 @@ export default function CierreMensual() {
                 [
                   resumen!.ingresos,
                   resumen!.gastos,
-                  resumen!.ingresos,
+                  resumen!.ingresos - resumen!.comision_pasarela,
                   resumen!.utilidad,
                   resumen!.unidades,
                   resumen!.devoluciones,
@@ -156,7 +157,7 @@ export default function CierreMensual() {
                   filtroMes,
                   resumen!.ingresos,
                   resumen!.gastos,
-                  resumen!.ingresos,
+                  resumen!.ingresos - resumen!.comision_pasarela,
                   resumen!.utilidad,
                   resumen!.unidades,
                   resumen!.devoluciones
