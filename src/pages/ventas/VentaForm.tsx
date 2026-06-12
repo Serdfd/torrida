@@ -30,11 +30,18 @@ interface VentaFormData {
   medio_pago_id:    number
   cliente_nombre:   string
   cliente_telefono: string
-  tipo_envio:       'standard' | 'express'
-  costo_envio:      number
-  costo_envio_real: number
-  descuento:        number
+  tipo_envio:            'standard' | 'express'
+  costo_envio:           number
+  costo_envio_real:      number
+  envio_departamento:    string
+  envio_ciudad:          string
+  envio_direccion:       string
+  transportadora_id:     number
+  guia_numero:           string
+  envio_pendiente:       number
+  descuento:             number
   notas:            string
+  estado:           'completada' | 'pendiente'
   items:            ItemForm[]
 }
 
@@ -57,6 +64,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   const [canales,           setCanales]           = useState<any[]>([])
   const [medios,            setMedios]            = useState<any[]>([])
   const [productos,         setProductos]         = useState<any[]>([])
+  const [transportadoras,   setTransportadoras]   = useState<any[]>([])
   const [tallasPorProducto, setTallasPorProducto] = useState<Record<number, TallaStock[]>>({})
   const [saving,            setSaving]            = useState(false)
   const [loadingCatalog,    setLoadingCatalog]    = useState(true)
@@ -73,11 +81,18 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
       medio_pago_id:    0,
       cliente_nombre:   '',
       cliente_telefono: '',
-      tipo_envio:       'standard',
-      costo_envio:      0,
-      costo_envio_real: 0,
-      descuento:        0,
+      tipo_envio:            'standard',
+      costo_envio:           0,
+      costo_envio_real:      0,
+      envio_departamento:    '',
+      envio_ciudad:          '',
+      envio_direccion:       '',
+      transportadora_id:     0,
+      guia_numero:           '',
+      envio_pendiente:       0,
+      descuento:             0,
       notas:            '',
+      estado:           'completada',
       items: [{
         producto_id: 0, talla_id: 0,
         cantidad: 1, precio_unitario: 0,
@@ -146,14 +161,12 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
     loadedProds.current.add(productoId)
     try {
       const rows = await window.electronAPI.db.query<any>(
-        `SELECT pt.talla_id,
+        `SELECT ip.talla_id,
                 t.nombre              AS talla_nombre,
                 COALESCE(ip.stock, 0) AS stock
-         FROM producto_tallas pt
-         JOIN tallas t ON t.id = pt.talla_id
-         LEFT JOIN inventario_productos ip
-           ON ip.producto_id = pt.producto_id AND ip.talla_id = pt.talla_id
-         WHERE pt.producto_id = ? AND pt.activa = 1
+         FROM inventario_productos ip
+         JOIN tallas t ON t.id = ip.talla_id
+         WHERE ip.producto_id = ?
          ORDER BY t.orden`,
         [productoId],
       )
@@ -166,8 +179,13 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   useEffect(() => {
     async function loadCatalog() {
       try {
-        const [c, m, p] = await Promise.all([getCanalesVenta(), getMediosPago(), getProductos()])
-        setCanales(c); setMedios(m); setProductos(p)
+        const [c, m, p, tr] = await Promise.all([
+          getCanalesVenta(), getMediosPago(), getProductos(),
+          window.electronAPI.db.query<any>(
+            `SELECT * FROM transportadoras WHERE activa = 1 ORDER BY nombre`
+          )
+        ])
+        setCanales(c); setMedios(m); setProductos(p); setTransportadoras(tr)
         if (c.length > 0) setValue('canal_id', c[0].id)
         if (m.length > 0) setValue('medio_pago_id', m[0].id)
       } catch {
@@ -208,11 +226,18 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
           medio_pago_id:    v.medio_pago_id   ?? 0,
           cliente_nombre:   v.cliente_nombre   ?? '',
           cliente_telefono: v.cliente_telefono ?? '',
-          tipo_envio:       v.tipo_envio       ?? 'standard',
-          costo_envio:      v.costo_envio      ?? 0,
-          costo_envio_real: v.costo_envio_real ?? 0,
+          tipo_envio:            v.tipo_envio            ?? 'standard',
+          costo_envio:           v.costo_envio           ?? 0,
+          costo_envio_real:      v.costo_envio_real      ?? 0,
+          envio_departamento:    v.envio_departamento    ?? '',
+          envio_ciudad:          v.envio_ciudad          ?? '',
+          envio_direccion:       v.envio_direccion       ?? '',
+          transportadora_id:     v.transportadora_id     ?? 0,
+          guia_numero:           v.guia_numero           ?? '',
+          envio_pendiente:       v.envio_pendiente       ?? 0,
           descuento:        v.descuento        ?? 0,
           notas:            v.notas            ?? '',
+          estado:           v.estado           === 'pendiente' ? 'pendiente' : 'completada',
           items: items.map((it: any) => ({
             producto_id:         it.producto_id,
             talla_id:            it.talla_id            ?? 0,
@@ -230,6 +255,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   }, [ventaId, loadingCatalog]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleProductoChange(idx: number, productoId: number) {
+    setValue(`items.${idx}.producto_id`, productoId)
     const prod = productos.find(p => p.id === Number(productoId))
     if (prod) {
       setValue(`items.${idx}.precio_unitario`,     prod.precio_venta   ?? 0)
@@ -317,16 +343,20 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
              cliente_nombre = ?, cliente_telefono = ?,
              subtotal = ?, descuento = ?, comision_canal = ?,
              tipo_envio = ?, costo_envio = ?, costo_envio_real = ?,
+             envio_departamento = ?, envio_ciudad = ?, envio_direccion = ?,
+             transportadora_id = ?, guia_numero = ?, envio_pendiente = ?,
              comision_medio_pago = ?, medio_pago_tarifa_id = ?,
              medio_pago_tarifa_concepto = ?,
-             total = ?, notas = ?, updated_at = datetime('now')
+             total = ?, notas = ?, estado = ?, updated_at = datetime('now')
            WHERE id = ?`,
           [data.fecha, data.canal_id || null, data.medio_pago_id || null,
            data.cliente_nombre || null, data.cliente_telefono || null,
            subtFinal, descFinal, comFinal,
            data.tipo_envio, envioFinal, data.costo_envio_real ?? 0,
+           data.envio_departamento || null, data.envio_ciudad || null, data.envio_direccion || null,
+           data.transportadora_id || null, data.guia_numero || null, data.envio_pendiente ?? 0,
            comMPFinal, tarifaIdSnap, tarifaConcepto,
-           totalFinal, data.notas || null, ventaId],
+           totalFinal, data.notas || null, data.estado ?? 'completada', ventaId],
         )
 
         await window.electronAPI.db.run(`DELETE FROM venta_items WHERE venta_id = ?`, [ventaId])
@@ -383,15 +413,19 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               cliente_nombre, cliente_telefono,
               subtotal, descuento, comision_canal,
               tipo_envio, costo_envio, costo_envio_real,
+              envio_departamento, envio_ciudad, envio_direccion,
+              transportadora_id, guia_numero, envio_pendiente,
               comision_medio_pago, medio_pago_tarifa_id, medio_pago_tarifa_concepto,
               total, notas, estado, created_at, updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'completada',datetime('now'),datetime('now'))`,
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`,
           [numero, data.fecha, data.canal_id || null, data.medio_pago_id || null,
            data.cliente_nombre || null, data.cliente_telefono || null,
            subtFinal, descFinal, comFinal,
            data.tipo_envio, envioFinal, data.costo_envio_real ?? 0,
+           data.envio_departamento || null, data.envio_ciudad || null, data.envio_direccion || null,
+           data.transportadora_id || null, data.guia_numero || null, data.envio_pendiente ?? 0,
            comMPFinal, tarifaIdSnap, tarifaConcepto,
-           totalFinal, data.notas || null],
+           totalFinal, data.notas || null, data.estado ?? 'completada'],
         )
         const ventaIdNueva = result.lastInsertRowid as number
 
@@ -474,7 +508,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               <div className="mt-1.5">
                 <label className="input-label">Concepto / tarifa de cobro</label>
                 <select
-                  className="input h-8 text-sm"
+                  className="input"
                   value={selectedTarifaId}
                   onChange={e => setSelectedTarifaId(Number(e.target.value))}
                 >
@@ -526,7 +560,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                   <div className="grid grid-cols-[2fr_1fr_70px_1fr_100px_32px] gap-2 items-end">
                     <div>
                       <label className="input-label">Producto</label>
-                      <select className="input h-9 text-base"
+                      <select className="input"
                         {...register(`items.${idx}.producto_id`, { required: true, valueAsNumber: true })}
                         onChange={e => handleProductoChange(idx, Number(e.target.value))}>
                         <option value={0}>— Seleccionar —</option>
@@ -538,7 +572,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                         Talla{prodId > 0 && tallasDisp.length === 0 &&
                           <span className="text-warning ml-1 text-2xs">sin tallas</span>}
                       </label>
-                      <select className="input h-9 text-base"
+                      <select className="input"
                         {...register(`items.${idx}.talla_id`, { valueAsNumber: true })}>
                         <option value={0}>—</option>
                         {tallasDisp.map(t =>
@@ -550,17 +584,17 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                     </div>
                     <div>
                       <label className="input-label">Cant.</label>
-                      <input type="number" min={1} className="input h-9 text-base"
+                      <input type="number" min={1} className="input"
                         {...register(`items.${idx}.cantidad`, { required: true, min: 1, valueAsNumber: true })} />
                     </div>
                     <div>
                       <label className="input-label">Precio unit.</label>
-                      <input type="number" min={0} step="0.01" className="input h-9 text-base"
+                      <input type="number" min={0} step="0.01" className="input"
                         {...register(`items.${idx}.precio_unitario`, { required: true, min: 0, valueAsNumber: true })} />
                     </div>
                     <div>
                       <label className="input-label">Desc. ítem</label>
-                      <input type="number" min={0} className="input h-9 text-base"
+                      <input type="number" min={0} className="input"
                         {...register(`items.${idx}.descuento_item`, { valueAsNumber: true })} />
                     </div>
                     <button type="button"
@@ -573,15 +607,14 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
                   {/* Computed mini-row */}
                   <div className="grid grid-cols-3 gap-3 pt-1.5 border-t border-white/[0.05] text-xs">
-                    <div className="flex items-center gap-1.5 text-primary-muted">
-                      <span className="shrink-0">Costo snap:</span>
-                      <input type="number" min={0} step="0.01"
-                        className="input h-6 text-xs px-1.5 flex-1"
-                        {...register(`items.${idx}.costo_unitario_snap`, { valueAsNumber: true })} />
+                    <div className="flex items-center gap-1 text-primary-muted">
+                      <span className="shrink-0">Costo:</span>
+                      <span className="font-semibold">{formatCOP((watchItems[idx]?.costo_unitario_snap ?? 0) * (watchItems[idx]?.cantidad ?? 1))}</span>
+                      <input type="hidden" {...register(`items.${idx}.costo_unitario_snap`, { valueAsNumber: true })} />
                     </div>
                     <div className="flex items-center gap-1 text-warning">
                       <span>Comisión:</span>
-                      <span className="font-semibold">{formatCOP(calc.comisionItem)}</span>
+                      <span className="font-semibold">{formatCOP(calc.comisionItem + calc.comisionMPItem)}</span>
                     </div>
                     <div className={`flex items-center gap-1 font-semibold ${calc.utilidadItem >= 0 ? 'text-success' : 'text-danger'}`}>
                       <span>Utilidad:</span>
@@ -608,6 +641,49 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               </label>
             ))}
           </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="input-label">Departamento</label>
+              <input type="text" placeholder="Ej: Antioquia" className="input"
+                {...register('envio_departamento')} />
+            </div>
+            <div>
+              <label className="input-label">Ciudad</label>
+              <input type="text" placeholder="Ej: Medellín" className="input"
+                {...register('envio_ciudad')} />
+            </div>
+            <div>
+              <label className="input-label">Dirección</label>
+              <input type="text" placeholder="Calle, número, apto…" className="input"
+                {...register('envio_direccion')} />
+            </div>
+          </div>
+
+          {/* Fila: Transportadora + Guía + Estado envío */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="input-label">Transportadora</label>
+              <select className="input" {...register('transportadora_id', { valueAsNumber: true })}>
+                <option value={0}>— Sin especificar —</option>
+                {transportadoras.map(t => (
+                  <option key={t.id} value={t.id}>{t.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="input-label">N° Guía <span className="text-primary-muted normal-case font-normal">(opcional)</span></label>
+              <input type="text" placeholder="Ej: 123456789" className="input"
+                {...register('guia_numero')} />
+            </div>
+            <div>
+              <label className="input-label">Estado del envío</label>
+              <select className="input" {...register('envio_pendiente', { valueAsNumber: true })}>
+                <option value={1}>Pendiente de envío</option>
+                <option value={0}>Enviado</option>
+              </select>
+            </div>
+          </div>
+
           <div className={`grid gap-3 ${watchTipoEnvio === 'express' ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div>
               <label className="input-label">Costo envío cobrado al cliente</label>
@@ -624,12 +700,19 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
           </div>
         </div>
 
-        {/* Descuento global + notas */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Descuento global + notas + estado pago */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="input-label">Descuento global</label>
             <input type="number" min={0} className="input"
               {...register('descuento', { valueAsNumber: true })} />
+          </div>
+          <div>
+            <label className="input-label">Estado del pago</label>
+            <select className="input" {...register('estado')}>
+              <option value="completada">Pago recibido</option>
+              <option value="pendiente">Pago pendiente</option>
+            </select>
           </div>
           <div>
             <label className="input-label">Notas</label>

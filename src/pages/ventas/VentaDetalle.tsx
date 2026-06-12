@@ -3,7 +3,7 @@ import {
   ShoppingBag, Calendar, User, CreditCard,
   Store, Truck, FileText, RotateCcw, Package
 } from 'lucide-react'
-import { formatCOP, formatDate } from '@/lib/utils'
+import { formatCOP, formatDate, formatDateTime } from '@/lib/utils'
 import { useToast, useModal } from '@/store/useAppStore'
 import { getVentaById } from '@/lib/queries'
 import { cn } from '@/lib/utils'
@@ -118,27 +118,27 @@ export default function VentaDetalle({
     <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
 
       {/* Encabezado */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
-                          justify-center text-accent">
-            <ShoppingBag size={18} />
-          </div>
-          <div>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center
+                        justify-center text-accent shrink-0">
+          <ShoppingBag size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <p className="text-lg font-bold text-primary font-mono">
               {venta.numero_venta}
             </p>
-            <p className="text-sm text-primary-muted">
-              Registrada el {formatDate(venta.created_at ?? venta.fecha)}
-            </p>
+            <span className={cn(
+              'inline-flex px-2.5 py-0.5 rounded-full text-sm font-semibold border',
+              ESTADO_BADGE[venta.estado] ?? 'bg-card border-border text-primary-muted'
+            )}>
+              {venta.estado}
+            </span>
           </div>
+          <p className="text-sm text-primary-muted">
+            Registrada el {venta.created_at ? formatDateTime(venta.created_at) : formatDate(venta.fecha)}
+          </p>
         </div>
-        <span className={cn(
-          'inline-flex px-2.5 py-1 rounded-full text-sm font-semibold border',
-          ESTADO_BADGE[venta.estado] ?? 'bg-card border-border text-primary-muted'
-        )}>
-          {venta.estado}
-        </span>
       </div>
 
       {/* Info general */}
@@ -161,9 +161,17 @@ export default function VentaDetalle({
             icon={Truck}
             label={`Envío ${TIPO_ENVIO_LABEL[venta.tipo_envio] ?? ''}`}
             value={venta.costo_envio > 0 ? formatCOP(venta.costo_envio) : 'Marca asume'}
-            sub={venta.costo_envio_real > 0
-              ? `Costo real: ${formatCOP(venta.costo_envio_real)}`
-              : undefined}
+            sub={[
+              venta.costo_envio_real > 0 ? `Costo real: ${formatCOP(venta.costo_envio_real)}` : null,
+              [venta.envio_departamento, venta.envio_ciudad].filter(Boolean).join(', ') || null,
+              venta.envio_direccion || null,
+              venta.transportadora_nombre ? `Transportadora: ${venta.transportadora_nombre}` : null,
+              venta.guia_numero ? `Guía: ${venta.guia_numero}` : null,
+            ].filter(Boolean).join(' · ') || undefined}
+            badge={venta.envio_pendiente
+              ? { label: 'Pendiente de envío', color: 'warning' }
+              : { label: 'Enviado', color: 'success' }}
+            className="col-span-2"
           />
         )}
         {venta.notas && (
@@ -179,14 +187,14 @@ export default function VentaDetalle({
       {/* Ítems */}
       <div>
         <p className="input-label mb-2">Productos</p>
-        <div className="rounded-xl border border-border overflow-hidden">
-          <table className="table w-full">
+        <div className="rounded-xl border border-border overflow-x-auto">
+          <table className="table w-full min-w-[560px]">
             <thead>
               <tr>
                 <th>Producto</th>
                 <th>Talla</th>
                 <th className="text-right">Cant.</th>
-                <th className="text-right">Precio</th>
+                <th className="text-right">P. Unit.</th>
                 <th className="text-right">Comisión</th>
                 <th className="text-right">Utilidad</th>
                 <th className="text-right">Subtotal</th>
@@ -206,7 +214,14 @@ export default function VentaDetalle({
                     {formatCOP(item.precio_unitario)}
                   </td>
                   <td className="text-right text-base text-warning">
-                    {item.comision_item > 0 ? `-${formatCOP(item.comision_item)}` : '—'}
+                    {(() => {
+                      const comTotal = (item.subtotal_item ?? 0)
+                        - (item.costo_unitario_snap ?? 0) * (item.cantidad ?? 1)
+                        - (item.utilidad_item ?? 0)
+                      return comTotal > 0.01
+                        ? `-${formatCOP(comTotal)}`
+                        : '—'
+                    })()}
                   </td>
                   <td className={cn(
                     'text-right text-base font-semibold',
@@ -269,7 +284,7 @@ export default function VentaDetalle({
       </div>
 
       {/* Acciones */}
-      <div className="flex items-center justify-between pt-1 border-t border-border">
+      <div className="flex items-center justify-between pt-4 mt-1 border-t border-border">
         {venta.estado !== 'cancelado' && (
           <button onClick={handleCancelar} className="btn-danger">
             <RotateCcw size={13} />
@@ -288,13 +303,19 @@ export default function VentaDetalle({
 
 // ── Sub-componentes ──────────────────────────────────────────────────────
 
-function InfoRow({ icon: Icon, label, value, sub, className }: {
+function InfoRow({ icon: Icon, label, value, sub, badge, className }: {
   icon:       React.ElementType
   label:      string
   value:      string
   sub?:       string
+  badge?:     { label: string; color: 'success' | 'warning' | 'danger' }
   className?: string
 }) {
+  const badgeColors = {
+    success: 'bg-success/10 border-success/20 text-success',
+    warning: 'bg-warning/10 border-warning/20 text-warning',
+    danger:  'bg-danger/10  border-danger/20  text-danger',
+  }
   return (
     <div className={cn(
       'flex items-start gap-3 p-3 bg-[#0B0B16] rounded-xl border border-border',
@@ -304,12 +325,22 @@ function InfoRow({ icon: Icon, label, value, sub, className }: {
                       justify-center text-accent shrink-0 mt-0.5">
         <Icon size={13} />
       </div>
-      <div>
+      <div className="flex-1 min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wide
                       text-primary-muted mb-0.5">
           {label}
         </p>
-        <p className="text-base font-medium text-primary">{value}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-base font-medium text-primary">{value}</p>
+          {badge && (
+            <span className={cn(
+              'inline-flex px-2 py-0.5 rounded-full text-xs font-semibold border',
+              badgeColors[badge.color]
+            )}>
+              {badge.label}
+            </span>
+          )}
+        </div>
         {sub && <p className="text-sm text-primary-muted mt-0.5">{sub}</p>}
       </div>
     </div>

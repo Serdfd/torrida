@@ -95,7 +95,8 @@ export async function getVentas(anio: number, mes: number) {
     `SELECT
        v.*,
        c.nombre  AS canal_nombre,
-       mp.nombre AS medio_pago_nombre
+       mp.nombre AS medio_pago_nombre,
+       COALESCE((SELECT SUM(vi.utilidad_item) FROM venta_items vi WHERE vi.venta_id = v.id), 0) AS utilidad_total
      FROM ventas v
      LEFT JOIN canales_venta c  ON c.id  = v.canal_id
      LEFT JOIN medios_pago   mp ON mp.id = v.medio_pago_id
@@ -109,11 +110,13 @@ export async function getVentaById(id: number) {
   const [venta] = await window.electronAPI.db.query(
     `SELECT
        v.*,
-       c.nombre  AS canal_nombre,
-       mp.nombre AS medio_pago_nombre
+       c.nombre   AS canal_nombre,
+       mp.nombre  AS medio_pago_nombre,
+       tr.nombre  AS transportadora_nombre
      FROM ventas v
-     LEFT JOIN canales_venta c  ON c.id  = v.canal_id
-     LEFT JOIN medios_pago   mp ON mp.id = v.medio_pago_id
+     LEFT JOIN canales_venta   c  ON c.id  = v.canal_id
+     LEFT JOIN medios_pago     mp ON mp.id = v.medio_pago_id
+     LEFT JOIN transportadoras tr ON tr.id = v.transportadora_id
      WHERE v.id = ?`,
     [id]
   )
@@ -278,9 +281,11 @@ export async function getProductos(soloActivos = true) {
   return window.electronAPI.db.query(
     `SELECT
        p.*,
-       c.nombre AS coleccion_nombre
+       c.nombre AS coleccion_nombre,
+       COALESCE(fc.costo_total, p.costo_unitario, 0) AS costo_unitario
      FROM productos p
      LEFT JOIN colecciones c ON c.id = p.coleccion_id
+     LEFT JOIN fichas_costo fc ON fc.producto_id = p.id AND fc.vigente = 1
      ${soloActivos ? 'WHERE p.activo = 1' : ''}
      ORDER BY p.nombre ASC`
   )

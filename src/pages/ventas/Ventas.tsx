@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAppStore, useToast, useModal }  from '@/store/useAppStore'
-import { Plus, Search, Filter, Download }   from 'lucide-react'
+import { Plus, Search, Filter, Download, Truck }   from 'lucide-react'
 import { getVentas }                        from '@/lib/queries'
 import { formatCOP, formatDate, objectsToCSV } from '@/lib/utils'
 import { FullPageSpinner }                  from '@/components/ui/Spinner'
@@ -25,6 +25,7 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
   const [ventas,   setVentas]   = useState<any[]>([])
   const [busqueda, setBusqueda] = useState('')
   const [estado,   setEstado]   = useState('todos')
+  const [soloEnvioPendiente, setSoloEnvioPendiente] = useState(false)
 
   const loadVentas = useCallback(async () => {
     setLoading(true)
@@ -43,6 +44,7 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
 
   const ventasFiltradas = ventas.filter(v => {
     if (estado !== 'todos' && v.estado !== estado) return false
+    if (soloEnvioPendiente && (v.estado === 'cancelado' || !v.envio_pendiente)) return false
     if (!busqueda) return true
     const q = busqueda.toLowerCase()
     return (
@@ -61,7 +63,8 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
         venta={venta}
         onClose={closeModal}
         onUpdate={() => { closeModal(); loadVentas() }}
-      />
+      />,
+      'xl'
     )
   }
 
@@ -129,6 +132,18 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
           <Download size={14} /> CSV
         </button>
 
+        <button
+          onClick={() => setSoloEnvioPendiente(v => !v)}
+          className={`btn-ghost gap-1.5 ${
+            soloEnvioPendiente
+              ? 'border-warning/40 text-warning bg-warning/10'
+              : ''
+          }`}
+        >
+          <Truck size={14} />
+          {soloEnvioPendiente ? 'Pendientes de envío' : 'Envío pendiente'}
+        </button>
+
         <button onClick={onNuevaVenta} className="btn-primary">
           <Plus size={14} /> Nueva venta
         </button>
@@ -178,8 +193,11 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
                   <th>Canal</th>
                   <th>Medio pago</th>
                   <th className="text-right">Total</th>
+                  <th className="text-right">Envío</th>
                   <th className="text-right">Comisión</th>
+                  <th className="text-right">Utilidad</th>
                   <th>Estado</th>
+                  <th>Envío</th>
                   <th />
                 </tr>
               </thead>

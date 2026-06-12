@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Settings, Store, Tag, CreditCard,
-  Ruler, Package, Palette, ChevronRight, Layers, Scale
+  Ruler, Package, Palette, ChevronRight, Layers, Scale, Truck
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ConfigNegocio           from './ConfigNegocio'
@@ -12,6 +12,7 @@ import ConfigCategorias        from './ConfigCategorias'
 import ConfigColecciones       from './ConfigColecciones'
 import ConfigCategoriasInsumo  from './ConfigCategoriasInsumo'
 import ConfigUnidades          from './ConfigUnidades'
+import ConfigTransportadoras   from './ConfigTransportadoras'
 
 type TabId =
   | 'negocio'
@@ -22,6 +23,7 @@ type TabId =
   | 'colecciones'
   | 'cat_insumos'
   | 'unidades'
+  | 'transportadoras'
 
 interface Tab {
   id:          TabId
@@ -78,18 +80,25 @@ const TABS: Tab[] = [
     label:       'Unidades de medida',
     description: 'Metro, kg, rollo, unidad…',
     icon:        Scale
+  },
+  {
+    id:          'transportadoras',
+    label:       'Transportadoras',
+    description: 'Coordinadora, Interrapidísimo…',
+    icon:        Truck
   }
 ]
 
 const TAB_COMPONENTS: Record<TabId, React.ComponentType> = {
-  negocio:      ConfigNegocio,
-  canales:      ConfigCanales,
-  medios_pago:  ConfigMediosPago,
-  tallas:       ConfigTallas,
-  categorias:   ConfigCategorias,
-  colecciones:  ConfigColecciones,
-  cat_insumos:  ConfigCategoriasInsumo,
-  unidades:     ConfigUnidades
+  negocio:          ConfigNegocio,
+  canales:          ConfigCanales,
+  medios_pago:      ConfigMediosPago,
+  tallas:           ConfigTallas,
+  categorias:       ConfigCategorias,
+  colecciones:      ConfigColecciones,
+  cat_insumos:      ConfigCategoriasInsumo,
+  unidades:         ConfigUnidades,
+  transportadoras:  ConfigTransportadoras
 }
 
 export default function Configuracion() {

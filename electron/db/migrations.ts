@@ -767,6 +767,49 @@ const MIGRATIONS: Migration[] = [
     }
   },
 
+  // ── v27: Eliminar trigger redundante trg_descontar_stock_venta ──────────
+  {
+    version:     27,
+    description: 'Drop trg_descontar_stock_venta (VentaForm gestiona el stock explícitamente)',
+    up(db) {
+      db.exec(`DROP TRIGGER IF EXISTS trg_descontar_stock_venta`)
+    }
+  },
+
+  {
+    version:     28,
+    description: 'Agrega campos de dirección de envío a ventas',
+    up(db) {
+      db.exec(`
+        ALTER TABLE ventas ADD COLUMN envio_departamento TEXT;
+        ALTER TABLE ventas ADD COLUMN envio_ciudad       TEXT;
+        ALTER TABLE ventas ADD COLUMN envio_direccion    TEXT;
+      `)
+    }
+  },
+
+  {
+    version:     29,
+    description: 'Tabla transportadoras + columnas transportadora_id, guia_numero, envio_pendiente en ventas',
+    up(db) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS transportadoras (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre     TEXT    NOT NULL UNIQUE,
+          activa     INTEGER NOT NULL DEFAULT 1,
+          created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+        );
+        INSERT OR IGNORE INTO transportadoras (nombre) VALUES
+          ('Coordinadora'),
+          ('Interrapidísimo'),
+          ('Mensajería');
+      `)
+      try { db.exec(`ALTER TABLE ventas ADD COLUMN transportadora_id INTEGER REFERENCES transportadoras(id) ON DELETE SET NULL`) } catch {}
+      try { db.exec(`ALTER TABLE ventas ADD COLUMN guia_numero TEXT`) } catch {}
+      try { db.exec(`ALTER TABLE ventas ADD COLUMN envio_pendiente INTEGER NOT NULL DEFAULT 0`) } catch {}
+    }
+  },
+
 ]
 
 // ── Runner principal ───────────────────────────────────────────────────────

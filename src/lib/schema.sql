@@ -305,6 +305,7 @@ LEFT JOIN categorias_gasto cg ON cg.id = g.categoria_id;
 -- ── Triggers ─────────────────────────────────────────────────
 
 -- Al cancelar una venta, revertir stock automáticamente
+-- (trg_descontar_stock_venta eliminado: VentaForm gestiona el stock explícitamente)
 CREATE TRIGGER IF NOT EXISTS trg_revertir_stock_cancelacion
 AFTER UPDATE ON ventas
 WHEN NEW.estado = 'cancelado' AND OLD.estado != 'cancelado'
@@ -313,18 +314,7 @@ BEGIN
   SET stock      = stock + vi.cantidad,
       updated_at = datetime('now')
   FROM venta_items vi
-  WHERE vi.venta_id       = NEW.id
+  WHERE vi.venta_id                    = NEW.id
     AND inventario_productos.producto_id = vi.producto_id
     AND inventario_productos.talla_id    = vi.talla_id;
-END;
-
--- Al insertar un item de venta, descontar stock
-CREATE TRIGGER IF NOT EXISTS trg_descontar_stock_venta
-AFTER INSERT ON venta_items
-BEGIN
-  UPDATE inventario_productos
-  SET stock      = MAX(0, stock - NEW.cantidad),
-      updated_at = datetime('now')
-  WHERE producto_id = NEW.producto_id
-    AND talla_id    = NEW.talla_id;
 END;

@@ -476,7 +476,7 @@ function OrdenFila({
                   style={{
                     width: `${pct}%`,
                     background: pct >= 100
-                      ? 'var(--color-success)'
+                      ? 'var(--success)'
                       : 'linear-gradient(90deg, #F2CC8F, #E07A5F)'
                   }}
                 />
