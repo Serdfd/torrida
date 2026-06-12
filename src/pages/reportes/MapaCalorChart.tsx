@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Calendar, CalendarDays, CalendarRange } from 'lucide-react'
+import { Calendar, CalendarDays, CalendarRange, Grid2x2 } from 'lucide-react'
 import { formatCOP } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -9,25 +9,39 @@ export interface HeatCell {
   total:  number
 }
 
+export interface HeatMatrix {
+  dow:    number   // 0=Dom…6=Sáb
+  hora:   number   // 0-23
+  ventas: number
+  total:  number
+}
+
 interface Props {
   porMes:       HeatCell[]
   porDiaMes:    HeatCell[]
   porDiaSemana: HeatCell[]
+  semanaHora:   HeatMatrix[]
 }
 
-type Vista = 'mes' | 'dia' | 'semana'
+type Vista = 'mes' | 'dia' | 'semana' | 'matrix'
 
-const MESES_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
-const DIAS_SEMANA = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
+const MESES_SHORT  = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+const DIAS_SEMANA  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
+
+// Agrupa horas en bloques de 2h → 12 filas
+const HORA_BLOQUES = Array.from({ length: 12 }, (_, i) => ({
+  label: `${String(i * 2).padStart(2, '0')}–${String(i * 2 + 2).padStart(2, '0')}`,
+  horas: [i * 2, i * 2 + 1],
+}))
 
 const VISTAS: { id: Vista; label: string; icon: React.ElementType }[] = [
   { id: 'mes',    label: 'Por mes',          icon: CalendarRange },
   { id: 'dia',    label: 'Por día del mes',  icon: CalendarDays  },
   { id: 'semana', label: 'Por día semana',   icon: Calendar      },
+  { id: 'matrix', label: 'Semana × Hora',    icon: Grid2x2       },
 ]
 
 function heatColor(pct: number): string {
-  // 0% → transparente, 100% → accent #E07A5F
   if (pct === 0) return 'rgba(224,122,95,0)'
   const a = Math.max(0.08, pct)
   return `rgba(224,122,95,${a.toFixed(2)})`
@@ -65,8 +79,6 @@ function HeatCellBox({ label, ventas, total, pct, wide }: CellProps) {
           {ventas} vta{ventas !== 1 ? 's' : ''}
         </span>
       )}
-
-      {/* Tooltip */}
       {hover && ventas > 0 && (
         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50
                         bg-bg-elevated border border-border rounded-xl px-3 py-2
@@ -80,7 +92,36 @@ function HeatCellBox({ label, ventas, total, pct, wide }: CellProps) {
   )
 }
 
-export default function MapaCalorChart({ porMes, porDiaMes, porDiaSemana }: Props) {
+interface MatrixCellProps {
+  ventas: number
+  total:  number
+  pct:    number
+  label:  string
+}
+
+function MatrixCell({ ventas, total, pct, label }: MatrixCellProps) {
+  const [hover, setHover] = useState(false)
+  return (
+    <div
+      className="relative rounded-md border border-white/5 h-8 transition-all duration-150 cursor-default"
+      style={{ backgroundColor: heatColor(pct) }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {hover && ventas > 0 && (
+        <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 z-50
+                        bg-bg-elevated border border-border rounded-xl px-3 py-2
+                        shadow-2xl whitespace-nowrap pointer-events-none">
+          <p className="text-sm font-bold text-primary">{label}</p>
+          <p className="text-xs text-accent font-semibold">{formatCOP(total)}</p>
+          <p className="text-xs text-primary-muted">{ventas} venta{ventas !== 1 ? 's' : ''}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function MapaCalorChart({ porMes, porDiaMes, porDiaSemana, semanaHora }: Props) {
   const [vista, setVista] = useState<Vista>('mes')
 
   function buildGrid() {
@@ -109,8 +150,29 @@ export default function MapaCalorChart({ porMes, porDiaMes, porDiaSemana }: Prop
     })
   }
 
-  const cells = buildGrid()
-  const hasData = cells.some(c => c.ventas > 0)
+  function buildMatrix() {
+    // Agrupa semanaHora en bloques de 2h
+    const max = Math.max(...semanaHora.map(r => r.total), 1)
+    return HORA_BLOQUES.map(bloque => {
+      return DIAS_SEMANA.map((dia, dow) => {
+        const rows = semanaHora.filter(r => r.dow === dow && bloque.horas.includes(r.hora))
+        const ventas = rows.reduce((s, r) => s + r.ventas, 0)
+        const total  = rows.reduce((s, r) => s + r.total, 0)
+        return {
+          label: `${dia} ${bloque.label}`,
+          ventas,
+          total,
+          pct: total / max,
+        }
+      })
+    })
+  }
+
+  const cells     = vista !== 'matrix' ? buildGrid() : []
+  const matrix    = vista === 'matrix' ? buildMatrix() : []
+  const hasData   = vista === 'matrix'
+    ? semanaHora.some(r => r.ventas > 0)
+    : cells.some(c => c.ventas > 0)
 
   const gridClass = vista === 'mes'
     ? 'grid grid-cols-6 md:grid-cols-12 gap-2'
@@ -122,7 +184,7 @@ export default function MapaCalorChart({ porMes, porDiaMes, porDiaSemana }: Prop
     <div className="flex flex-col gap-5">
       {/* Toggle */}
       <div className="flex items-center gap-1 bg-bg-surface border border-border
-                      rounded-xl p-1 self-start">
+                      rounded-xl p-1 self-start flex-wrap">
         {VISTAS.map(v => {
           const Icon = v.icon
           return (
@@ -162,6 +224,36 @@ export default function MapaCalorChart({ porMes, porDiaMes, porDiaSemana }: Prop
       {!hasData ? (
         <div className="flex items-center justify-center h-[120px] text-primary-muted text-base">
           Sin datos de ventas para este año
+        </div>
+      ) : vista === 'matrix' ? (
+        /* Vista Semana × Hora */
+        <div className="overflow-x-auto">
+          <div className="min-w-[520px]">
+            {/* Cabecera días */}
+            <div className="grid grid-cols-[56px_repeat(7,1fr)] gap-1 mb-1">
+              <div />
+              {DIAS_SEMANA.map(d => (
+                <div key={d} className="text-center text-xs font-bold text-primary-muted">{d}</div>
+              ))}
+            </div>
+            {/* Filas de bloques horarios */}
+            {matrix.map((fila, bi) => (
+              <div key={bi} className="grid grid-cols-[56px_repeat(7,1fr)] gap-1 mb-1">
+                <div className="flex items-center justify-end pr-2 text-[10px] text-primary-muted whitespace-nowrap">
+                  {HORA_BLOQUES[bi].label}
+                </div>
+                {fila.map((cell, di) => (
+                  <MatrixCell
+                    key={di}
+                    ventas={cell.ventas}
+                    total={cell.total}
+                    pct={cell.pct}
+                    label={cell.label}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className={gridClass}>

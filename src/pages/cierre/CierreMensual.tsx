@@ -46,6 +46,8 @@ export default function CierreMensual() {
   const [resumen, setResumen] = useState<{
     ingresos:          number
     gastos:            number
+    utilidad_bruta:    number
+    envios:            number
     utilidad:          number
     unidades:          number
     devoluciones:      number
@@ -63,13 +65,25 @@ export default function CierreMensual() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [kpis, totalGastos, cierreExist, configRows] = await Promise.all([
+      const [kpis, totalGastos, cierreExist, configRows, itemsRow] = await Promise.all([
         getDashboardKpis(filtroAnio, filtroMes),
         getTotalGastos(filtroAnio, filtroMes),
         getCierreMensual(filtroAnio, filtroMes),
         window.electronAPI.db.query<{ clave: string; valor: string }>(
           `SELECT clave, valor FROM configuracion_app
            WHERE clave IN ('nombre_socia_a','nombre_socia_b')`
+        ),
+        window.electronAPI.db.query<{ utilidad_bruta: number; envios: number }>(
+          `SELECT
+             COALESCE(SUM(vi.utilidad_item), 0) AS utilidad_bruta,
+             COALESCE(SUM(CASE WHEN v.costo_envio_real > 0
+                              THEN v.costo_envio_real
+                              ELSE v.costo_envio END), 0) AS envios
+           FROM venta_items vi
+           JOIN ventas v ON v.id = vi.venta_id
+           WHERE strftime('%Y-%m', v.fecha) = ?
+             AND v.estado != 'cancelado'`,
+          [`${filtroAnio}-${String(filtroMes).padStart(2, '0')}`]
         )
       ])
 
@@ -77,15 +91,18 @@ export default function CierreMensual() {
       setNombreSociaA(configMap['nombre_socia_a'] ?? 'Socia A')
       setNombreSociaB(configMap['nombre_socia_b'] ?? 'Socia B')
 
-      const comisiones = kpis.comision_pasarela
-      const utilidad = kpis.ingresos_mes - totalGastos - comisiones
+      const utilidadBruta = itemsRow[0]?.utilidad_bruta ?? 0
+      const envios        = itemsRow[0]?.envios         ?? 0
+      const utilidad      = utilidadBruta - totalGastos
       setResumen({
         ingresos:          kpis.ingresos_mes,
         gastos:            totalGastos,
+        utilidad_bruta:    utilidadBruta,
+        envios,
         utilidad,
         unidades:          kpis.unidades_vendidas,
         devoluciones:      kpis.devoluciones,
-        comision_pasarela: comisiones,
+        comision_pasarela: kpis.comision_pasarela,
       })
       const c = cierreExist as CierreData | null
       setCierre(c)
@@ -136,7 +153,7 @@ export default function CierreMensual() {
                 [
                   resumen!.ingresos,
                   resumen!.gastos,
-                  resumen!.ingresos - resumen!.comision_pasarela,
+                  resumen!.utilidad_bruta,
                   resumen!.utilidad,
                   resumen!.unidades,
                   resumen!.devoluciones,
@@ -157,7 +174,7 @@ export default function CierreMensual() {
                   filtroMes,
                   resumen!.ingresos,
                   resumen!.gastos,
-                  resumen!.ingresos - resumen!.comision_pasarela,
+                  resumen!.utilidad_bruta,
                   resumen!.utilidad,
                   resumen!.unidades,
                   resumen!.devoluciones
@@ -334,20 +351,34 @@ export default function CierreMensual() {
             color="text-success"
             sign="+"
           />
+          {(resumen?.envios ?? 0) > 0 && (
+            <FinancialRow
+              label="Envíos pagados (transportadora)"
+              value={resumen?.envios ?? 0}
+              color="text-primary-muted"
+              note="ref."
+            />
+          )}
+          {(resumen?.comision_pasarela ?? 0) > 0 && (
+            <FinancialRow
+              label="Comisiones (canal + pasarela)"
+              value={resumen?.comision_pasarela ?? 0}
+              color="text-primary-muted"
+              note="ref."
+            />
+          )}
           <FinancialRow
-            label="Total gastos"
+            label="Utilidad bruta"
+            value={resumen?.utilidad_bruta ?? 0}
+            color="text-success"
+            sign="="
+          />
+          <FinancialRow
+            label="Gastos operativos"
             value={resumen?.gastos ?? 0}
             color="text-danger"
             sign="-"
           />
-          {(resumen?.comision_pasarela ?? 0) > 0 && (
-            <FinancialRow
-              label="Comisiones pasarela"
-              value={resumen?.comision_pasarela ?? 0}
-              color="text-warning"
-              sign="-"
-            />
-          )}
           <div className="border-t border-border pt-3 mt-1">
             <FinancialRow
               label="Utilidad neta"
@@ -509,10 +540,11 @@ interface FinancialRowProps {
   value:  number
   color:  string
   sign?:  string
+  note?:  string
   bold?:  boolean
 }
 
-function FinancialRow({ label, value, color, sign, bold }: FinancialRowProps) {
+function FinancialRow({ label, value, color, sign, note, bold }: FinancialRowProps) {
   return (
     <div className={cn(
       'flex justify-between items-center',
@@ -522,6 +554,7 @@ function FinancialRow({ label, value, color, sign, bold }: FinancialRowProps) {
         'text-primary-muted',
         bold && 'font-bold text-primary'
       )}>
+        {note && <span className="text-xs mr-1.5 opacity-60">{note}</span>}
         {label}
       </span>
       <span className={cn('font-bold', color)}>

@@ -350,6 +350,26 @@ export async function getHeatmapPorDiaSemana(anio: number) {
   )
 }
 
+export async function getHeatmapSemanaHora(anio: number) {
+  // Asegurar que la columna creado_en existe antes de consultarla
+  await window.electronAPI.db.run(`ALTER TABLE ventas ADD COLUMN creado_en TEXT`, [])
+    .catch(() => { /* ya existe, ignorar */ })
+
+  return window.electronAPI.db.query<{ dow: number; hora: number; ventas: number; total: number }>(
+    `SELECT
+       CAST(strftime('%w', COALESCE(creado_en, fecha)) AS INTEGER) AS dow,
+       CAST(strftime('%H', COALESCE(creado_en, fecha)) AS INTEGER) AS hora,
+       COUNT(id)                                                   AS ventas,
+       COALESCE(SUM(total), 0)                                     AS total
+     FROM ventas
+     WHERE strftime('%Y', COALESCE(creado_en, fecha)) = ?
+       AND estado != 'cancelado'
+     GROUP BY dow, hora
+     ORDER BY dow ASC, hora ASC`,
+    [String(anio)]
+  )
+}
+
 // ── Gastos ─────────────────────────────────────────────────────────────────
 
 export async function getGastos(anio: number, mes: number) {

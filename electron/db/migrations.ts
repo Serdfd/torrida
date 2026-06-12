@@ -810,6 +810,16 @@ const MIGRATIONS: Migration[] = [
     }
   },
 
+  {
+    version:     30,
+    description: 'Agrega creado_en a ventas para heatmap por hora',
+    up(db) {
+      try { db.exec(`ALTER TABLE ventas ADD COLUMN creado_en TEXT`) } catch {}
+      db.exec(`UPDATE ventas SET creado_en = creado_en WHERE creado_en IS NOT NULL`)
+      db.exec(`UPDATE ventas SET creado_en = fecha || ' 00:00:00' WHERE creado_en IS NULL`)
+    }
+  },
+
 ]
 
 // ── Runner principal ───────────────────────────────────────────────────────

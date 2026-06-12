@@ -9,11 +9,12 @@ import {
   getHeatmapPorMes,
   getHeatmapPorDiaMes,
   getHeatmapPorDiaSemana,
+  getHeatmapSemanaHora,
 } from '@/lib/queries'
 import { formatCOP, formatNumber, objectsToCSV, cn } from '@/lib/utils'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import MapaCalorChart   from './MapaCalorChart'
-import type { HeatCell } from './MapaCalorChart'
+import type { HeatCell, HeatMatrix } from './MapaCalorChart'
 
 type Tab = 'anual' | 'calor' | 'productos' | 'canales'
 
@@ -66,6 +67,7 @@ export default function Reportes() {
   const [heatMes,      setHeatMes]      = useState<HeatCell[]>([])
   const [heatDia,      setHeatDia]      = useState<HeatCell[]>([])
   const [heatSemana,   setHeatSemana]   = useState<HeatCell[]>([])
+  const [heatMatrix,   setHeatMatrix]   = useState<HeatMatrix[]>([])
 
   const loadReportes = useCallback(async () => {
     setLoading(true)
@@ -79,6 +81,12 @@ export default function Reportes() {
         getHeatmapPorDiaMes(anio),
         getHeatmapPorDiaSemana(anio),
       ])
+
+      // Carga separada para no romper el resto si falla
+      const hmMatrix = await getHeatmapSemanaHora(anio).catch((err) => {
+        console.error('[Reportes] getHeatmapSemanaHora error:', err)
+        return [] as { dow: number; hora: number; ventas: number; total: number }[]
+      })
 
       const gastosPorMes = new Map<string, number>()
       for (const g of gastosMeses as any[]) {
@@ -104,6 +112,7 @@ export default function Reportes() {
       setHeatMes((hmMes     as any[]).map(r => ({ key: r.mes, ventas: r.ventas, total: r.total })))
       setHeatDia((hmDia     as any[]).map(r => ({ key: r.dia, ventas: r.ventas, total: r.total })))
       setHeatSemana((hmSemana as any[]).map(r => ({ key: r.dow, ventas: r.ventas, total: r.total })))
+      setHeatMatrix((hmMatrix as any[]).map(r => ({ dow: r.dow, hora: r.hora, ventas: r.ventas, total: r.total })))
     } catch {
       toast.error('Error al cargar reportes')
     } finally {
@@ -279,7 +288,7 @@ export default function Reportes() {
                 <Flame size={16} className="text-accent" />
                 <h3 className="text-base font-bold text-primary">Intensidad de ventas — {anio}</h3>
               </div>
-              <MapaCalorChart porMes={heatMes} porDiaMes={heatDia} porDiaSemana={heatSemana} />
+              <MapaCalorChart porMes={heatMes} porDiaMes={heatDia} porDiaSemana={heatSemana} semanaHora={heatMatrix} />
               <p className="mt-5 text-xs text-primary-muted">
                 Mayor intensidad = más ingresos. Pasa el cursor sobre cada celda para ver el detalle.
               </p>

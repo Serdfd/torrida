@@ -420,8 +420,8 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               envio_departamento, envio_ciudad, envio_direccion,
               transportadora_id, guia_numero, envio_pendiente,
               comision_medio_pago, medio_pago_tarifa_id, medio_pago_tarifa_concepto,
-              total, notas, estado, created_at, updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`,
+              total, notas, estado, creado_en, created_at, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'),datetime('now'))`,
           [numero, data.fecha, data.canal_id || null, data.medio_pago_id || null,
            data.cliente_nombre || null, data.cliente_telefono || null,
            subtFinal, descFinal, comFinal,
