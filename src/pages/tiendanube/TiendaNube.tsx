@@ -119,6 +119,18 @@ function parsePrecioTN(raw: string): number {
   return parseFloat(raw.replace(/,/g, '')) || 0
 }
 
+/** Parsea montos en formato colombiano ($4.777,20) o estándar (-7293.20) */
+function parseMonto(raw: string): number {
+  const clean = raw.replace(/[$\s%]/g, '')
+  if (!clean) return 0
+  // Formato colombiano/europeo: "4.777,20" (punto=miles, coma=decimal)
+  if (/^-?\d{1,3}(\.\d{3})+,\d+$/.test(clean)) {
+    return parseFloat(clean.replace(/\./g, '').replace(',', '.')) || 0
+  }
+  // Formato estándar (comas como miles)
+  return parseFloat(clean.replace(/,/g, '')) || 0
+}
+
 function parseFechaTN(raw: string): { fecha: string; creado_en: string } {
   // "15/06/2026 11:18:02" → { fecha: "2026-06-15", creado_en: "2026-06-15 11:18:02" }
   const [datePart, timePart] = raw.trim().split(' ')
@@ -1114,20 +1126,39 @@ export default function TiendaNube() {
       type ColMap = { transId: number; comision: number }
       let colMap: ColMap = { transId: -1, comision: -1 }
 
+      // Para MP: columna TAXES_AMOUNT para sumar a FEE
+      const iTaxesMP = concilProcesador === 'mercadopago'
+        ? headers.findIndex(h => /^taxes_amount$/i.test(h))
+        : -1
+
       if (concilProcesador === 'mercadopago') {
-        // MP: "Número de operación", "Comisión de Mercado Pago" o "Cargos"
-        colMap.transId  = headers.findIndex(h => /número.*(operaci|transacci)/i.test(h) || /external.*(id|ref)/i.test(h))
-        colMap.comision = headers.findIndex(h => /comisi[oó]n|cargo|fee/i.test(h))
+        // MP: columna SOURCE_ID y FEE_AMOUNT
+        colMap.transId  = headers.findIndex(h =>
+          /^source_id$/i.test(h) ||
+          /número.*(operaci|transacci)/i.test(h) ||
+          /external.*(id|ref)/i.test(h)
+        )
+        colMap.comision = headers.findIndex(h =>
+          /^fee_amount$/i.test(h) ||
+          /comisi[oó]n|cargo|fee/i.test(h)
+        )
       } else {
-        // Bold: "ID Transacción", "Tarifa" o "Comisión"
+        // Bold: columna "ID TRANSACCION" y "TOTAL DEDUCCIÓN"
         colMap.transId  = headers.findIndex(h => /id.*transacc|transacc.*id/i.test(h))
-        colMap.comision = headers.findIndex(h => /tarifa|comisi[oó]n|fee/i.test(h))
+        colMap.comision = headers.findIndex(h => /total.*deducc|deducci[oó]n/i.test(h))
+        if (colMap.comision < 0)
+          colMap.comision = headers.findIndex(h => /tarifa|comisi[oó]n|fee/i.test(h))
       }
 
       if (colMap.transId < 0 || colMap.comision < 0) {
-        toast.error(`No se encontraron las columnas de ID de transacción y comisión. Columnas disponibles: ${headers.slice(0,8).join(', ')}`)
+        toast.error(`No se encontraron las columnas requeridas. Columnas disponibles: ${headers.slice(0,10).join(', ')}`)
         return
       }
+
+      // Para Bold: columna REFERENCIA contiene "TN~<tn_order_id>~<store_id>"
+      const iReferenciaBold = concilProcesador === 'bold'
+        ? headers.findIndex(h => /^referencia$/i.test(h))
+        : -1
 
       const preview: typeof concilPreview = []
       for (let r = 1; r < rows.length; r++) {
@@ -1135,11 +1166,32 @@ export default function TiendaNube() {
         const rawId = (row[colMap.transId] ?? '').trim().replace(/^="?(.+?)"?$/, '$1')
         const rawCom = (row[colMap.comision] ?? '').trim()
         if (!rawId) continue
-        const comision = Math.abs(parsePrecioTN(rawCom.replace(/[$\s%]/g, '')))
+        const comisionBase = Math.abs(parseMonto(rawCom))
+        const taxes = iTaxesMP >= 0 ? Math.abs(parseMonto((row[iTaxesMP] ?? '').trim())) : 0
+        const comision = comisionBase + taxes
 
-        const [ventaRow] = await window.electronAPI.db.query<{ id: number; numero_venta: string }>(
-          `SELECT id, numero_venta FROM ventas WHERE pago_transaccion_id = ? LIMIT 1`, [rawId]
-        )
+        let ventaRow: { id: number; numero_venta: string } | undefined
+
+        // Bold: match por tn_order_id extraído de REFERENCIA (más confiable)
+        if (concilProcesador === 'bold' && iReferenciaBold >= 0) {
+          const refRaw = (row[iReferenciaBold] ?? '').trim()
+          const tnMatch = refRaw.match(/TN~(\d+)~/)
+          if (tnMatch) {
+            const [vr] = await window.electronAPI.db.query<{ id: number; numero_venta: string }>(
+              `SELECT id, numero_venta FROM ventas WHERE tn_order_id = ? LIMIT 1`, [tnMatch[1]]
+            )
+            ventaRow = vr
+          }
+        }
+
+        // Fallback: match por pago_transaccion_id (funciona para MP y Bold si TN lo exporta)
+        if (!ventaRow) {
+          const [vr] = await window.electronAPI.db.query<{ id: number; numero_venta: string }>(
+            `SELECT id, numero_venta FROM ventas WHERE pago_transaccion_id = ? LIMIT 1`, [rawId]
+          )
+          ventaRow = vr
+        }
+
         preview.push({
           transaccion_id: rawId,
           comision,
@@ -1163,10 +1215,37 @@ export default function TiendaNube() {
     let ok = 0
     try {
       for (const c of conciliables) {
+        // 1. Actualizar comision_medio_pago en la venta
         await window.electronAPI.db.run(
           `UPDATE ventas SET comision_medio_pago = ?, updated_at = datetime('now') WHERE id = ?`,
           [c.comision, c.venta_id]
         )
+
+        // 2. Redistribuir comisión MP entre ítems y recalcular utilidad_item
+        const items = await window.electronAPI.db.query<{
+          id: number
+          subtotal_item: number
+          costo_unitario_snap: number
+          cantidad: number
+          comision_item: number
+        }>(
+          `SELECT id, subtotal_item, costo_unitario_snap, cantidad, comision_item
+           FROM venta_items WHERE venta_id = ?`,
+          [c.venta_id]
+        )
+        const brutoTotal = items.reduce((s, it) => s + it.subtotal_item, 0)
+        for (const it of items) {
+          const peso       = brutoTotal > 0 ? it.subtotal_item / brutoTotal : 0
+          const comMPIt    = c.comision * peso
+          const utilIt     = it.subtotal_item
+                             - it.costo_unitario_snap * it.cantidad
+                             - it.comision_item
+                             - comMPIt
+          await window.electronAPI.db.run(
+            `UPDATE venta_items SET utilidad_item = ? WHERE id = ?`,
+            [utilIt, it.id]
+          )
+        }
         ok++
       }
       toast.success(`${ok} ventas actualizadas con comisión real`)

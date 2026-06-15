@@ -76,6 +76,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   const [ventaEstadoOrig,   setVentaEstadoOrig]   = useState<string>('completada')
   const [tarifas,           setTarifas]           = useState<Tarifa[]>([])
   const [selectedTarifaId,  setSelectedTarifaId]  = useState<number>(0)
+  const [comisionMPGuardada, setComisionMPGuardada] = useState<number>(0)
 
   const loadedProds = useRef<Set<number>>(new Set())
 
@@ -232,6 +233,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
         const v = ventas[0]
         if (!v) return
         setVentaEstadoOrig(v.estado ?? 'completada')
+        setComisionMPGuardada(v.comision_medio_pago ?? 0)
         const prodIds = [...new Set(items.map((i: any) => i.producto_id))] as number[]
         await Promise.all(prodIds.map(id => loadTallasParaProducto(id)))
         // Cargar tarifa guardada en la venta
@@ -849,6 +851,12 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
             <div className="flex justify-between text-base text-warning">
               <span>Comisión pasarela{tarifaSelec ? ` (${tarifaSelec.concepto})` : ''}</span>
               <span>-{formatCOP(comisionMP)}</span>
+            </div>
+          )}
+          {comisionMP === 0 && comisionMPGuardada > 0 && (
+            <div className="flex justify-between text-base text-warning">
+              <span>Comisión pasarela (conciliada)</span>
+              <span>-{formatCOP(comisionMPGuardada)}</span>
             </div>
           )}
           <div className={`flex justify-between text-base font-semibold ${totalUtilidad >= 0 ? 'text-success' : 'text-danger'}`}>

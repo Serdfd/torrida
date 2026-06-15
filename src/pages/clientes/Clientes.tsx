@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Users, Search, Download } from 'lucide-react'
+import { Users, Search, Download, Trash2 } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
 import { formatCOP, formatDate, objectsToCSV } from '@/lib/utils'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 interface Cliente {
   id:             number
@@ -20,9 +21,10 @@ interface Cliente {
 export default function Clientes() {
   const toast = useToast()
 
-  const [loading,  setLoading]  = useState(true)
-  const [clientes, setClientes] = useState<Cliente[]>([])
-  const [busqueda, setBusqueda] = useState('')
+  const [loading,          setLoading]          = useState(true)
+  const [clientes,         setClientes]         = useState<Cliente[]>([])
+  const [busqueda,         setBusqueda]         = useState('')
+  const [clienteAEliminar, setClienteAEliminar] = useState<Cliente | null>(null)
 
   const loadClientes = useCallback(async () => {
     setLoading(true)
@@ -63,6 +65,25 @@ export default function Clientes() {
       (c.dni      ?? '').toLowerCase().includes(q)
     )
   })
+
+  async function handleEliminar(cliente: Cliente) {
+    try {
+      // Desligar ventas (el nombre ya está guardado en cliente_nombre)
+      await window.electronAPI.db.run(
+        `UPDATE ventas SET cliente_id = NULL WHERE cliente_id = ?`,
+        [cliente.id]
+      )
+      await window.electronAPI.db.run(
+        `DELETE FROM clientes WHERE id = ?`,
+        [cliente.id]
+      )
+      toast.success(`Cliente "${cliente.nombre}" eliminado`)
+      setClienteAEliminar(null)
+      loadClientes()
+    } catch {
+      toast.error('Error al eliminar el cliente')
+    }
+  }
 
   function handleExportCsv() {
     if (filtrados.length === 0) return
@@ -157,6 +178,7 @@ export default function Clientes() {
                 <th className="th text-right px-4 py-2.5">Compras</th>
                 <th className="th text-right px-4 py-2.5">Total gastado</th>
                 <th className="th text-left px-4 py-2.5">Última compra</th>
+                <th className="th px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
@@ -181,11 +203,31 @@ export default function Clientes() {
                   <td className="px-4 py-2.5 text-sm text-primary-muted">
                     {c.ultima_compra ? formatDate(c.ultima_compra) : '—'}
                   </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <button
+                      onClick={e => { e.stopPropagation(); setClienteAEliminar(c) }}
+                      className="p-1.5 rounded-lg text-primary-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                      title="Eliminar cliente"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {clienteAEliminar && (
+        <ConfirmDialog
+          title="¿Eliminar cliente?"
+          description={`Se eliminará "${clienteAEliminar.nombre}" permanentemente. Sus ventas no se verán afectadas.`}
+          confirmLabel="Eliminar"
+          variant="danger"
+          onCancel={() => setClienteAEliminar(null)}
+          onConfirm={() => handleEliminar(clienteAEliminar)}
+        />
       )}
     </div>
   )
