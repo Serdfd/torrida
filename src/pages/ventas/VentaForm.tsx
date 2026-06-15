@@ -32,7 +32,7 @@ interface VentaFormData {
   medio_pago_id:    number
   cliente_nombre:   string
   cliente_telefono: string
-  tipo_envio:            'standard' | 'express'
+  tipo_envio:            'standard' | 'express' | 'recogida'
   costo_envio:           number
   costo_envio_real:      number
   envio_departamento:    string
@@ -146,6 +146,20 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   })
 
   const totalUtilidad = itemsCalc.reduce((s, c) => s + c.utilidadItem, 0)
+
+  // Limpiar campos de envío cuando se selecciona recogida
+  useEffect(() => {
+    if (watchTipoEnvio === 'recogida') {
+      setValue('costo_envio', 0)
+      setValue('costo_envio_real', 0)
+      setValue('envio_departamento', '')
+      setValue('envio_ciudad', '')
+      setValue('envio_direccion', '')
+      setValue('transportadora_id', 0)
+      setValue('guia_numero', '')
+      setValue('envio_pendiente', 0)
+    }
+  }, [watchTipoEnvio]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cargar tarifas cuando cambia el medio de pago
   useEffect(() => {
@@ -638,13 +652,23 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
             <span className="text-base font-semibold text-primary">Envío</span>
           </div>
           <div className="flex gap-5">
-            {(['standard', 'express'] as const).map(tipo => (
-              <label key={tipo} className="flex items-center gap-2 cursor-pointer select-none">
-                <input type="radio" value={tipo} {...register('tipo_envio')} className="accent-accent" />
-                <span className="text-base capitalize text-primary-muted">{tipo}</span>
+            {([
+              { value: 'standard', label: 'Estándar' },
+              { value: 'express',  label: 'Express'  },
+              { value: 'recogida', label: 'Recogida en punto' },
+            ] as const).map(({ value, label }) => (
+              <label key={value} className="flex items-center gap-2 cursor-pointer select-none">
+                <input type="radio" value={value} {...register('tipo_envio')} className="accent-accent" />
+                <span className="text-base text-primary-muted">{label}</span>
               </label>
             ))}
           </div>
+
+          {watchTipoEnvio === 'recogida' ? (
+            <p className="text-base text-primary-muted bg-accent/5 border border-accent/20 rounded-lg px-3 py-2">
+              El cliente retira su pedido en el punto de la marca. Sin costo de envío.
+            </p>
+          ) : (<>
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="input-label">Departamento</label>
@@ -711,6 +735,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               </div>
             )}
           </div>
+          </>)}
         </div>
 
         {/* Descuento global + notas + estado pago */}

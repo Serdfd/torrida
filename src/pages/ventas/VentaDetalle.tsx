@@ -24,7 +24,8 @@ const ESTADO_BADGE: Record<string, string> = {
 
 const TIPO_ENVIO_LABEL: Record<string, string> = {
   standard: 'Estándar',
-  express:  'Express'
+  express:  'Express',
+  recogida: 'Recogida en punto'
 }
 
 export default function VentaDetalle({
@@ -159,16 +160,16 @@ export default function VentaDetalle({
         {(venta.costo_envio > 0 || venta.tipo_envio) && (
           <InfoRow
             icon={Truck}
-            label={`Envío ${TIPO_ENVIO_LABEL[venta.tipo_envio] ?? ''}`}
-            value={venta.costo_envio > 0 ? formatCOP(venta.costo_envio) : 'Marca asume'}
-            sub={[
+            label={venta.tipo_envio === 'recogida' ? 'Recogida en punto' : `Envío ${TIPO_ENVIO_LABEL[venta.tipo_envio] ?? ''}`}
+            value={venta.tipo_envio === 'recogida' ? 'Sin costo de envío' : venta.costo_envio > 0 ? formatCOP(venta.costo_envio) : 'Marca asume'}
+            sub={venta.tipo_envio === 'recogida' ? undefined : [
               venta.costo_envio_real > 0 ? `Costo real: ${formatCOP(venta.costo_envio_real)}` : null,
               [venta.envio_departamento, venta.envio_ciudad].filter(Boolean).join(', ') || null,
               venta.envio_direccion || null,
               venta.transportadora_nombre ? `Transportadora: ${venta.transportadora_nombre}` : null,
               venta.guia_numero ? `Guía: ${venta.guia_numero}` : null,
             ].filter(Boolean).join(' · ') || undefined}
-            badge={venta.envio_pendiente
+            badge={venta.tipo_envio === 'recogida' ? undefined : venta.envio_pendiente
               ? { label: 'Pendiente de envío', color: 'warning' }
               : { label: 'Enviado', color: 'success' }}
             className="col-span-2"
