@@ -12,7 +12,8 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Users
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -23,6 +24,7 @@ const NAV_GROUPS = [
     items: [
       { id: 'dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
       { id: 'ventas',     label: 'Ventas',     icon: ShoppingBag     },
+      { id: 'clientes',   label: 'Clientes',   icon: Users           },
       { id: 'productos',  label: 'Productos',  icon: Package         },
       { id: 'inventario', label: 'Inventario', icon: Boxes           },
       { id: 'produccion', label: 'Producción', icon: Factory         },

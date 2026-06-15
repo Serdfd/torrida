@@ -286,9 +286,9 @@ export default function ProductoForm({
         <div>
           <label className="input-label">Descripción</label>
           <textarea
-            rows={2}
+            rows={5}
             placeholder="Descripción breve del producto…"
-            className="input resize-none"
+            className="input resize-y"
             {...register('descripcion')}
           />
         </div>

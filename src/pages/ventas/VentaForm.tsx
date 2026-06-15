@@ -28,10 +28,13 @@ interface Tarifa {
 
 interface VentaFormData {
   fecha:            string
+  hora:             string
   canal_id:         number
   medio_pago_id:    number
   cliente_nombre:   string
   cliente_telefono: string
+  cliente_email:    string
+  cliente_dni:      string
   tipo_envio:            'standard' | 'express' | 'recogida'
   costo_envio:           number
   costo_envio_real:      number
@@ -79,10 +82,13 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   const { register, control, handleSubmit, watch, setValue, reset } = useForm<VentaFormData>({
     defaultValues: {
       fecha:            new Date().toISOString().slice(0, 10),
+      hora:             new Date().toTimeString().slice(0, 5),
       canal_id:         0,
       medio_pago_id:    0,
       cliente_nombre:   '',
       cliente_telefono: '',
+      cliente_email:    '',
+      cliente_dni:      '',
       tipo_envio:            'standard',
       costo_envio:           0,
       costo_envio_real:      0,
@@ -240,10 +246,13 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
         reset({
           fecha:            v.fecha,
+          hora:             v.creado_en ? v.creado_en.slice(11, 16) : new Date().toTimeString().slice(0, 5),
           canal_id:         v.canal_id        ?? 0,
           medio_pago_id:    v.medio_pago_id   ?? 0,
           cliente_nombre:   v.cliente_nombre   ?? '',
           cliente_telefono: v.cliente_telefono ?? '',
+          cliente_email:    v.cliente_email    ?? '',
+          cliente_dni:      v.cliente_dni      ?? '',
           tipo_envio:            v.tipo_envio            ?? 'standard',
           costo_envio:           v.costo_envio           ?? 0,
           costo_envio_real:      v.costo_envio_real      ?? 0,
@@ -338,6 +347,47 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
       const comMPFinal  = tarifaSnap ? totalFinal * (tarifaSnap.comision_pct / 100) + tarifaSnap.comision_fija : 0
       const tarifaIdSnap    = tarifaSnap?.id ?? null
       const tarifaConcepto  = tarifaSnap?.concepto ?? null
+      const creadoEn    = `${data.fecha} ${data.hora ?? '00:00'}:00`
+
+      // Upsert cliente
+      let clienteId: number | null = null
+      const emailClean = data.cliente_email?.trim() || null
+      const dniClean   = data.cliente_dni?.trim()   || null
+      const nombreClean = data.cliente_nombre?.trim() || null
+      if (nombreClean || emailClean || dniClean) {
+        // Buscar por email o dni primero
+        let existingCliente: { id: number }[] = []
+        if (emailClean) {
+          existingCliente = await window.electronAPI.db.query<{ id: number }>(
+            `SELECT id FROM clientes WHERE email = ?`, [emailClean]
+          )
+        }
+        if (existingCliente.length === 0 && dniClean) {
+          existingCliente = await window.electronAPI.db.query<{ id: number }>(
+            `SELECT id FROM clientes WHERE dni = ?`, [dniClean]
+          )
+        }
+        if (existingCliente.length > 0) {
+          clienteId = existingCliente[0].id
+          await window.electronAPI.db.run(
+            `UPDATE clientes SET
+               nombre   = COALESCE(NULLIF(?, ''), nombre),
+               email    = COALESCE(?, email),
+               telefono = COALESCE(NULLIF(?, ''), telefono),
+               dni      = COALESCE(?, dni),
+               updated_at = datetime('now')
+             WHERE id = ?`,
+            [nombreClean, emailClean, data.cliente_telefono?.trim() || null, dniClean, clienteId]
+          )
+        } else {
+          const cr = await window.electronAPI.db.run(
+            `INSERT INTO clientes (nombre, email, telefono, dni, created_at, updated_at)
+             VALUES (?,?,?,?,datetime('now'),datetime('now'))`,
+            [nombreClean || 'Cliente', emailClean, data.cliente_telefono?.trim() || null, dniClean]
+          )
+          clienteId = cr.lastInsertRowid as number
+        }
+      }
 
       if (isEditing && ventaId) {
         if (ventaEstadoOrig !== 'cancelado') {
@@ -358,23 +408,25 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
         await window.electronAPI.db.run(
           `UPDATE ventas SET
              fecha = ?, canal_id = ?, medio_pago_id = ?,
-             cliente_nombre = ?, cliente_telefono = ?,
+             cliente_id = ?, cliente_nombre = ?, cliente_telefono = ?,
+             cliente_email = ?, cliente_dni = ?,
              subtotal = ?, descuento = ?, comision_canal = ?,
              tipo_envio = ?, costo_envio = ?, costo_envio_real = ?,
              envio_departamento = ?, envio_ciudad = ?, envio_direccion = ?,
              transportadora_id = ?, guia_numero = ?, envio_pendiente = ?,
              comision_medio_pago = ?, medio_pago_tarifa_id = ?,
              medio_pago_tarifa_concepto = ?,
-             total = ?, notas = ?, estado = ?, updated_at = datetime('now')
+             total = ?, notas = ?, estado = ?, creado_en = ?, updated_at = datetime('now')
            WHERE id = ?`,
           [data.fecha, data.canal_id || null, data.medio_pago_id || null,
-           data.cliente_nombre || null, data.cliente_telefono || null,
+           clienteId, data.cliente_nombre || null, data.cliente_telefono || null,
+           emailClean, dniClean,
            subtFinal, descFinal, comFinal,
            data.tipo_envio, envioFinal, data.costo_envio_real ?? 0,
            data.envio_departamento || null, data.envio_ciudad || null, data.envio_direccion || null,
            data.transportadora_id || null, data.guia_numero || null, data.envio_pendiente ?? 0,
            comMPFinal, tarifaIdSnap, tarifaConcepto,
-           totalFinal, data.notas || null, data.estado ?? 'completada', ventaId],
+           totalFinal, data.notas || null, data.estado ?? 'completada', creadoEn, ventaId],
         )
 
         await window.electronAPI.db.run(`DELETE FROM venta_items WHERE venta_id = ?`, [ventaId])
@@ -428,22 +480,22 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
         const result = await window.electronAPI.db.run(
           `INSERT INTO ventas
              (numero_venta, fecha, canal_id, medio_pago_id,
-              cliente_nombre, cliente_telefono,
+              cliente_id, cliente_nombre, cliente_telefono, cliente_email, cliente_dni,
               subtotal, descuento, comision_canal,
               tipo_envio, costo_envio, costo_envio_real,
               envio_departamento, envio_ciudad, envio_direccion,
               transportadora_id, guia_numero, envio_pendiente,
               comision_medio_pago, medio_pago_tarifa_id, medio_pago_tarifa_concepto,
               total, notas, estado, creado_en, created_at, updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'),datetime('now'))`,
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`,
           [numero, data.fecha, data.canal_id || null, data.medio_pago_id || null,
-           data.cliente_nombre || null, data.cliente_telefono || null,
+           clienteId, data.cliente_nombre || null, data.cliente_telefono || null, emailClean, dniClean,
            subtFinal, descFinal, comFinal,
            data.tipo_envio, envioFinal, data.costo_envio_real ?? 0,
            data.envio_departamento || null, data.envio_ciudad || null, data.envio_direccion || null,
            data.transportadora_id || null, data.guia_numero || null, data.envio_pendiente ?? 0,
            comMPFinal, tarifaIdSnap, tarifaConcepto,
-           totalFinal, data.notas || null, data.estado ?? 'completada'],
+           totalFinal, data.notas || null, data.estado ?? 'completada', creadoEn],
         )
         const ventaIdNueva = result.lastInsertRowid as number
 
@@ -504,11 +556,15 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
 
-        {/* Fila 1: Fecha + Canal + Medio pago */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Fila 1: Fecha + Hora + Canal + Medio pago */}
+        <div className="grid grid-cols-4 gap-3">
           <div>
             <label className="input-label">Fecha</label>
             <input type="date" className="input" {...register('fecha', { required: true })} />
+          </div>
+          <div>
+            <label className="input-label">Hora</label>
+            <input type="time" className="input" {...register('hora')} />
           </div>
           <div>
             <label className="input-label">Canal de venta</label>
@@ -553,6 +609,16 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
             <label className="input-label">Teléfono / Contacto</label>
             <input type="text" placeholder="Teléfono / Instagram" className="input"
               {...register('cliente_telefono')} />
+          </div>
+          <div>
+            <label className="input-label">Email</label>
+            <input type="email" placeholder="correo@ejemplo.com" className="input"
+              {...register('cliente_email')} />
+          </div>
+          <div>
+            <label className="input-label">Cédula / DNI</label>
+            <input type="text" placeholder="Número de cédula" className="input"
+              {...register('cliente_dni')} />
           </div>
         </div>
 

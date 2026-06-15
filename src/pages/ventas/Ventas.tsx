@@ -5,6 +5,7 @@ import { getVentas }                        from '@/lib/queries'
 import { formatCOP, formatDate, objectsToCSV } from '@/lib/utils'
 import { FullPageSpinner }                  from '@/components/ui/Spinner'
 import EmptyState                           from '@/components/ui/EmptyState'
+import ConfirmDialog                        from '@/components/ui/ConfirmDialog'
 import VentaForm                            from './VentaForm'
 import VentaDetalle                         from './VentaDetalle'
 import VentaFila                            from './VentaFila'
@@ -65,6 +66,44 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
         onUpdate={() => { closeModal(); loadVentas() }}
       />,
       'xl'
+    )
+  }
+
+  function handleEliminar(venta: any) {
+    openModal(
+      <ConfirmDialog
+        title="Eliminar venta"
+        description={`¿Eliminar la venta ${venta.numero_venta}? Esta acción no se puede deshacer. El stock se revertirá si la venta estaba completada.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={async () => {
+          try {
+            // Revertir stock si no estaba cancelada
+            if (venta.estado !== 'cancelado') {
+              const items = await window.electronAPI.db.query<any>(
+                `SELECT producto_id, talla_id, cantidad FROM venta_items WHERE venta_id = ?`,
+                [venta.id]
+              )
+              for (const it of items) {
+                if (!it.talla_id) continue
+                await window.electronAPI.db.run(
+                  `UPDATE inventario_productos SET stock = stock + ?, updated_at = datetime('now')
+                   WHERE producto_id = ? AND talla_id = ?`,
+                  [it.cantidad, it.producto_id, it.talla_id]
+                )
+              }
+            }
+            await window.electronAPI.db.run(`DELETE FROM ventas WHERE id = ?`, [venta.id])
+            toast.success(`Venta ${venta.numero_venta} eliminada`)
+            closeModal()
+            loadVentas()
+          } catch (err) {
+            console.error(err)
+            toast.error('Error al eliminar la venta')
+          }
+        }}
+        onCancel={closeModal}
+      />
     )
   }
 
@@ -209,6 +248,7 @@ export default function Ventas({ onNuevaVenta, onEditarVenta }: VentasProps) {
                     onClick={() => handleVerDetalle(venta)}
                     onUpdate={loadVentas}
                     onEditar={() => onEditarVenta(venta.id)}
+                    onEliminar={() => handleEliminar(venta)}
                   />
                 ))}
               </tbody>

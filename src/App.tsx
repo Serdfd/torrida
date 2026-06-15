@@ -20,6 +20,7 @@ import Administracion   from '@/pages/administracion/Administracion'
 import Configuracion    from '@/pages/configuracion/Configuracion'
 import SesionesFotograficas from '@/pages/sesiones/SesionesFotograficas'
 import SetupWizard        from '@/pages/configuracion/SetupWizard'
+import Clientes           from '@/pages/clientes/Clientes'
 
 // ── Tipos de rutas ─────────────────────────────────────────────────────────
 export type PageId =
@@ -37,6 +38,7 @@ export type PageId =
   | 'administracion'
   | 'configuracion'
   | 'sesiones'
+  | 'clientes'
 
 // ── Títulos de página ──────────────────────────────────────────────────────
 const PAGE_TITLES: Record<PageId, string> = {
@@ -54,6 +56,7 @@ const PAGE_TITLES: Record<PageId, string> = {
   'administracion': 'Administración',
   'configuracion':  'Configuración',
   'sesiones':       'Sesiones Fotográficas',
+  'clientes':       'Clientes',
 }
 
 // ── Componente principal ───────────────────────────────────────────────────
@@ -155,6 +158,9 @@ export default function App() {
 
       case 'tiendanube':
         return <TiendaNube />
+
+      case 'clientes':
+        return <Clientes />
 
       case 'administracion':
         return <Administracion />

@@ -820,6 +820,81 @@ const MIGRATIONS: Migration[] = [
     }
   },
 
+  // ── v32: Tabla clientes + campos en ventas ───────────────────────────────
+  {
+    version:     32,
+    description: 'Tabla clientes + cliente_id, cliente_email, cliente_dni, pago_transaccion_id en ventas',
+    up(db) {
+      // Nueva tabla clientes
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS clientes (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre     TEXT    NOT NULL,
+          email      TEXT,
+          telefono   TEXT,
+          dni        TEXT,
+          notas      TEXT,
+          created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_clientes_email
+          ON clientes(email) WHERE email IS NOT NULL AND email != '';
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_clientes_dni
+          ON clientes(dni) WHERE dni IS NOT NULL AND dni != '';
+
+        CREATE INDEX IF NOT EXISTS idx_clientes_nombre
+          ON clientes(nombre);
+      `)
+
+      // Nuevas columnas en ventas
+      const cols = [
+        `ALTER TABLE ventas ADD COLUMN cliente_id      INTEGER REFERENCES clientes(id) ON DELETE SET NULL`,
+        `ALTER TABLE ventas ADD COLUMN cliente_email   TEXT`,
+        `ALTER TABLE ventas ADD COLUMN cliente_dni     TEXT`,
+        `ALTER TABLE ventas ADD COLUMN pago_transaccion_id TEXT`,
+      ]
+      for (const col of cols) {
+        try { db.exec(col) } catch { /* ya existe */ }
+      }
+    }
+  },
+
+  // ── v31: Crear tabla producto_tallas ─────────────────────────────────────
+  {
+    version:     31,
+    description: 'Crear tabla producto_tallas con tn_variant_id (faltaba en schema base)',
+    up(db) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS producto_tallas (
+          id            INTEGER PRIMARY KEY AUTOINCREMENT,
+          producto_id   INTEGER NOT NULL REFERENCES productos(id) ON DELETE CASCADE,
+          talla_id      INTEGER NOT NULL REFERENCES tallas(id)   ON DELETE CASCADE,
+          activa        INTEGER NOT NULL DEFAULT 1,
+          tn_variant_id TEXT,
+          created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+          updated_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+          UNIQUE(producto_id, talla_id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_pt_producto
+          ON producto_tallas(producto_id);
+
+        CREATE INDEX IF NOT EXISTS idx_pt_tn_variant
+          ON producto_tallas(tn_variant_id)
+          WHERE tn_variant_id IS NOT NULL;
+      `)
+
+      // Poblar desde inventario_productos (registros ya existentes)
+      db.exec(`
+        INSERT OR IGNORE INTO producto_tallas (producto_id, talla_id, activa)
+        SELECT producto_id, talla_id, 1
+        FROM inventario_productos
+      `)
+    }
+  },
+
 ]
 
 // ── Runner principal ───────────────────────────────────────────────────────

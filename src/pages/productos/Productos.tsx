@@ -76,6 +76,7 @@ export default function Productos() {
         onSuccess={() => { closeModal(); loadProductos() }}
         onCancel={closeModal}
       />,
+      'xl'
     )
   }
 
@@ -85,7 +86,8 @@ export default function Productos() {
         producto={producto}
         onSuccess={() => { closeModal(); loadProductos() }}
         onCancel={closeModal}
-      />
+      />,
+      'xl'
     )
   }
 

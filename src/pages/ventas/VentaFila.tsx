@@ -1,11 +1,13 @@
 import { formatCOP, formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { Pencil, Trash2 } from 'lucide-react'
 
 interface VentaFilaProps {
-  venta:    any
-  onClick:  () => void
-  onUpdate: () => void
-  onEditar: () => void
+  venta:      any
+  onClick:    () => void
+  onUpdate:   () => void
+  onEditar:   () => void
+  onEliminar: () => void
 }
 
 const ESTADO_STYLE: Record<string, string> = {
@@ -14,7 +16,7 @@ const ESTADO_STYLE: Record<string, string> = {
   cancelado:  'bg-danger/10  border-danger/20  text-danger'
 }
 
-export default function VentaFila({ venta, onClick, onEditar }: VentaFilaProps) {
+export default function VentaFila({ venta, onClick, onEditar, onEliminar }: VentaFilaProps) {
   const estadoStyle = ESTADO_STYLE[venta.estado] ?? 'bg-card border-border text-primary-muted'
 
   return (
@@ -101,15 +103,24 @@ export default function VentaFila({ venta, onClick, onEditar }: VentaFilaProps) 
 
       {/* Acciones */}
       <td>
-        <button
-          onClick={e => { e.stopPropagation(); onEditar() }}
-          className="px-2.5 py-1 rounded-lg text-sm font-semibold
-                     bg-card border border-border text-primary-muted
-                     hover:text-primary hover:border-accent/40 transition-colors"
-          title="Editar venta"
-        >
-          Editar
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={e => { e.stopPropagation(); onEditar() }}
+            className="p-1.5 rounded-lg text-primary-muted hover:text-primary
+                       hover:bg-white/5 transition-colors"
+            title="Editar venta"
+          >
+            <Pencil size={13} />
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); onEliminar() }}
+            className="p-1.5 rounded-lg text-primary-muted hover:text-danger
+                       hover:bg-danger/10 transition-colors"
+            title="Eliminar venta"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
       </td>
     </tr>
   )
