@@ -895,6 +895,18 @@ const MIGRATIONS: Migration[] = [
     }
   },
 
+  // ── v33: Parámetro monto mínimo para envío gratis ─────────────────────────
+  {
+    version:     33,
+    description: 'Agregar parámetro monto_minimo_envio_gratis a configuracion_app',
+    up(db) {
+      db.exec(`
+        INSERT OR IGNORE INTO configuracion_app (clave, valor, updated_at)
+        VALUES ('monto_minimo_envio_gratis', '200000', datetime('now'))
+      `)
+    }
+  },
+
 ]
 
 // ── Runner principal ───────────────────────────────────────────────────────

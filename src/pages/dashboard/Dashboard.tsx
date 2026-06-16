@@ -168,24 +168,42 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           [periodoAnt]
         ),
 
-        // Utilidad bruta mes actual (suma utilidad_item)
+        // Utilidad bruta mes actual (suma utilidad_item - fletes de marca)
         window.electronAPI.db.query<{ utilidad: number }>(
-          `SELECT COALESCE(SUM(vi.utilidad_item),0) AS utilidad
-           FROM venta_items vi
-           JOIN ventas v ON v.id = vi.venta_id
-           WHERE strftime('%Y-%m', v.fecha) = ?
-             AND v.estado != 'cancelado'`,
-          [periodo]
+          `SELECT
+             COALESCE((
+               SELECT SUM(vi.utilidad_item)
+               FROM venta_items vi
+               JOIN ventas v ON v.id = vi.venta_id
+               WHERE strftime('%Y-%m', v.fecha) = ?
+                 AND v.estado != 'cancelado'
+             ), 0)
+             - COALESCE((
+               SELECT SUM(MAX(0, COALESCE(costo_envio_real,0) - COALESCE(costo_envio,0)))
+               FROM ventas
+               WHERE strftime('%Y-%m', fecha) = ?
+                 AND estado != 'cancelado'
+             ), 0) AS utilidad`,
+          [periodo, periodo]
         ),
 
         // Utilidad bruta mes anterior
         window.electronAPI.db.query<{ utilidad: number }>(
-          `SELECT COALESCE(SUM(vi.utilidad_item),0) AS utilidad
-           FROM venta_items vi
-           JOIN ventas v ON v.id = vi.venta_id
-           WHERE strftime('%Y-%m', v.fecha) = ?
-             AND v.estado != 'cancelado'`,
-          [periodoAnt]
+          `SELECT
+             COALESCE((
+               SELECT SUM(vi.utilidad_item)
+               FROM venta_items vi
+               JOIN ventas v ON v.id = vi.venta_id
+               WHERE strftime('%Y-%m', v.fecha) = ?
+                 AND v.estado != 'cancelado'
+             ), 0)
+             - COALESCE((
+               SELECT SUM(MAX(0, COALESCE(costo_envio_real,0) - COALESCE(costo_envio,0)))
+               FROM ventas
+               WHERE strftime('%Y-%m', fecha) = ?
+                 AND estado != 'cancelado'
+             ), 0) AS utilidad`,
+          [periodoAnt, periodoAnt]
         ),
 
         // Ventas por canal

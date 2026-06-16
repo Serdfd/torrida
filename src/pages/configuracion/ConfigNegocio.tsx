@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Store, Save, ImagePlus } from 'lucide-react'
+import { Store, Save, ImagePlus, Truck } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
 import Spinner from '@/components/ui/Spinner'
 
 interface NegocioFormData {
-  nombre_negocio:   string
-  nit:              string
-  direccion:        string
-  telefono:         string
-  email:            string
-  instagram:        string
-  facebook:         string
-  tiktok:           string
-  sitio_web:        string
-  logo_url:         string
-  moneda:           string
-  prefijo_factura:  string
+  nombre_negocio:             string
+  nit:                        string
+  direccion:                  string
+  telefono:                   string
+  email:                      string
+  instagram:                  string
+  facebook:                   string
+  tiktok:                     string
+  sitio_web:                  string
+  logo_url:                   string
+  moneda:                     string
+  prefijo_factura:            string
+  monto_minimo_envio_gratis:  string
 }
 
 const CAMPOS: {
@@ -94,18 +95,19 @@ export default function ConfigNegocio() {
     formState: { isDirty }
   } = useForm<NegocioFormData>({
     defaultValues: {
-      nombre_negocio:  '',
-      nit:             '',
-      direccion:       '',
-      telefono:        '',
-      email:           '',
-      instagram:       '',
-      facebook:        '',
-      tiktok:          '',
-      sitio_web:       '',
-      logo_url:        '',
-      moneda:          'COP',
-      prefijo_factura: 'V-'
+      nombre_negocio:            '',
+      nit:                       '',
+      direccion:                 '',
+      telefono:                  '',
+      email:                     '',
+      instagram:                 '',
+      facebook:                  '',
+      tiktok:                    '',
+      sitio_web:                 '',
+      logo_url:                  '',
+      moneda:                    'COP',
+      prefijo_factura:           'V-',
+      monto_minimo_envio_gratis: '200000',
     }
   })
 
@@ -122,18 +124,19 @@ export default function ConfigNegocio() {
         rows.forEach(r => { map[r.clave] = r.valor })
 
         reset({
-          nombre_negocio:  map['nombre_negocio']  ?? '',
-          nit:             map['nit']              ?? '',
-          direccion:       map['direccion']        ?? '',
-          telefono:        map['telefono']         ?? '',
-          email:           map['email']            ?? '',
-          instagram:       map['instagram']        ?? '',
-          facebook:        map['facebook']         ?? '',
-          tiktok:          map['tiktok']           ?? '',
-          sitio_web:       map['sitio_web']        ?? '',
-          logo_url:        map['logo_url']         ?? '',
-          moneda:          map['moneda']           ?? 'COP',
-          prefijo_factura: map['prefijo_factura']  ?? 'V-'
+          nombre_negocio:            map['nombre_negocio']            ?? '',
+          nit:                       map['nit']                       ?? '',
+          direccion:                 map['direccion']                 ?? '',
+          telefono:                  map['telefono']                  ?? '',
+          email:                     map['email']                     ?? '',
+          instagram:                 map['instagram']                 ?? '',
+          facebook:                  map['facebook']                  ?? '',
+          tiktok:                    map['tiktok']                    ?? '',
+          sitio_web:                 map['sitio_web']                 ?? '',
+          logo_url:                  map['logo_url']                  ?? '',
+          moneda:                    map['moneda']                    ?? 'COP',
+          prefijo_factura:           map['prefijo_factura']           ?? 'V-',
+          monto_minimo_envio_gratis: map['monto_minimo_envio_gratis'] ?? '200000',
         })
         setPreview(map['logo_url'] ?? '')
       } catch {
@@ -249,6 +252,30 @@ export default function ConfigNegocio() {
               <option value="MXN">MXN — Peso mexicano</option>
               <option value="ARS">ARS — Peso argentino</option>
             </select>
+          </div>
+        </div>
+
+        {/* Política de envíos */}
+        <div className="flex flex-col gap-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Truck size={14} className="text-accent" />
+            <h4 className="text-sm font-bold text-primary">Política de envíos</h4>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="input-label">Monto mínimo para envío gratis (COP)</label>
+              <input
+                type="number"
+                min={0}
+                step={1000}
+                placeholder="Ej: 200000"
+                className="input"
+                {...register('monto_minimo_envio_gratis')}
+              />
+              <p className="text-xs text-primary-muted mt-1">
+                Cuando el subtotal supera este monto, el envío sale gratis para el cliente y la marca asume el costo real.
+              </p>
+            </div>
           </div>
         </div>
 

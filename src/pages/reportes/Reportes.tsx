@@ -1,11 +1,22 @@
 ﻿import { useEffect, useState, useCallback } from 'react'
-import { Download, BarChart2, Flame, ShoppingBag, Share2 } from 'lucide-react'
+import { Download, BarChart2, Flame } from 'lucide-react'
+import VentasMesChart from '@/pages/dashboard/VentasMesChart'
+import UnidadesMesChart from '@/pages/dashboard/UnidadesMesChart'
+import VentasGeoChart from '@/pages/dashboard/VentasGeoChart'
+import VentasCanalChart from '@/pages/dashboard/VentasCanalChart'
+import VentasMedioChart from '@/pages/dashboard/VentasMedioChart'
+import type { VentasPorMes, VentasPorCanal } from '@/pages/dashboard/Dashboard'
+import type { UnidadesPorMes } from '@/pages/dashboard/UnidadesMesChart'
+import type { VentasGeo } from '@/pages/dashboard/VentasGeoChart'
+import type { VentasPorMedio } from '@/pages/dashboard/VentasMedioChart'
 import { useAppStore, useToast } from '@/store/useAppStore'
 import {
   getComparativaMeses,
   getComparativaGastosMeses,
-  getTopProductos,
-  getVentasPorCanal,
+  getVentasPorCanalAnual,
+  getVentasPorDepartamentoAnual,
+  getVentasPorCiudadAnual,
+  getVentasPorMedioPagoAnual,
   getHeatmapPorMes,
   getHeatmapPorDiaMes,
   getHeatmapPorDiaSemana,
@@ -16,13 +27,11 @@ import { FullPageSpinner } from '@/components/ui/Spinner'
 import MapaCalorChart   from './MapaCalorChart'
 import type { HeatCell, HeatMatrix } from './MapaCalorChart'
 
-type Tab = 'anual' | 'calor' | 'productos' | 'canales'
+type Tab = 'anual' | 'calor'
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: 'anual',     label: 'Anual',          icon: BarChart2   },
-  { id: 'calor',     label: 'Mapa de calor',  icon: Flame       },
-  { id: 'productos', label: 'Productos',      icon: ShoppingBag },
-  { id: 'canales',   label: 'Canales',        icon: Share2      },
+  { id: 'anual', label: 'Anual',         icon: BarChart2 },
+  { id: 'calor', label: 'Mapa de calor', icon: Flame     },
 ]
 
 const MESES = [
@@ -33,6 +42,7 @@ const MESES = [
 interface FilaMes {
   mes:            string
   ventas:         number
+  unidades:       number
   ingresos:       number
   comisiones:     number
   envios:         number
@@ -41,45 +51,37 @@ interface FilaMes {
   margen:         number
 }
 
-interface TopProducto {
-  producto: string
-  unidades: number
-  ingresos: number
-}
-
-interface CanalVenta {
-  canal:       string
-  cantidad:    number
-  total:       number
-  comisiones:  number
-}
 
 export default function Reportes() {
   const { filtroAnio, filtroMes } = useAppStore()
   const toast = useToast()
 
-  const [tab,          setTab]          = useState<Tab>('anual')
-  const [anio,         setAnio]         = useState(filtroAnio)
-  const [loading,      setLoading]      = useState(true)
-  const [filasMeses,   setFilasMeses]   = useState<FilaMes[]>([])
-  const [topProductos, setTopProductos] = useState<TopProducto[]>([])
-  const [canales,      setCanales]      = useState<CanalVenta[]>([])
-  const [heatMes,      setHeatMes]      = useState<HeatCell[]>([])
-  const [heatDia,      setHeatDia]      = useState<HeatCell[]>([])
-  const [heatSemana,   setHeatSemana]   = useState<HeatCell[]>([])
-  const [heatMatrix,   setHeatMatrix]   = useState<HeatMatrix[]>([])
+  const [tab,              setTab]              = useState<Tab>('anual')
+  const [anio,             setAnio]             = useState(filtroAnio)
+  const [loading,          setLoading]          = useState(true)
+  const [filasMeses,       setFilasMeses]       = useState<FilaMes[]>([])
+  const [heatMes,          setHeatMes]          = useState<HeatCell[]>([])
+  const [heatDia,          setHeatDia]          = useState<HeatCell[]>([])
+  const [heatSemana,       setHeatSemana]       = useState<HeatCell[]>([])
+  const [heatMatrix,       setHeatMatrix]       = useState<HeatMatrix[]>([])
+  const [geoDepto,         setGeoDepto]         = useState<VentasGeo[]>([])
+  const [geoCiudad,        setGeoCiudad]        = useState<VentasGeo[]>([])
+  const [canalesAnual,     setCanalesAnual]     = useState<VentasPorCanal[]>([])
+  const [mediosAnual,      setMediosAnual]      = useState<VentasPorMedio[]>([])
 
   const loadReportes = useCallback(async () => {
     setLoading(true)
     try {
-      const [ventasMeses, gastosMeses, top, canalData, hmMes, hmDia, hmSemana] = await Promise.all([
+      const [ventasMeses, gastosMeses, hmMes, hmDia, hmSemana, canalAnualData, deptoData, ciudadData, medioData] = await Promise.all([
         getComparativaMeses(anio),
         getComparativaGastosMeses(anio),
-        getTopProductos(anio, filtroMes),
-        getVentasPorCanal(anio, filtroMes),
         getHeatmapPorMes(anio),
         getHeatmapPorDiaMes(anio),
         getHeatmapPorDiaSemana(anio),
+        getVentasPorCanalAnual(anio),
+        getVentasPorDepartamentoAnual(anio),
+        getVentasPorCiudadAnual(anio),
+        getVentasPorMedioPagoAnual(anio),
       ])
 
       // Carga separada para no romper el resto si falla
@@ -101,18 +103,21 @@ export default function Reportes() {
         const envios         = vRow?.envios         ?? 0
         const utilidad_bruta = vRow?.utilidad_bruta ?? 0
         const ventas         = vRow?.ventas         ?? 0
+        const unidades       = vRow?.unidades       ?? 0
         const gastos         = gastosPorMes.get(mesStr) ?? 0
         const margen         = utilidad_bruta - gastos
-        return { mes: MESES[i], ventas, ingresos, comisiones, envios, utilidad_bruta, gastos, margen }
+        return { mes: MESES[i], ventas, unidades, ingresos, comisiones, envios, utilidad_bruta, gastos, margen }
       })
 
       setFilasMeses(filas)
-      setTopProductos(top as unknown as TopProducto[])
-      setCanales(canalData as unknown as CanalVenta[])
       setHeatMes((hmMes     as any[]).map(r => ({ key: r.mes, ventas: r.ventas, total: r.total })))
       setHeatDia((hmDia     as any[]).map(r => ({ key: r.dia, ventas: r.ventas, total: r.total })))
       setHeatSemana((hmSemana as any[]).map(r => ({ key: r.dow, ventas: r.ventas, total: r.total })))
       setHeatMatrix((hmMatrix as any[]).map(r => ({ dow: r.dow, hora: r.hora, ventas: r.ventas, total: r.total })))
+      setCanalesAnual((canalAnualData as any[]).map(r => ({ canal: r.canal, total: r.total, cantidad: r.cantidad })))
+      setGeoDepto((deptoData   as any[]).map(r => ({ zona: r.zona, total: r.total, cantidad: r.cantidad })))
+      setGeoCiudad((ciudadData  as any[]).map(r => ({ zona: r.zona, total: r.total, cantidad: r.cantidad })))
+      setMediosAnual((medioData  as any[]).map(r => ({ nombre: r.nombre, total: r.total, cantidad: r.cantidad })))
     } catch {
       toast.error('Error al cargar reportes')
     } finally {
@@ -278,6 +283,44 @@ export default function Reportes() {
                   </table>
                 </div>
               </div>
+
+              {/* Gráficos anuales */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="card">
+                  <p className="text-base font-bold text-primary mb-4">Ingresos por mes — {anio}</p>
+                  <VentasMesChart
+                    data={filasMeses
+                      .filter(f => f.ingresos > 0)
+                      .map<VentasPorMes>(f => ({ mes: f.mes.slice(0, 3), ingresos: f.ingresos, cantidad: f.ventas }))
+                    }
+                  />
+                </div>
+                <div className="card">
+                  <p className="text-base font-bold text-primary mb-4">Unidades vendidas por mes — {anio}</p>
+                  <UnidadesMesChart
+                    data={filasMeses
+                      .filter(f => f.unidades > 0)
+                      .map<UnidadesPorMes>(f => ({ mes: f.mes.slice(0, 3), unidades: f.unidades, ventas: f.ventas }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Donas anuales */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="card">
+                  <p className="text-base font-bold text-primary mb-4">Distribución geográfica — {anio}</p>
+                  <VentasGeoChart porDepartamento={geoDepto} porCiudad={geoCiudad} />
+                </div>
+                <div className="card">
+                  <p className="text-base font-bold text-primary mb-4">Ventas por canal — {anio}</p>
+                  <VentasCanalChart data={canalesAnual} />
+                </div>
+                <div className="card">
+                  <p className="text-base font-bold text-primary mb-4">Medios de pago — {anio}</p>
+                  <VentasMedioChart data={mediosAnual} />
+                </div>
+              </div>
             </div>
           )}
 
@@ -295,57 +338,7 @@ export default function Reportes() {
             </div>
           )}
 
-          {/* Tab: Productos */}
-          {tab === 'productos' && (
-            <div className="card p-0 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border">
-                <h3 className="text-base font-bold text-primary">Top 5 productos — {MESES[filtroMes - 1]} {anio}</h3>
-              </div>
-              {topProductos.length === 0 ? (
-                <div className="px-4 py-12 text-center text-base text-primary-muted">Sin datos en este período</div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {topProductos.map((p, i) => (
-                    <div key={i} className="flex items-center gap-3 px-4 py-3">
-                      <span className="w-6 h-6 rounded-full bg-accent-light text-accent text-sm font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold text-primary truncate">{p.producto}</p>
-                        <p className="text-xs text-primary-muted">{formatNumber(p.unidades)} ud.</p>
-                      </div>
-                      <span className="font-bold text-base text-success shrink-0">{formatCOP(p.ingresos)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
-          {/* Tab: Canales */}
-          {tab === 'canales' && (
-            <div className="card p-0 overflow-hidden">
-              <div className="px-4 py-3 border-b border-border">
-                <h3 className="text-base font-bold text-primary">Ventas por canal — {MESES[filtroMes - 1]} {anio}</h3>
-              </div>
-              {canales.length === 0 ? (
-                <div className="px-4 py-12 text-center text-base text-primary-muted">Sin datos en este período</div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {canales.map((c, i) => (
-                    <div key={i} className="flex items-center gap-3 px-4 py-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold text-primary truncate">{c.canal ?? 'Sin canal'}</p>
-                        <p className="text-xs text-primary-muted">
-                          {formatNumber(c.cantidad)} ventas
-                          {c.comisiones > 0 && ` · comisiones ${formatCOP(c.comisiones)}`}
-                        </p>
-                      </div>
-                      <span className="font-bold text-base text-success shrink-0">{formatCOP(c.total)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
     </div>

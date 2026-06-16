@@ -112,8 +112,9 @@ export default function VentaDetalle({
   }
 
   const items = venta.items ?? []
+  const fleteMarca    = Math.max(0, (venta.costo_envio_real ?? 0) - (venta.costo_envio ?? 0))
   const utilidadTotal = items.reduce((s: number, it: any) =>
-    s + (it.utilidad_item ?? 0), 0)
+    s + (it.utilidad_item ?? 0), 0) - fleteMarca
 
   return (
     <div className="flex flex-col gap-5 max-h-[80vh] overflow-y-auto pr-1">
@@ -252,6 +253,13 @@ export default function VentaDetalle({
         )}
         {venta.costo_envio > 0 && (
           <FinRow label="Envío cobrado" value={formatCOP(venta.costo_envio)} />
+        )}
+        {fleteMarca > 0 && (
+          <FinRow
+            label="Envío asumido por marca"
+            value={`-${formatCOP(fleteMarca)}`}
+            className="text-danger"
+          />
         )}
         {venta.comision_canal > 0 && (
           <FinRow

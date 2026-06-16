@@ -98,7 +98,9 @@ export async function getVentas(anio: number, mes: number) {
        v.*,
        c.nombre  AS canal_nombre,
        mp.nombre AS medio_pago_nombre,
-       COALESCE((SELECT SUM(vi.utilidad_item) FROM venta_items vi WHERE vi.venta_id = v.id), 0) AS utilidad_total
+       MAX(0, COALESCE(v.costo_envio_real, 0) - COALESCE(v.costo_envio, 0)) AS flete_marca,
+       COALESCE((SELECT SUM(vi.utilidad_item) FROM venta_items vi WHERE vi.venta_id = v.id), 0)
+         - MAX(0, COALESCE(v.costo_envio_real, 0) - COALESCE(v.costo_envio, 0)) AS utilidad_total
      FROM ventas v
      LEFT JOIN canales_venta c  ON c.id  = v.canal_id
      LEFT JOIN medios_pago   mp ON mp.id = v.medio_pago_id
@@ -154,6 +156,73 @@ export async function getVentasPorCanal(anio: number, mes: number) {
      GROUP BY v.canal_id
      ORDER BY total DESC`,
     [desde, hasta]
+  )
+}
+
+export async function getVentasPorCanalAnual(anio: number) {
+  return window.electronAPI.db.query(
+    `SELECT
+       COALESCE(c.nombre, 'Sin canal')   AS canal,
+       COUNT(v.id)                       AS cantidad,
+       COALESCE(SUM(v.total), 0)         AS total,
+       COALESCE(SUM(v.comision_canal),0) AS comisiones
+     FROM ventas v
+     LEFT JOIN canales_venta c ON c.id = v.canal_id
+     WHERE strftime('%Y', v.fecha) = ?
+       AND v.estado != 'cancelado'
+     GROUP BY v.canal_id
+     ORDER BY total DESC`,
+    [String(anio)]
+  )
+}
+
+export async function getVentasPorDepartamentoAnual(anio: number) {
+  return window.electronAPI.db.query(
+    `SELECT
+       envio_departamento                AS zona,
+       COUNT(id)                         AS cantidad,
+       COALESCE(SUM(total), 0)           AS total
+     FROM ventas
+     WHERE strftime('%Y', fecha) = ?
+       AND estado != 'cancelado'
+       AND envio_departamento IS NOT NULL
+       AND TRIM(envio_departamento) != ''
+     GROUP BY envio_departamento
+     ORDER BY total DESC`,
+    [String(anio)]
+  )
+}
+
+export async function getVentasPorCiudadAnual(anio: number) {
+  return window.electronAPI.db.query(
+    `SELECT
+       envio_ciudad                      AS zona,
+       COUNT(id)                         AS cantidad,
+       COALESCE(SUM(total), 0)           AS total
+     FROM ventas
+     WHERE strftime('%Y', fecha) = ?
+       AND estado != 'cancelado'
+       AND envio_ciudad IS NOT NULL
+       AND TRIM(envio_ciudad) != ''
+     GROUP BY envio_ciudad
+     ORDER BY total DESC`,
+    [String(anio)]
+  )
+}
+
+export async function getVentasPorMedioPagoAnual(anio: number) {
+  return window.electronAPI.db.query(
+    `SELECT
+       COALESCE(mp.nombre, 'Sin especificar') AS nombre,
+       COUNT(v.id)                            AS cantidad,
+       COALESCE(SUM(v.total), 0)              AS total
+     FROM ventas v
+     LEFT JOIN medios_pago mp ON mp.id = v.medio_pago_id
+     WHERE strftime('%Y', v.fecha) = ?
+       AND v.estado != 'cancelado'
+     GROUP BY v.medio_pago_id
+     ORDER BY total DESC`,
+    [String(anio)]
   )
 }
 
@@ -351,10 +420,6 @@ export async function getHeatmapPorDiaSemana(anio: number) {
 }
 
 export async function getHeatmapSemanaHora(anio: number) {
-  // Asegurar que la columna creado_en existe antes de consultarla
-  await window.electronAPI.db.run(`ALTER TABLE ventas ADD COLUMN creado_en TEXT`, [])
-    .catch(() => { /* ya existe, ignorar */ })
-
   return window.electronAPI.db.query<{ dow: number; hora: number; ventas: number; total: number }>(
     `SELECT
        CAST(strftime('%w', COALESCE(creado_en, fecha)) AS INTEGER) AS dow,
@@ -526,10 +591,12 @@ export async function getComparativaMeses(anio: number) {
        COALESCE(SUM(v.total), 0)                                         AS ingresos,
        COALESCE(SUM(v.comision_canal + COALESCE(v.comision_medio_pago,0)), 0) AS comisiones,
        COALESCE(SUM(CASE WHEN v.costo_envio_real > 0 THEN v.costo_envio_real ELSE v.costo_envio END), 0) AS envios,
-       COALESCE(SUM(vi_sum.total_utilidad), 0)                           AS utilidad_bruta
+       COALESCE(SUM(vi_sum.total_utilidad), 0)
+         - COALESCE(SUM(MAX(0, COALESCE(v.costo_envio_real,0) - COALESCE(v.costo_envio,0))), 0) AS utilidad_bruta,
+       COALESCE(SUM(vi_sum.total_unidades), 0)                           AS unidades
      FROM ventas v
      LEFT JOIN (
-       SELECT venta_id, SUM(utilidad_item) AS total_utilidad
+       SELECT venta_id, SUM(utilidad_item) AS total_utilidad, SUM(cantidad) AS total_unidades
        FROM venta_items GROUP BY venta_id
      ) vi_sum ON vi_sum.venta_id = v.id
      WHERE strftime('%Y', v.fecha) = ?

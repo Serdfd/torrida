@@ -57,6 +57,7 @@ interface OrdenCsvPreviewItem {
   subtotal:            number
   descuento:           number
   costo_envio:         number
+  costo_envio_real:    number
   total:               number
   items: {
     nombre_producto: string
@@ -224,12 +225,20 @@ export default function TiendaNube() {
   const [concilProcesador, setConcilProcesador]       = useState<'mercadopago' | 'bold'>('mercadopago')
   const [concilPreview,    setConcilPreview]          = useState<{transaccion_id: string; comision: number; venta_id: number | null; numero_venta: string | null}[] | null>(null)
   const [conciliando,      setConciliando]            = useState(false)
+  const [montoMinimoEnvio, setMontoMinimoEnvio]       = useState<number>(200000)
+
+  // Reasignación masiva de medio de pago
+  const [sinMedio,         setSinMedio]               = useState<{ id: number; numero_venta: string; fecha: string; total: number; medio_pago_texto: string }[]>([])
+  const [mediosFiltro,     setMediosFiltro]           = useState<{ id: number; nombre: string }[]>([])
+  const [reasignMedioId,   setReasignMedioId]         = useState<number>(0)
+  const [reasignando,      setReasignando]            = useState(false)
+  const [selectedSinMedio, setSelectedSinMedio]       = useState<Set<number>>(new Set())
 
   // ── Cargar configuración desde DB ────────────────────────────────────────
   const loadConfig = useCallback(async () => {
     const rows = await window.electronAPI.db.query<{ clave: string; valor: string }>(
       `SELECT clave, valor FROM configuracion_app
-       WHERE clave IN ('tn_store_id','tn_access_token')`
+       WHERE clave IN ('tn_store_id','tn_access_token','monto_minimo_envio_gratis')`
     )
     const cfg = Object.fromEntries(rows.map(r => [r.clave, r.valor]))
     const sid = cfg['tn_store_id']     ?? ''
@@ -237,6 +246,7 @@ export default function TiendaNube() {
     setSavedStoreId(sid); setSavedToken(tok)
     setStoreId(sid);      setToken(tok)
     setConectado(sid.trim().length > 0 && tok.trim().length > 0)
+    setMontoMinimoEnvio(Number(cfg['monto_minimo_envio_gratis']) || 0)
   }, [])
 
   useEffect(() => { loadConfig() }, [loadConfig])
@@ -277,6 +287,53 @@ export default function TiendaNube() {
       toast.success('Conexión exitosa')
     } else {
       toast.error(`Error de conexión (${res.status}). Verifica el ID y el token.`)
+    }
+  }
+
+  // ── Cargar ventas sin medio de pago ─────────────────────────────────────
+  const loadSinMedio = useCallback(async () => {
+    const [rows, medios] = await Promise.all([
+      window.electronAPI.db.query<any>(
+        `SELECT v.id, v.numero_venta, v.fecha, v.total,
+                COALESCE(v.notas, '') AS medio_pago_texto
+         FROM ventas v
+         WHERE v.medio_pago_id IS NULL
+           AND v.estado != 'cancelado'
+           AND v.tn_order_id IS NOT NULL
+         ORDER BY v.fecha DESC
+         LIMIT 200`
+      ),
+      window.electronAPI.db.query<{ id: number; nombre: string }>(
+        `SELECT id, nombre FROM medios_pago WHERE activo = 1 ORDER BY nombre`
+      ),
+    ])
+    setSinMedio(rows as any[])
+    setMediosFiltro(medios as any[])
+    if ((medios as any[]).length > 0) setReasignMedioId((medios as any[])[0].id)
+    setSelectedSinMedio(new Set((rows as any[]).map((r: any) => r.id)))
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'conciliacion') loadSinMedio()
+  }, [tab, loadSinMedio])
+
+  async function handleReasignarMedio() {
+    if (!reasignMedioId || selectedSinMedio.size === 0) return
+    setReasignando(true)
+    try {
+      const ids = [...selectedSinMedio]
+      for (const id of ids) {
+        await window.electronAPI.db.run(
+          `UPDATE ventas SET medio_pago_id = ?, updated_at = datetime('now') WHERE id = ?`,
+          [reasignMedioId, id]
+        )
+      }
+      toast.success(`Medio de pago actualizado en ${ids.length} ventas`)
+      await loadSinMedio()
+    } catch {
+      toast.error('Error al actualizar medio de pago')
+    } finally {
+      setReasignando(false)
     }
   }
 
@@ -776,7 +833,7 @@ export default function TiendaNube() {
         cliente_nombre: string; cliente_email: string; cliente_telefono: string; cliente_dni: string
         direccion: string; ciudad: string; provincia: string; medio_pago_texto: string; pago_transaccion_id: string
         guia_numero: string; transportadora_texto: string
-        subtotal: number; descuento: number; costo_envio: number; total: number
+        subtotal: number; descuento: number; costo_envio: number; costo_envio_real: number; total: number
         tn_order_id: string
         items: { nombre_producto: string; talla: string; precio: number; cantidad: number }[]
       }
@@ -827,10 +884,11 @@ export default function TiendaNube() {
             pago_transaccion_id: cleanTransId,
             guia_numero:         guia_numero,
             transportadora_texto: transportadora_texto,
-            subtotal:    parsePrecioTN(iSubtotal   >= 0 ? (row[iSubtotal]   ?? '0') : '0'),
-            descuento:   parsePrecioTN(iDescuento  >= 0 ? (row[iDescuento]  ?? '0') : '0'),
-            costo_envio: parsePrecioTN(iCostoEnvio >= 0 ? (row[iCostoEnvio] ?? '0') : '0'),
-            total:       parsePrecioTN(iTotal      >= 0 ? (row[iTotal]      ?? '0') : '0'),
+            subtotal:         parsePrecioTN(iSubtotal   >= 0 ? (row[iSubtotal]   ?? '0') : '0'),
+            descuento:        parsePrecioTN(iDescuento  >= 0 ? (row[iDescuento]  ?? '0') : '0'),
+            costo_envio:      parsePrecioTN(iCostoEnvio >= 0 ? (row[iCostoEnvio] ?? '0') : '0'),
+            costo_envio_real: parsePrecioTN(iCostoEnvio >= 0 ? (row[iCostoEnvio] ?? '0') : '0'),
+            total:            parsePrecioTN(iTotal      >= 0 ? (row[iTotal]      ?? '0') : '0'),
             tn_order_id: iTnOrderId  >= 0 ? (row[iTnOrderId]  ?? '').trim() : numOrden,
             items: [],
           })
@@ -962,6 +1020,13 @@ export default function TiendaNube() {
     })
   }
 
+  function handleSetCostoEnvioReal(ordenIdx: number, val: number) {
+    setOrdenCsvPreview(prev => {
+      if (!prev) return prev
+      return prev.map((o, i) => i === ordenIdx ? { ...o, costo_envio_real: val } : o)
+    })
+  }
+
   async function handleOrdenCsvConfirm() {
     if (!ordenCsvPreview) return
     const nuevas = ordenCsvPreview.filter(o => o.estado_import === 'nuevo')
@@ -984,12 +1049,20 @@ export default function TiendaNube() {
     try {
       for (const orden of nuevas) {
         try {
-          // Match medio de pago
+          // Match medio de pago — primero substring, luego palabras individuales
           const medioPagoTextoLower = orden.medio_pago_texto.toLowerCase()
-          const medioMatch = mediosPago.find(m =>
-            medioPagoTextoLower.includes(m.nombre.toLowerCase()) ||
-            m.nombre.toLowerCase().includes(medioPagoTextoLower)
-          )
+          const palabrasTexto = medioPagoTextoLower.split(/\s+|\/|,/).filter(w => w.length > 3)
+          const medioMatch = mediosPago.find(m => {
+            const nombreLower = m.nombre.toLowerCase()
+            const palabrasNombre = nombreLower.split(/\s+|\/|,/).filter(w => w.length > 3)
+            // match directo
+            if (medioPagoTextoLower.includes(nombreLower) || nombreLower.includes(medioPagoTextoLower)) return true
+            // match por cualquier palabra del catálogo que aparezca en el texto del CSV
+            if (palabrasNombre.some(w => medioPagoTextoLower.includes(w))) return true
+            // match por cualquier palabra del CSV que aparezca en el nombre del catálogo
+            if (palabrasTexto.some(w => nombreLower.includes(w))) return true
+            return false
+          })
           const medioId = medioMatch?.id ?? null
 
           // Match transportadora
@@ -1043,7 +1116,7 @@ export default function TiendaNube() {
              clienteId, orden.cliente_nombre || null, orden.cliente_telefono || null,
              emailClean, dniClean,
              orden.subtotal, orden.descuento,
-             orden.costo_envio, orden.costo_envio,
+             orden.costo_envio, orden.costo_envio_real,
              orden.direccion || null, orden.ciudad || null, orden.provincia || null,
              transportadoraId, orden.guia_numero || null,
              orden.pago_transaccion_id || null, orden.tn_order_id || null,
@@ -1756,6 +1829,7 @@ export default function TiendaNube() {
                       <th className="th text-left px-3 py-2">Cliente</th>
                       <th className="th text-left px-3 py-2">Productos</th>
                       <th className="th text-right px-3 py-2">Total</th>
+                      <th className="th text-right px-3 py-2">Envío marca</th>
                       <th className="th text-left px-3 py-2">Estado</th>
                     </tr>
                   </thead>
@@ -1792,6 +1866,22 @@ export default function TiendaNube() {
                           ))}
                         </td>
                         <td className="px-3 py-2 text-right text-sm font-bold">{formatCOP(o.total)}</td>
+                        <td className="px-3 py-2 text-right">
+                          {o.costo_envio === 0 ? (
+                            <input
+                              type="number"
+                              min={0}
+                              step={1000}
+                              value={o.costo_envio_real || ''}
+                              placeholder="0"
+                              onChange={e => handleSetCostoEnvioReal(i, Number(e.target.value) || 0)}
+                              className="input h-7 text-xs py-0 w-28 text-right"
+                              title="Costo real del envío asumido por la marca"
+                            />
+                          ) : (
+                            <span className="text-sm text-primary-muted">{formatCOP(o.costo_envio)}</span>
+                          )}
+                        </td>
                         <td className="px-3 py-2">
                           {o.estado_import === 'nuevo' && (
                             <span className="badge bg-success/10 text-success border-success/20 text-xs">Nueva</span>
@@ -2000,6 +2090,80 @@ export default function TiendaNube() {
                     : `Actualizar ${concilPreview.filter(c => c.venta_id).length} ventas`
                   }
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Reasignación masiva de medio de pago ── */}
+          {sinMedio.length > 0 && (
+            <div className="card flex flex-col gap-4">
+              <div>
+                <p className="text-base font-semibold text-primary">Ventas sin medio de pago ({sinMedio.length})</p>
+                <p className="text-sm text-primary-muted mt-0.5">
+                  Estas ventas importadas desde TN no pudieron asociar un medio de pago automáticamente.
+                  Selecciona las que quieras corregir y asígnales un medio.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="input-label mb-0">Asignar medio de pago:</span>
+                <select
+                  value={reasignMedioId}
+                  onChange={e => setReasignMedioId(Number(e.target.value))}
+                  className="input h-9 text-base w-[220px]"
+                >
+                  {mediosFiltro.map(m => (
+                    <option key={m.id} value={m.id}>{m.nombre}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleReasignarMedio}
+                  disabled={reasignando || selectedSinMedio.size === 0}
+                  className="btn-primary"
+                >
+                  {reasignando ? <><Spinner size="sm" /> Guardando…</> : `Actualizar ${selectedSinMedio.size} ventas`}
+                </button>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="table w-full">
+                  <thead>
+                    <tr>
+                      <th className="w-8">
+                        <input
+                          type="checkbox"
+                          checked={selectedSinMedio.size === sinMedio.length}
+                          onChange={e => setSelectedSinMedio(e.target.checked ? new Set(sinMedio.map(r => r.id)) : new Set())}
+                          className="accent-accent"
+                        />
+                      </th>
+                      <th>Orden</th>
+                      <th>Fecha</th>
+                      <th className="text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sinMedio.map(v => (
+                      <tr key={v.id}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedSinMedio.has(v.id)}
+                            onChange={e => {
+                              const next = new Set(selectedSinMedio)
+                              e.target.checked ? next.add(v.id) : next.delete(v.id)
+                              setSelectedSinMedio(next)
+                            }}
+                            className="accent-accent"
+                          />
+                        </td>
+                        <td className="font-medium text-primary">{v.numero_venta}</td>
+                        <td className="text-primary-muted">{v.fecha}</td>
+                        <td className="text-right font-semibold text-primary">{formatCOP(v.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

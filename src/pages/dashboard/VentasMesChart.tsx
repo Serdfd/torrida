@@ -19,9 +19,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <p className="text-md font-bold text-accent">
         {formatCOP(payload[0]?.value ?? 0)}
       </p>
-      <p className="text-sm text-primary-muted">
-        {payload[1]?.value ?? 0} ventas
-      </p>
+
     </div>
   )
 }
@@ -43,10 +41,6 @@ export default function VentasMesChart({ data }: VentasMesChartProps) {
             <stop offset="5%"  stopColor="#7C6AF7" stopOpacity={0.25} />
             <stop offset="95%" stopColor="#7C6AF7" stopOpacity={0}    />
           </linearGradient>
-          <linearGradient id="gradCantidad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor="#34D399" stopOpacity={0.2} />
-            <stop offset="95%" stopColor="#34D399" stopOpacity={0}   />
-          </linearGradient>
         </defs>
 
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -58,7 +52,6 @@ export default function VentasMesChart({ data }: VentasMesChartProps) {
         />
 
         <YAxis
-          yAxisId="ingresos"
           orientation="left"
           tick={{ fill: '#6B6B8A', fontSize: 11 }}
           axisLine={false} tickLine={false}
@@ -70,18 +63,11 @@ export default function VentasMesChart({ data }: VentasMesChartProps) {
           width={52}
         />
 
-        <YAxis
-          yAxisId="cantidad"
-          orientation="right"
-          tick={{ fill: '#6B6B8A', fontSize: 11 }}
-          axisLine={false} tickLine={false}
-          width={32}
-        />
+
 
         <Tooltip content={<CustomTooltip />} />
 
         <Area
-          yAxisId="ingresos"
           type="monotone"
           dataKey="ingresos"
           name="Ingresos"
@@ -92,18 +78,7 @@ export default function VentasMesChart({ data }: VentasMesChartProps) {
           activeDot={{ r: 5, fill: '#7C6AF7', strokeWidth: 0 }}
         />
 
-        <Area
-          yAxisId="cantidad"
-          type="monotone"
-          dataKey="cantidad"
-          name="Ventas"
-          stroke="#34D399"
-          strokeWidth={2}
-          fill="url(#gradCantidad)"
-          dot={false}
-          activeDot={{ r: 4, fill: '#34D399', strokeWidth: 0 }}
-          strokeDasharray="4 3"
-        />
+
       </AreaChart>
     </ResponsiveContainer>
   )

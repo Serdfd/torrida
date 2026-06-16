@@ -48,6 +48,7 @@ export default function CierreMensual() {
     gastos:            number
     utilidad_bruta:    number
     envios:            number
+    flete_marca:       number
     utilidad:          number
     unidades:          number
     devoluciones:      number
@@ -65,7 +66,7 @@ export default function CierreMensual() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [kpis, totalGastos, cierreExist, configRows, itemsRow] = await Promise.all([
+      const [kpis, totalGastos, cierreExist, configRows, itemsRow, enviosRow, fleteRow] = await Promise.all([
         getDashboardKpis(filtroAnio, filtroMes),
         getTotalGastos(filtroAnio, filtroMes),
         getCierreMensual(filtroAnio, filtroMes),
@@ -73,16 +74,28 @@ export default function CierreMensual() {
           `SELECT clave, valor FROM configuracion_app
            WHERE clave IN ('nombre_socia_a','nombre_socia_b')`
         ),
-        window.electronAPI.db.query<{ utilidad_bruta: number; envios: number }>(
-          `SELECT
-             COALESCE(SUM(vi.utilidad_item), 0) AS utilidad_bruta,
-             COALESCE(SUM(CASE WHEN v.costo_envio_real > 0
-                              THEN v.costo_envio_real
-                              ELSE v.costo_envio END), 0) AS envios
+        window.electronAPI.db.query<{ utilidad_bruta: number }>(
+          `SELECT COALESCE(SUM(vi.utilidad_item), 0) AS utilidad_bruta
            FROM venta_items vi
            JOIN ventas v ON v.id = vi.venta_id
            WHERE strftime('%Y-%m', v.fecha) = ?
              AND v.estado != 'cancelado'`,
+          [`${filtroAnio}-${String(filtroMes).padStart(2, '0')}`]
+        ),
+        window.electronAPI.db.query<{ envios: number }>(
+          `SELECT COALESCE(SUM(CASE WHEN costo_envio_real > 0
+                                    THEN costo_envio_real
+                                    ELSE costo_envio END), 0) AS envios
+           FROM ventas
+           WHERE strftime('%Y-%m', fecha) = ?
+             AND estado != 'cancelado'`,
+          [`${filtroAnio}-${String(filtroMes).padStart(2, '0')}`]
+        ),
+        window.electronAPI.db.query<{ flete_marca: number }>(
+          `SELECT COALESCE(SUM(MAX(0, COALESCE(costo_envio_real, 0) - COALESCE(costo_envio, 0))), 0) AS flete_marca
+           FROM ventas
+           WHERE strftime('%Y-%m', fecha) = ?
+             AND estado != 'cancelado'`,
           [`${filtroAnio}-${String(filtroMes).padStart(2, '0')}`]
         )
       ])
@@ -92,13 +105,15 @@ export default function CierreMensual() {
       setNombreSociaB(configMap['nombre_socia_b'] ?? 'Socia B')
 
       const utilidadBruta = itemsRow[0]?.utilidad_bruta ?? 0
-      const envios        = itemsRow[0]?.envios         ?? 0
-      const utilidad      = utilidadBruta - totalGastos
+      const envios        = enviosRow[0]?.envios          ?? 0
+      const fleteMarca    = fleteRow[0]?.flete_marca    ?? 0
+      const utilidad      = utilidadBruta - fleteMarca - totalGastos
       setResumen({
         ingresos:          kpis.ingresos_mes,
         gastos:            totalGastos,
         utilidad_bruta:    utilidadBruta,
         envios,
+        flete_marca:       fleteMarca,
         utilidad,
         unidades:          kpis.unidades_vendidas,
         devoluciones:      kpis.devoluciones,
@@ -373,6 +388,14 @@ export default function CierreMensual() {
             color="text-success"
             sign="="
           />
+          {(resumen?.flete_marca ?? 0) > 0 && (
+            <FinancialRow
+              label="Envíos asumidos por marca"
+              value={resumen?.flete_marca ?? 0}
+              color="text-danger"
+              sign="-"
+            />
+          )}
           <FinancialRow
             label="Gastos operativos"
             value={resumen?.gastos ?? 0}

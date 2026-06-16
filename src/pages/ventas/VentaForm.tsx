@@ -77,6 +77,7 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   const [tarifas,           setTarifas]           = useState<Tarifa[]>([])
   const [selectedTarifaId,  setSelectedTarifaId]  = useState<number>(0)
   const [comisionMPGuardada, setComisionMPGuardada] = useState<number>(0)
+  const [montoMinimoEnvio,  setMontoMinimoEnvio]  = useState<number>(200000)
 
   const loadedProds = useRef<Set<number>>(new Set())
 
@@ -113,13 +114,14 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
 
   const watchItems      = watch('items')
-  const watchDescuento  = watch('descuento')
-  const watchEnvio      = watch('costo_envio')
-  const watchCanalId    = watch('canal_id')
-  const watchMedioId    = watch('medio_pago_id')
-  const watchTipoEnvio  = watch('tipo_envio')
-  const watchEnvioDep   = watch('envio_departamento')
-  const watchEnvioCiud  = watch('envio_ciudad')
+  const watchDescuento       = watch('descuento')
+  const watchEnvio           = watch('costo_envio')
+  const watchCostoEnvioReal  = watch('costo_envio_real')
+  const watchCanalId         = watch('canal_id')
+  const watchMedioId         = watch('medio_pago_id')
+  const watchTipoEnvio       = watch('tipo_envio')
+  const watchEnvioDep        = watch('envio_departamento')
+  const watchEnvioCiud       = watch('envio_ciudad')
 
   const canalSelec  = canales.find(c => c.id === Number(watchCanalId))
   const pctComision = canalSelec?.comision_pct ?? 0
@@ -154,6 +156,14 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
 
   const totalUtilidad = itemsCalc.reduce((s, c) => s + c.utilidadItem, 0)
 
+  // Flete absorbido por la marca (Option B — no toca utilidad_item en BD)
+  const fleteMarca = Math.max(0, (Number(watchCostoEnvioReal) || 0) - envio)
+
+  // Envío gratis para el cliente cuando supera el monto mínimo (la marca asume el costo real)
+  const envioGratisMarca = watchTipoEnvio === 'standard'
+    && montoMinimoEnvio > 0
+    && subtotalItems >= montoMinimoEnvio
+
   // Limpiar campos de envío cuando se selecciona recogida
   useEffect(() => {
     if (watchTipoEnvio === 'recogida') {
@@ -167,6 +177,11 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
       setValue('envio_pendiente', 0)
     }
   }, [watchTipoEnvio]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Forzar costo_envio = 0 cuando la marca asume el envío por superar el monto mínimo
+  useEffect(() => {
+    if (envioGratisMarca) setValue('costo_envio', 0)
+  }, [envioGratisMarca]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cargar tarifas cuando cambia el medio de pago
   useEffect(() => {
@@ -204,13 +219,41 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
   useEffect(() => {
     async function loadCatalog() {
       try {
-        const [c, m, p, tr] = await Promise.all([
+        const [c, m, p, tr, configRows] = await Promise.all([
           getCanalesVenta(), getMediosPago(), getProductos(),
           window.electronAPI.db.query<any>(
             `SELECT * FROM transportadoras WHERE activa = 1 ORDER BY nombre`
-          )
+          ),
+          window.electronAPI.db.query<{ valor: string }>(
+            `SELECT valor FROM configuracion_app WHERE clave = 'monto_minimo_envio_gratis' LIMIT 1`
+          ),
         ])
-        setCanales(c); setMedios(m); setProductos(p); setTransportadoras(tr)
+
+        // Si es edición, incluir productos inactivos que ya están en la venta
+        let productosFinales = p as any[]
+        if (ventaId) {
+          const items = await window.electronAPI.db.query<{ producto_id: number }>(
+            `SELECT DISTINCT producto_id FROM venta_items WHERE venta_id = ?`, [ventaId]
+          )
+          const idsEnVenta = (items as any[]).map((i: any) => i.producto_id)
+          const idsActivos = new Set(productosFinales.map((pr: any) => pr.id))
+          const faltantes  = idsEnVenta.filter((id: number) => !idsActivos.has(id))
+          if (faltantes.length > 0) {
+            const extra = await window.electronAPI.db.query<any>(
+              `SELECT p.*, c.nombre AS coleccion_nombre,
+                      COALESCE(fc.costo_total, p.costo_unitario, 0) AS costo_unitario
+               FROM productos p
+               LEFT JOIN colecciones c ON c.id = p.coleccion_id
+               LEFT JOIN fichas_costo fc ON fc.producto_id = p.id AND fc.vigente = 1
+               WHERE p.id IN (${faltantes.map(() => '?').join(',')})`,
+              faltantes
+            )
+            productosFinales = [...productosFinales, ...(extra as any[])]
+          }
+        }
+
+        setCanales(c); setMedios(m); setProductos(productosFinales); setTransportadoras(tr)
+        if (configRows.length > 0) setMontoMinimoEnvio(Number(configRows[0].valor) || 0)
         if (c.length > 0) setValue('canal_id', c[0].id)
         if (m.length > 0) setValue('medio_pago_id', m[0].id)
       } catch {
@@ -346,7 +389,9 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
       const comFinal    = (subtFinal + envioFinal) * (pctComision / 100)
       const totalFinal  = subtFinal - descFinal + envioFinal
       const tarifaSnap  = tarifas.find(t => t.id === selectedTarifaId)
-      const comMPFinal  = tarifaSnap ? totalFinal * (tarifaSnap.comision_pct / 100) + tarifaSnap.comision_fija : 0
+      const comMPFinal  = tarifaSnap
+        ? totalFinal * (tarifaSnap.comision_pct / 100) + tarifaSnap.comision_fija
+        : (isEditing ? comisionMPGuardada : 0)  // preservar comisión conciliada al editar
       const tarifaIdSnap    = tarifaSnap?.id ?? null
       const tarifaConcepto  = tarifaSnap?.concepto ?? null
       const creadoEn    = `${data.fecha} ${data.hora ?? '00:00'}:00`
@@ -789,15 +834,25 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
             </div>
           </div>
 
-          <div className={`grid gap-3 ${watchTipoEnvio === 'express' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`grid gap-3 ${watchTipoEnvio === 'express' || envioGratisMarca ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <div>
               <label className="input-label">Costo envío cobrado al cliente</label>
-              <input type="number" min={0} step="0.01" className="input"
-                {...register('costo_envio', { valueAsNumber: true })} />
+              {envioGratisMarca ? (
+                <div className="input flex items-center gap-2 text-success cursor-default select-none">
+                  <span className="font-semibold">$0</span>
+                  <span className="text-xs text-success/70">Envío gratis (compra ≥ {new Intl.NumberFormat('es-CO').format(montoMinimoEnvio)})</span>
+                </div>
+              ) : (
+                <input type="number" min={0} step="0.01" className="input"
+                  {...register('costo_envio', { valueAsNumber: true })} />
+              )}
             </div>
-            {watchTipoEnvio === 'express' && (
+            {(watchTipoEnvio === 'express' || envioGratisMarca) && (
               <div>
-                <label className="input-label">Costo envío real (mensajería)</label>
+                <label className="input-label">
+                  Costo real del envío
+                  {envioGratisMarca && <span className="text-warning font-normal normal-case ml-1">(la marca lo asume)</span>}
+                </label>
                 <input type="number" min={0} step="0.01" className="input"
                   {...register('costo_envio_real', { valueAsNumber: true })} />
               </div>
@@ -859,8 +914,16 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
               <span>-{formatCOP(comisionMPGuardada)}</span>
             </div>
           )}
-          <div className={`flex justify-between text-base font-semibold ${totalUtilidad >= 0 ? 'text-success' : 'text-danger'}`}>
-            <span>Utilidad estimada</span><span>{formatCOP(totalUtilidad)}</span>
+          {fleteMarca > 0 && (
+            <div className="flex justify-between text-base text-danger">
+              <span>Envío asumido por marca</span>
+              <span>-{formatCOP(fleteMarca)}</span>
+            </div>
+          )}
+          <div className={`flex justify-between text-base font-semibold ${
+            (totalUtilidad - fleteMarca) >= 0 ? 'text-success' : 'text-danger'
+          }`}>
+            <span>Utilidad estimada</span><span>{formatCOP(totalUtilidad - fleteMarca)}</span>
           </div>
           <div className="border-t border-border mt-1 pt-1.5 flex justify-between">
             <span className="text-md font-bold text-primary">Total</span>

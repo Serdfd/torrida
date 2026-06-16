@@ -57,8 +57,13 @@ export default function VentaFila({ venta, onClick, onEditar, onEliminar }: Vent
       </td>
 
       {/* Envío */}
-      <td className="text-right text-base whitespace-nowrap text-primary-muted">
-        {(venta.costo_envio ?? 0) > 0 ? formatCOP(venta.costo_envio) : <span>—</span>}
+      <td className="text-right text-base whitespace-nowrap">
+        {(venta.costo_envio ?? 0) > 0
+          ? <span className="text-primary-muted">{formatCOP(venta.costo_envio)}</span>
+          : (venta.flete_marca ?? 0) > 0
+            ? <span className="text-warning" title="Envío asumido por la marca">-{formatCOP(venta.flete_marca)}</span>
+            : <span className="text-primary-muted">—</span>
+        }
       </td>
 
       {/* Comisión */}
