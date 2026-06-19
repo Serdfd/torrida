@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
-import { DollarSign, Plus, History, ChevronDown, ChevronRight, Check, X, TrendingUp, TrendingDown } from 'lucide-react'
+import { DollarSign, Plus, History, ChevronDown, ChevronRight, Check, X, TrendingUp, TrendingDown, Trash2 } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
+import ComboSelect from '@/components/ui/ComboSelect'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
@@ -22,12 +23,25 @@ interface FichaCosto {
   created_at:            string
 }
 
+interface InsumoItem {
+  _key:        number        // local key para React
+  insumo_id:   number | null // null = fila libre (otros costos)
+  nombre:      string
+  cantidad:    string
+  precio:      string        // precio_unitario_snap editable
+}
+
+interface InsumosCatalog {
+  id:             number
+  nombre:         string
+  unidad:         string
+  precio_ultimo:  number   // último lote
+}
+
 interface FormState {
   costo_confeccion:      string
   costo_tela:            string
-  costo_insumos_total:   string
   costo_foto:            string
-  otros_costos:          string
   precio_venta_sugerido: string
   margen_objetivo_pct:   string
   notas:                 string
@@ -36,13 +50,14 @@ interface FormState {
 const EMPTY_FORM: FormState = {
   costo_confeccion:      '',
   costo_tela:            '',
-  costo_insumos_total:   '',
   costo_foto:            '',
-  otros_costos:          '',
   precio_venta_sugerido: '',
   margen_objetivo_pct:   '',
   notas:                 '',
 }
+
+let _nextKey = 1
+function nextKey() { return _nextKey++ }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -55,9 +70,11 @@ const fmtPct = (n: number) => `${n.toFixed(1)}%`
 
 function num(s: string): number { return parseFloat(s) || 0 }
 
-function calcCostoTotal(f: FormState): number {
+function calcCostoTotal(f: FormState, insumos: InsumoItem[], otros: InsumoItem[]): number {
+  const totalInsumos = insumos.reduce((s, i) => s + num(i.cantidad) * num(i.precio), 0)
+  const totalOtros   = otros.reduce((s, i) => s + num(i.precio), 0)
   return num(f.costo_confeccion) + num(f.costo_tela) +
-         num(f.costo_insumos_total) + num(f.costo_foto) + num(f.otros_costos)
+         totalInsumos + num(f.costo_foto) + totalOtros
 }
 
 function calcMargenReal(precioVenta: number, costoTotal: number): number {
@@ -128,12 +145,20 @@ export default function FichaCostoPanel({
   const [costoFotoSugerido,       setCostoFotoSugerido]       = useState(0)
   const [costoConfeccionSugerido, setCostoConfeccionSugerido] = useState(0)
 
+  // Catálogo de insumos disponibles
+  const [insumosCatalog, setInsumosCatalog] = useState<InsumosCatalog[]>([])
+
+  // Filas de insumos del catálogo (con insumo_id)
+  const [insumoItems, setInsumoItems] = useState<InsumoItem[]>([])
+  // Filas de otros costos libres (insumo_id = null)
+  const [otrosItems,  setOtrosItems]  = useState<InsumoItem[]>([])
+
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
 
   const loadFicha = useCallback(async () => {
     setLoading(true)
     try {
-      const [vigentes, history, sesionRows, ordenRows] = await Promise.all([
+      const [vigentes, history, sesionRows, ordenRows, catalogRows] = await Promise.all([
         window.electronAPI.db.query(
           `SELECT * FROM fichas_costo WHERE producto_id=? AND vigente=1 LIMIT 1`,
           [productoId]
@@ -151,8 +176,8 @@ export default function FichaCostoPanel({
            LIMIT 1`,
           [productoId]
         ),
-        window.electronAPI.db.query<{ costo_unitario: number; cantidad_total: number }>(
-          `SELECT opi.costo_unitario, opi.cantidad_total
+        window.electronAPI.db.query<{ costo_unitario: number }>(
+          `SELECT opi.costo_unitario
            FROM ordenes_produccion_items opi
            JOIN ordenes_produccion op ON op.id = opi.orden_id
            WHERE opi.producto_id = ?
@@ -162,14 +187,61 @@ export default function FichaCostoPanel({
            LIMIT 1`,
           [productoId]
         ),
+        // Catálogo de insumos con precio del último lote
+        window.electronAPI.db.query<InsumosCatalog>(
+          `SELECT i.id, i.nombre, i.unidad,
+                  COALESCE((
+                    SELECT il.precio_unitario FROM insumo_lotes il
+                    WHERE il.insumo_id = i.id ORDER BY il.id DESC LIMIT 1
+                  ), 0) AS precio_ultimo
+           FROM insumos i
+           WHERE i.activo = 1
+           ORDER BY i.nombre ASC`,
+          []
+        ),
       ])
+
       const current = (vigentes as unknown as FichaCosto[])[0] ?? null
       setFicha(current)
       setHistorial(history as unknown as FichaCosto[])
-      const sugerido = sesionRows[0]?.costo_foto_calculado ?? 0
-      setCostoFotoSugerido(sugerido)
-      const ordenRow = (ordenRows as unknown as { costo_unitario: number }[])[0]
-      setCostoConfeccionSugerido(ordenRow?.costo_unitario ?? 0)
+      setCostoFotoSugerido(sesionRows[0]?.costo_foto_calculado ?? 0)
+      setCostoConfeccionSugerido((ordenRows as any[])[0]?.costo_unitario ?? 0)
+      setInsumosCatalog(catalogRows as unknown as InsumosCatalog[])
+
+      // Cargar desglose de insumos de la ficha vigente
+      if (current) {
+        const detalles = await window.electronAPI.db.query<{
+          insumo_id: number | null
+          descripcion: string | null
+          cantidad: number
+          precio_unitario_snap: number
+        }>(
+          `SELECT insumo_id, descripcion, cantidad, precio_unitario_snap
+           FROM fichas_costo_insumos WHERE ficha_id = ? ORDER BY id ASC`,
+          [current.id]
+        )
+        const rows = detalles as unknown as { insumo_id: number | null; descripcion: string | null; cantidad: number; precio_unitario_snap: number }[]
+        // Separar insumos de catálogo vs libres
+        const catRows = rows.filter(r => r.insumo_id !== null)
+        const libRows = rows.filter(r => r.insumo_id === null)
+        setInsumoItems(catRows.map(r => ({
+          _key:      nextKey(),
+          insumo_id: r.insumo_id,
+          nombre:    (catalogRows as unknown as InsumosCatalog[]).find(c => c.id === r.insumo_id)?.nombre ?? `Insumo #${r.insumo_id}`,
+          cantidad:  r.cantidad.toString(),
+          precio:    r.precio_unitario_snap.toString(),
+        })))
+        setOtrosItems(libRows.map(r => ({
+          _key:      nextKey(),
+          insumo_id: null,
+          nombre:    r.descripcion ?? '',
+          cantidad:  '1',
+          precio:    r.precio_unitario_snap.toString(),
+        })))
+      } else {
+        setInsumoItems([])
+        setOtrosItems([])
+      }
     } finally {
       setLoading(false)
     }
@@ -182,21 +254,22 @@ export default function FichaCostoPanel({
       setForm({
         costo_confeccion:      ficha.costo_confeccion.toString(),
         costo_tela:            ficha.costo_tela.toString(),
-        costo_insumos_total:   ficha.costo_insumos_total.toString(),
         costo_foto:            ficha.costo_foto > 0
                                  ? ficha.costo_foto.toString()
                                  : costoFotoSugerido > 0 ? costoFotoSugerido.toString() : '',
-        otros_costos:          ficha.otros_costos.toString(),
         precio_venta_sugerido: ficha.precio_venta_sugerido.toString(),
         margen_objetivo_pct:   ficha.margen_objetivo_pct.toString(),
         notas:                 ficha.notas ?? '',
       })
+      // insumoItems y otrosItems ya están cargados desde loadFicha
     } else {
       setForm({
         ...EMPTY_FORM,
         costo_confeccion: costoConfeccionSugerido > 0 ? costoConfeccionSugerido.toString() : '',
         costo_foto:       costoFotoSugerido > 0 ? costoFotoSugerido.toString() : '',
       })
+      setInsumoItems([])
+      setOtrosItems([])
     }
     setEditing(true)
   }
@@ -204,9 +277,8 @@ export default function FichaCostoPanel({
   function setF(k: keyof FormState, v: string) {
     setForm(prev => {
       const next = { ...prev, [k]: v }
-      // Auto-calcular precio sugerido cuando cambia el margen u otros costos
       if (k !== 'precio_venta_sugerido' && k !== 'notas') {
-        const ct = calcCostoTotal(next)
+        const ct = calcCostoTotal(next, insumoItems, otrosItems)
         const mp = num(next.margen_objetivo_pct)
         if (mp > 0 && mp < 100) {
           next.precio_venta_sugerido = calcPrecioSugerido(ct, mp).toFixed(0)
@@ -216,20 +288,79 @@ export default function FichaCostoPanel({
     })
   }
 
+  function recalcPrecio(newInsumos: InsumoItem[], newOtros: InsumoItem[]) {
+    setForm(prev => {
+      const mp = num(prev.margen_objetivo_pct)
+      if (mp > 0 && mp < 100) {
+        const ct = calcCostoTotal(prev, newInsumos, newOtros)
+        return { ...prev, precio_venta_sugerido: calcPrecioSugerido(ct, mp).toFixed(0) }
+      }
+      return prev
+    })
+  }
+
+  // ── Insumos del catálogo ──
+  function addInsumoFromCatalog(insumoId: string) {
+    if (!insumoId) return
+    const cat = insumosCatalog.find(c => c.id === Number(insumoId))
+    if (!cat) return
+    if (insumoItems.some(i => i.insumo_id === cat.id)) return // ya está
+    const newItems = [...insumoItems, {
+      _key:      nextKey(),
+      insumo_id: cat.id,
+      nombre:    cat.nombre,
+      cantidad:  '1',
+      precio:    cat.precio_ultimo.toString(),
+    }]
+    setInsumoItems(newItems)
+    recalcPrecio(newItems, otrosItems)
+  }
+
+  function updateInsumoItem(key: number, field: 'cantidad' | 'precio', val: string) {
+    const newItems = insumoItems.map(i => i._key === key ? { ...i, [field]: val } : i)
+    setInsumoItems(newItems)
+    recalcPrecio(newItems, otrosItems)
+  }
+
+  function removeInsumoItem(key: number) {
+    const newItems = insumoItems.filter(i => i._key !== key)
+    setInsumoItems(newItems)
+    recalcPrecio(newItems, otrosItems)
+  }
+
+  // ── Otros costos libres ──
+  function addOtroItem() {
+    const newItems = [...otrosItems, { _key: nextKey(), insumo_id: null, nombre: '', cantidad: '1', precio: '' }]
+    setOtrosItems(newItems)
+  }
+
+  function updateOtroItem(key: number, field: 'nombre' | 'precio', val: string) {
+    const newItems = otrosItems.map(i => i._key === key ? { ...i, [field]: val } : i)
+    setOtrosItems(newItems)
+    recalcPrecio(insumoItems, newItems)
+  }
+
+  function removeOtroItem(key: number) {
+    const newItems = otrosItems.filter(i => i._key !== key)
+    setOtrosItems(newItems)
+    recalcPrecio(insumoItems, newItems)
+  }
+
   async function handleSave() {
-    const costoTotal = calcCostoTotal(form)
+    const costoTotal = calcCostoTotal(form, insumoItems, otrosItems)
     if (costoTotal <= 0) {
       toast.warning('Ingresá al menos un costo')
       return
     }
+    const totalInsumos = insumoItems.reduce((s, i) => s + num(i.cantidad) * num(i.precio), 0)
+    const totalOtros   = otrosItems.reduce((s, i) => s + num(i.precio), 0)
+
     setSaving(true)
     try {
-      // Calcular nueva versión
       const nextVersion = historial.length > 0
         ? Math.max(...historial.map(f => f.version)) + 1
         : 1
 
-      // Marcar versión anterior como no vigente
       if (ficha) {
         await window.electronAPI.db.run(
           `UPDATE fichas_costo SET vigente=0 WHERE producto_id=? AND vigente=1`,
@@ -237,8 +368,7 @@ export default function FichaCostoPanel({
         )
       }
 
-      // Crear nueva versión vigente
-      await window.electronAPI.db.run(
+      const result = await window.electronAPI.db.run(
         `INSERT INTO fichas_costo
            (producto_id, version, vigente,
             costo_confeccion, costo_tela, costo_insumos_total,
@@ -246,19 +376,43 @@ export default function FichaCostoPanel({
             precio_venta_sugerido, margen_objetivo_pct, notas)
          VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          productoId,
-          nextVersion,
+          productoId, nextVersion,
           num(form.costo_confeccion),
           num(form.costo_tela),
-          num(form.costo_insumos_total),
+          totalInsumos,
           num(form.costo_foto),
-          num(form.otros_costos),
+          totalOtros,
           costoTotal,
           num(form.precio_venta_sugerido),
           num(form.margen_objetivo_pct),
           form.notas.trim() || null,
         ]
       )
+
+      const fichaId = (result as any).lastInsertRowid ?? (result as any).lastID
+
+      // Guardar desglose de insumos
+      for (const item of insumoItems) {
+        const cant  = num(item.cantidad)
+        const prec  = num(item.precio)
+        if (cant <= 0 || !item.insumo_id) continue
+        await window.electronAPI.db.run(
+          `INSERT INTO fichas_costo_insumos
+             (ficha_id, insumo_id, descripcion, cantidad, precio_unitario_snap, subtotal)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [fichaId, item.insumo_id, null, cant, prec, cant * prec]
+        )
+      }
+      for (const item of otrosItems) {
+        const prec = num(item.precio)
+        if (prec <= 0 || !item.nombre.trim()) continue
+        await window.electronAPI.db.run(
+          `INSERT INTO fichas_costo_insumos
+             (ficha_id, insumo_id, descripcion, cantidad, precio_unitario_snap, subtotal)
+           VALUES (?, NULL, ?, 1, ?, ?)`,
+          [fichaId, item.nombre.trim(), prec, prec]
+        )
+      }
 
       toast.success(`Ficha v${nextVersion} guardada`)
       setEditing(false)
@@ -271,9 +425,16 @@ export default function FichaCostoPanel({
   }
 
   // ── Cálculos derivados ────────────────────────────────────────────────────
-  const costoTotalForm   = editing ? calcCostoTotal(form) : (ficha?.costo_total ?? 0)
-  const margenReal       = calcMargenReal(precioVenta, costoTotalForm)
-  const margenBueno      = margenReal >= 40
+  const costoTotalForm = editing
+    ? calcCostoTotal(form, insumoItems, otrosItems)
+    : (ficha?.costo_total ?? 0)
+  const margenReal  = calcMargenReal(precioVenta, costoTotalForm)
+  const margenBueno = margenReal >= 40
+
+  // Insumos ya usados para excluirlos del selector
+  const insumosCatalogDisp = insumosCatalog.filter(
+    c => !insumoItems.some(i => i.insumo_id === c.id)
+  )
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -336,10 +497,7 @@ export default function FichaCostoPanel({
                 {ficha ? `Versión ${ficha.version} (vigente)` : 'Sin ficha de costo'}
               </p>
               {!editing && (
-                <button
-                  onClick={startEditing}
-                  className="btn-primary px-3"
-                >
+                <button onClick={startEditing} className="btn-primary px-3">
                   <Plus size={13} />
                   {ficha ? 'Nueva versión' : 'Crear ficha'}
                 </button>
@@ -347,15 +505,14 @@ export default function FichaCostoPanel({
             </div>
 
             {editing ? (
-              <div className="flex flex-col gap-1">
-                {/* Confección con sugerencia desde orden de producción */}
-                <div className="flex flex-col border-b border-border/40 py-1.5 gap-1">
+              <div className="flex flex-col gap-3">
+
+                {/* ── Confección ── */}
+                <div className="flex flex-col border-b border-border/40 pb-2 gap-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-primary-muted">Confección / Mano de obra</span>
                     <input
-                      type="number"
-                      min="0"
-                      step="100"
+                      type="number" min="0" step="100"
                       value={form.costo_confeccion}
                       onChange={e => setF('costo_confeccion', e.target.value)}
                       placeholder="0"
@@ -378,17 +535,77 @@ export default function FichaCostoPanel({
                     </div>
                   )}
                 </div>
-                <CostoFila label="Telas / Materiales"          value={form.costo_tela}           editing onChange={v => setF('costo_tela', v)} />
-                <CostoFila label="Insumos (cierres, botones…)" value={form.costo_insumos_total}  editing onChange={v => setF('costo_insumos_total', v)} />
 
-                {/* Fotografía con sugerencia desde sesiones */}
-                <div className="flex flex-col border-b border-border/40 py-1.5 gap-1">
+                {/* ── Telas ── */}
+                <CostoFila label="Telas / Materiales" value={form.costo_tela} editing onChange={v => setF('costo_tela', v)} />
+
+                {/* ── Insumos del catálogo ── */}
+                <div className="flex flex-col gap-1.5 border-b border-border/40 pb-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-primary-muted font-medium">Insumos</span>
+                    <span className="text-sm font-semibold text-primary">
+                      {fmtCOP(insumoItems.reduce((s, i) => s + num(i.cantidad) * num(i.precio), 0))}
+                    </span>
+                  </div>
+
+                  {insumoItems.length > 0 && (
+                    <div className="flex flex-col gap-1 mt-1">
+                      {/* Header */}
+                      <div className="grid grid-cols-[1fr_80px_100px_28px] gap-1 px-1">
+                        <span className="text-2xs uppercase tracking-wide text-primary-muted/60">Insumo</span>
+                        <span className="text-2xs uppercase tracking-wide text-primary-muted/60 text-right">Cant.</span>
+                        <span className="text-2xs uppercase tracking-wide text-primary-muted/60 text-right">P. unit.</span>
+                        <span />
+                      </div>
+                      {insumoItems.map(item => (
+                        <div key={item._key} className="grid grid-cols-[1fr_80px_100px_28px] gap-1 items-center">
+                          <span className="text-sm text-primary truncate px-1">{item.nombre}</span>
+                          <input
+                            type="number" min="0.01" step="0.01"
+                            value={item.cantidad}
+                            onChange={e => updateInsumoItem(item._key, 'cantidad', e.target.value)}
+                            className="input text-right text-sm py-1 h-7"
+                          />
+                          <input
+                            type="number" min="0" step="100"
+                            value={item.precio}
+                            onChange={e => updateInsumoItem(item._key, 'precio', e.target.value)}
+                            className="input text-right text-sm py-1 h-7"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeInsumoItem(item._key)}
+                            className="text-primary-muted hover:text-danger transition-colors flex items-center justify-center"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {insumosCatalogDisp.length > 0 && (
+                    <div className="mt-1">
+                      <ComboSelect
+                        value=""
+                        onChange={addInsumoFromCatalog}
+                        options={insumosCatalogDisp.map(c => ({
+                          value: String(c.id),
+                          label: `${c.nombre} (${fmtCOP(c.precio_ultimo)}/${c.unidad})`
+                        }))}
+                        placeholder="+ Agregar insumo del catálogo…"
+                        clearable={false}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Fotografía ── */}
+                <div className="flex flex-col border-b border-border/40 pb-2 gap-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-primary-muted">Fotografía (porción)</span>
                     <input
-                      type="number"
-                      min="0"
-                      step="100"
+                      type="number" min="0" step="100"
                       value={form.costo_foto}
                       onChange={e => setF('costo_foto', e.target.value)}
                       placeholder="0"
@@ -397,9 +614,7 @@ export default function FichaCostoPanel({
                   </div>
                   {costoFotoSugerido > 0 && (
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-xs text-primary-muted/70">
-                        Sesión fotográfica sugiere:
-                      </span>
+                      <span className="text-xs text-primary-muted/70">Sesión fotográfica sugiere:</span>
                       <button
                         type="button"
                         onClick={() => setF('costo_foto', costoFotoSugerido.toString())}
@@ -412,16 +627,59 @@ export default function FichaCostoPanel({
                   )}
                 </div>
 
-                <CostoFila label="Otros costos"                value={form.otros_costos}         editing onChange={v => setF('otros_costos', v)} />
+                {/* ── Otros costos libres ── */}
+                <div className="flex flex-col gap-1.5 border-b border-border/40 pb-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-primary-muted font-medium">Otros costos</span>
+                    <span className="text-sm font-semibold text-primary">
+                      {fmtCOP(otrosItems.reduce((s, i) => s + num(i.precio), 0))}
+                    </span>
+                  </div>
 
-                {/* Separador total */}
-                <div className="flex items-center justify-between py-2 mt-1 border-t-2 border-border">
-                  <span className="text-base font-bold text-primary">Costo total calculado</span>
-                  <span className="text-md font-bold text-warning">{fmtCOP(calcCostoTotal(form))}</span>
+                  {otrosItems.map(item => (
+                    <div key={item._key} className="grid grid-cols-[1fr_100px_28px] gap-1 items-center">
+                      <input
+                        type="text"
+                        value={item.nombre}
+                        onChange={e => updateOtroItem(item._key, 'nombre', e.target.value)}
+                        placeholder="Descripción del costo…"
+                        className="input text-sm py-1 h-7"
+                      />
+                      <input
+                        type="number" min="0" step="100"
+                        value={item.precio}
+                        onChange={e => updateOtroItem(item._key, 'precio', e.target.value)}
+                        placeholder="Monto"
+                        className="input text-right text-sm py-1 h-7"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeOtroItem(item._key)}
+                        className="text-primary-muted hover:text-danger transition-colors flex items-center justify-center"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addOtroItem}
+                    className="flex items-center gap-1 text-xs text-primary-muted
+                               hover:text-primary transition-colors self-start mt-0.5"
+                  >
+                    <Plus size={12} /> Agregar otro costo
+                  </button>
                 </div>
 
-                {/* Margen y precio sugerido */}
-                <div className="grid grid-cols-2 gap-3 mt-2">
+                {/* ── Total ── */}
+                <div className="flex items-center justify-between py-1 mt-1 border-t-2 border-border">
+                  <span className="text-base font-bold text-primary">Costo total calculado</span>
+                  <span className="text-md font-bold text-warning">{fmtCOP(calcCostoTotal(form, insumoItems, otrosItems))}</span>
+                </div>
+
+                {/* ── Margen y precio ── */}
+                <div className="grid grid-cols-2 gap-3 mt-1">
                   <div className="flex flex-col gap-1">
                     <label className="input-label">Margen objetivo %</label>
                     <input
@@ -444,7 +702,7 @@ export default function FichaCostoPanel({
                   </div>
                 </div>
 
-                {/* Notas */}
+                {/* ── Notas ── */}
                 <div className="flex flex-col gap-1 mt-1">
                   <label className="input-label">Notas</label>
                   <textarea
@@ -456,39 +714,70 @@ export default function FichaCostoPanel({
                   />
                 </div>
 
-                {/* Botones */}
+                {/* ── Botones ── */}
                 <div className="flex gap-2 justify-end mt-3">
-                  <button
-                    onClick={() => setEditing(false)}
-                    className="btn-ghost"
-                    disabled={saving}
-                  >
+                  <button onClick={() => setEditing(false)} className="btn-ghost" disabled={saving}>
                     <X size={13} /> Cancelar
                   </button>
-                  <button
-                    onClick={handleSave}
-                    className="btn-primary"
-                    disabled={saving}
-                  >
+                  <button onClick={handleSave} className="btn-primary" disabled={saving}>
                     <Check size={13} />
                     {saving ? 'Guardando…' : 'Guardar versión'}
                   </button>
                 </div>
               </div>
+
             ) : ficha ? (
               <div>
-                <CostoFila label="Confección / Mano de obra"   value={ficha.costo_confeccion} />
-                <CostoFila label="Telas / Materiales"           value={ficha.costo_tela} />
-                <CostoFila label="Insumos (cierres, botones…)"  value={ficha.costo_insumos_total} />
-                <CostoFila label="Fotografía (porción)"         value={ficha.costo_foto} />
-                <CostoFila label="Otros costos"                 value={ficha.otros_costos} />
+                <CostoFila label="Confección / Mano de obra" value={ficha.costo_confeccion} />
+                <CostoFila label="Telas / Materiales"        value={ficha.costo_tela} />
+
+                {/* Insumos con desglose si existe */}
+                {insumoItems.length > 0 ? (
+                  <div className="py-1.5 border-b border-border/40">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-primary-muted">Insumos</span>
+                      <span className="text-base text-primary font-medium">{fmtCOP(ficha.costo_insumos_total)}</span>
+                    </div>
+                    {insumoItems.map(item => (
+                      <div key={item._key} className="flex justify-between text-xs text-primary-muted/70 pl-3 py-0.5">
+                        <span>{item.nombre} × {num(item.cantidad)}</span>
+                        <span>{fmtCOP(num(item.cantidad) * num(item.precio))}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <CostoFila label="Insumos" value={ficha.costo_insumos_total} />
+                )}
+
+                <CostoFila label="Fotografía (porción)" value={ficha.costo_foto} />
+
+                {/* Otros con desglose si existe */}
+                {otrosItems.length > 0 ? (
+                  <div className="py-1.5 border-b border-border/40">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-primary-muted">Otros costos</span>
+                      <span className="text-base text-primary font-medium">{fmtCOP(ficha.otros_costos)}</span>
+                    </div>
+                    {otrosItems.map(item => (
+                      <div key={item._key} className="flex justify-between text-xs text-primary-muted/70 pl-3 py-0.5">
+                        <span>{item.nombre}</span>
+                        <span>{fmtCOP(num(item.precio))}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <CostoFila label="Otros costos" value={ficha.otros_costos} />
+                )}
+
                 <div className="flex items-center justify-between py-2 mt-1 border-t-2 border-border">
                   <span className="text-base font-bold text-primary">Costo total</span>
                   <span className="text-md font-bold text-warning">{fmtCOP(ficha.costo_total)}</span>
                 </div>
                 {ficha.precio_venta_sugerido > 0 && (
                   <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-primary-muted">Precio sugerido ({fmtPct(ficha.margen_objetivo_pct)} margen)</span>
+                    <span className="text-sm text-primary-muted">
+                      Precio sugerido ({fmtPct(ficha.margen_objetivo_pct)} margen)
+                    </span>
                     <span className="text-base text-accent font-medium">{fmtCOP(ficha.precio_venta_sugerido)}</span>
                   </div>
                 )}
@@ -521,14 +810,9 @@ export default function FichaCostoPanel({
               {showHist && (
                 <div className="mt-2 flex flex-col gap-2">
                   {historial.filter(f => !f.vigente).map(f => (
-                    <div
-                      key={f.id}
-                      className="border border-border/50 rounded-xl px-4 py-3 opacity-60"
-                    >
+                    <div key={f.id} className="border border-border/50 rounded-xl px-4 py-3 opacity-60">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-primary-muted">
-                          Versión {f.version}
-                        </span>
+                        <span className="text-sm font-semibold text-primary-muted">Versión {f.version}</span>
                         <span className="text-sm text-warning">{fmtCOP(f.costo_total)}</span>
                       </div>
                       <div className="flex gap-4 mt-1 text-xs text-primary-muted/70">
@@ -551,3 +835,4 @@ export default function FichaCostoPanel({
     </div>
   )
 }
+
