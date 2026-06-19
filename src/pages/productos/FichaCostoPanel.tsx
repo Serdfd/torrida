@@ -277,8 +277,15 @@ export default function FichaCostoPanel({
   function setF(k: keyof FormState, v: string) {
     setForm(prev => {
       const next = { ...prev, [k]: v }
-      if (k !== 'precio_venta_sugerido' && k !== 'notas') {
-        const ct = calcCostoTotal(next, insumoItems, otrosItems)
+      const ct = calcCostoTotal(next, insumoItems, otrosItems)
+      if (k === 'precio_venta_sugerido') {
+        // Precio → calcula margen
+        const precio = num(v)
+        if (precio > 0 && ct > 0) {
+          next.margen_objetivo_pct = (((precio - ct) / precio) * 100).toFixed(1)
+        }
+      } else if (k !== 'notas') {
+        // Margen u otro costo → calcula precio
         const mp = num(next.margen_objetivo_pct)
         if (mp > 0 && mp < 100) {
           next.precio_venta_sugerido = calcPrecioSugerido(ct, mp).toFixed(0)
