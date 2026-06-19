@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { Plus, Trash2, Check, X, Factory, ChevronDown } from 'lucide-react'
 import { useToast } from '@/store/useAppStore'
 import { cn } from '@/lib/utils'
+import ComboSelect from '@/components/ui/ComboSelect'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
-interface Producto  { id: number; nombre: string; costo_unitario: number | null }
+interface Producto  { id: number; nombre: string; costo_unitario: number | null; activo: number }
 interface Proveedor { id: number; nombre: string }
 interface Talla     { id: number; nombre: string; orden: number }
 
@@ -54,9 +55,8 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
       try {
         const [prods, provs, tals] = await Promise.all([
           window.electronAPI.db.query(
-            `SELECT id, nombre, costo_unitario FROM productos
-             WHERE estado IN ('borrador','en_produccion','activo')
-             ORDER BY nombre`, []
+            `SELECT id, nombre, costo_unitario, activo FROM productos
+             ORDER BY activo DESC, nombre`, []
           ),
           window.electronAPI.db.query(
             `SELECT id, nombre FROM proveedores WHERE activo=1 ORDER BY nombre`, []
@@ -295,18 +295,15 @@ export default function OrdenForm({ onSuccess, onCancel }: Props) {
 
         {/* Selector agregar producto */}
         <div className="flex gap-2 mb-4">
-          <select
+          <ComboSelect
             value={prodSelector}
-            onChange={e => setProdSelector(e.target.value)}
-            className="input flex-1"
-          >
-            <option value="">Seleccioná un producto…</option>
-            {productos
+            onChange={setProdSelector}
+            options={productos
               .filter(p => !items.some(i => i.producto_id === p.id))
-              .map(p => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-          </select>
+              .map(p => ({ value: String(p.id), label: p.activo ? p.nombre : `${p.nombre} (inactivo)` }))}
+            placeholder="Seleccioná un producto…"
+            className="flex-1"
+          />
           <button
             type="button"
             onClick={handleAgregarProducto}

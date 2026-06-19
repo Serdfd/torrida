@@ -691,12 +691,12 @@ export default function VentaForm({ ventaId, onSuccess, onCancel }: VentaFormPro
                   <div className="grid grid-cols-[2fr_1fr_70px_1fr_100px_32px] gap-2 items-end">
                     <div>
                       <label className="input-label">Producto</label>
-                      <select className="input"
-                        {...register(`items.${idx}.producto_id`, { required: true, valueAsNumber: true })}
-                        onChange={e => handleProductoChange(idx, Number(e.target.value))}>
-                        <option value={0}>— Seleccionar —</option>
-                        {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                      </select>
+                      <ComboSelect
+                        value={watchItems[idx]?.producto_id > 0 ? String(watchItems[idx].producto_id) : ''}
+                        onChange={v => handleProductoChange(idx, Number(v))}
+                        options={productos.map(p => ({ value: String(p.id), label: p.nombre }))}
+                        placeholder="— Seleccionar —"
+                      />
                     </div>
                     <div>
                       <label className="input-label">

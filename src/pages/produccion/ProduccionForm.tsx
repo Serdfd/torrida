@@ -5,11 +5,13 @@ import { useToast } from '@/store/useAppStore'
 import { formatNumber } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import Spinner from '@/components/ui/Spinner'
+import ComboSelect from '@/components/ui/ComboSelect'
 
 interface Producto {
   id:             number
   nombre:         string
   costo_unitario: number | null
+  activo:         number
 }
 
 interface TallaStock {
@@ -68,10 +70,9 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
     async function load() {
       try {
         const data = await window.electronAPI.db.query<Producto>(
-          `SELECT id, nombre, costo_unitario
+          `SELECT id, nombre, costo_unitario, activo
            FROM productos
-           WHERE activo = 1
-           ORDER BY nombre ASC`
+           ORDER BY activo DESC, nombre ASC`
         )
         setProductos(data)
       } catch {
@@ -192,15 +193,15 @@ export default function ProduccionForm({ onSuccess, onCancel }: ProduccionFormPr
               No hay productos activos.
             </p>
           ) : (
-            <select
-              className="input"
-              {...register('producto_id', { required: true, valueAsNumber: true })}
-            >
-              <option value={0}>Seleccionar producto…</option>
-              {productos.map(p => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
+            <>
+              <input type="hidden" {...register('producto_id', { required: true, valueAsNumber: true })} />
+              <ComboSelect
+                value={Number(watchProductoId) > 0 ? String(watchProductoId) : ''}
+                onChange={v => setValue('producto_id', Number(v) as any, { shouldValidate: true })}
+                options={productos.map(p => ({ value: String(p.id), label: p.activo ? p.nombre : `${p.nombre} (inactivo)` }))}
+                placeholder="Seleccionar producto…"
+              />
+            </>
           )}
           {errors.producto_id && (
             <p className="text-sm text-danger mt-1">Selecciona un producto</p>

@@ -7,6 +7,7 @@ import { useToast, useModal } from '@/store/useAppStore'
 import { formatCOP } from '@/lib/utils'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import Spinner from '@/components/ui/Spinner'
+import ComboSelect from '@/components/ui/ComboSelect'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 
@@ -450,26 +451,20 @@ function SesionDetalle({
             className="flex flex-col gap-2 p-3 rounded-xl border border-accent/30 bg-accent-light/20">
             <div>
               <label className="input-label">Producto *</label>
-              <select
+              <ComboSelect
                 value={pProdId}
-                onChange={e => {
-                  setPProdId(e.target.value)
-                  if (e.target.value) {
-                    const prod = productos.find(pp => pp.id === parseInt(e.target.value))
+                onChange={v => {
+                  setPProdId(v)
+                  if (v) {
+                    const prod = productos.find(pp => pp.id === parseInt(v))
                     if (prod) setPUnidades(String(Math.max(1, Math.round(prod.stock_total))))
                   }
                 }}
-                className="input text-base"
-                autoFocus
-              >
-                <option value="">— Seleccionar —</option>
-                {productos
+                options={productos
                   .filter(p => !prods.some(pp => pp.producto_id === p.id))
-                  .map(p => (
-                    <option key={p.id} value={p.id}>{p.nombre}</option>
-                  ))
-                }
-              </select>
+                  .map(p => ({ value: String(p.id), label: p.nombre }))}
+                placeholder="— Seleccionar —"
+              />
             </div>
             <div>
               <label className="input-label">Unidades fotografiadas</label>

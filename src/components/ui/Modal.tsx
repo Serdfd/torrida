@@ -22,7 +22,8 @@ export default function Modal({
   title,
   size = 'md'
 }: ModalProps) {
-  const overlayRef = useRef<HTMLDivElement>(null)
+  const overlayRef   = useRef<HTMLDivElement>(null)
+  const mouseDownRef = useRef<EventTarget | null>(null)
 
   // Cerrar con Escape
   useEffect(() => {
@@ -39,13 +40,22 @@ export default function Modal({
     return () => { document.body.style.overflow = '' }
   }, [])
 
+  // Solo cerrar si TANTO el mousedown como el mouseup ocurrieron en el overlay
+  function handleOverlayMouseDown(e: React.MouseEvent) {
+    mouseDownRef.current = e.target
+  }
+
   function handleOverlayClick(e: React.MouseEvent) {
-    if (e.target === overlayRef.current) onClose()
+    if (e.target === overlayRef.current && mouseDownRef.current === overlayRef.current) {
+      onClose()
+    }
+    mouseDownRef.current = null
   }
 
   return (
     <div
       ref={overlayRef}
+      onMouseDown={handleOverlayMouseDown}
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 flex items-center justify-center
                  bg-black/60 backdrop-blur-sm animate-fade-in"
